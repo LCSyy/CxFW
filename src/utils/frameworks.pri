@@ -38,7 +38,12 @@ CX_PROD_DIR = $${CX_DIST_DIR}/$$CX_PLATFORM/
 INCLUDEPATH += \
     $${CX_PROD_DIR}/include/
 
-DESTDIR = $${CX_PROD_DIR}/bin/
+CONFIG(debug,debug|release) {
+    DESTDIR = $${CX_PROD_DIR}/debug/
+}
+CONFIG(release,debug|release) {
+    DESTDIR = $${CX_PROD_DIR}/release/
+}
 
 for(LIB,CXLIB_LIST) {
     CONFIG(debug,debug|release) {
