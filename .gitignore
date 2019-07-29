@@ -1,0 +1,6 @@
+# ignore all *.user files
+*.user
+*.4.8-pre1
+
+# ignore qt build path
+build-*
