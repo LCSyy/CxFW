@@ -1,0 +1,6 @@
+﻿module CxQuick
+plugin cxquick
+classname CxQuickPlugin
+MovableItem 0.1 MovableItem.qml
+ColorPicker 0.1 ColorPicker.qml
+typeinfo cxquick.qmltypes
