@@ -1,0 +1,5 @@
+{
+    "default_target_type": ["debug","release","profile"],
+    "default_platform": "qt5_12-win32-g++",
+    "cxfw_dir": "F:/Projects/git/CxFW"
+}
