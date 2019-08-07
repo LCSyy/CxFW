@@ -1,5 +1,9 @@
-#include "cxbase.h"
+﻿#include "cxbase.h"
 #include "qrcode/qrcode.h"
+
+#include "botan/version.h"
+
+#include <QDebug>
 
 namespace cx {
 
@@ -26,6 +30,11 @@ QRCode Cxbase::genQRcode(uint8_t version, uint8_t ecc, const char *data)
     buffer = nullptr;
 
     return cxCode;
+}
+
+void Cxbase::cryto()
+{
+    qDebug() << QString::fromStdString(Botan::version_string());
 }
 
 }

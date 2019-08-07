@@ -1,4 +1,4 @@
-#ifndef CXBASE_H
+﻿#ifndef CXBASE_H
 #define CXBASE_H
 
 #include "cxbase_global.h"
@@ -21,6 +21,7 @@ class CXBASESHARED_EXPORT Cxbase
 {
 public:
     QRCode genQRcode(uint8_t version, uint8_t ecc, const char *data);
+    void cryto();
 };
 
 }
