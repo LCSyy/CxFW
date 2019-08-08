@@ -20,8 +20,10 @@ struct QRCode
 class CXBASESHARED_EXPORT Cxbase
 {
 public:
-    QRCode genQRcode(uint8_t version, uint8_t ecc, const char *data);
-    void cryto();
+    static QRCode genQRcode(uint8_t version, uint8_t ecc, const char *data);
+
+    static const QString encryptText(const QString &clearText, const QString &passphrase);
+    static const QString decryptText(const QString &cryptedText, const QString &passphrase);
 };
 
 }

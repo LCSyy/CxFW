@@ -1,4 +1,4 @@
-#ifndef CXBASE_GLOBAL_H
+﻿#ifndef CXBASE_GLOBAL_H
 #define CXBASE_GLOBAL_H
 
 #include <QtCore/qglobal.h>

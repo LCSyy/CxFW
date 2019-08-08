@@ -10,6 +10,8 @@ QT       -= gui
 
 DEFINES += CXBASE_LIBRARY
 
+QMAKE_LFLAGS_SHLIB += -fstack-protector
+
 INCLUDEPATH += \
     $${PWD}/thirdparty/include/ \
     $${PWD}/embed/
