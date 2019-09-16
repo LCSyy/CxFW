@@ -1,7 +1,5 @@
-CX_TARGET_NAME = base-botan-test
-QT -= gui
-CONFIG += console
-CONFIG -= app_bundle
+CX_TARGET_NAME = quick-controls-test
+QT += quick
 # DEFINES +=
 # QML_IMPORT_PATH =
 # QML_DESIGNER_IMPORT_PATH =
@@ -10,9 +8,11 @@ CONFIG -= app_bundle
 # INCLUDEPATH += $$PWD/thirdparty/include
 # LIBS += $$PWD/thirdparty/lib/libbotan-2.a
 
-CXLIB_LIST += cxbase
+CXLIB_LIST += cxquick
 
 SOURCES += \
         main.cpp
+
+RESOURCES += qml.qrc
 
 include($$PWD/../../utils/app.pri)

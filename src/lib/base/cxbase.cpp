@@ -1,16 +1,15 @@
 ﻿#include "cxbase.h"
-#include "qrcode/qrcode.h"
-
+#include <QByteArray>
 #include <botan/system_rng.h>
 #include <botan/cryptobox.h>
+#include "qrcode/qrcode.h"
 
-#include <QByteArray>
-#include <QDebug>
 #include <iostream>
+#include <QDebug>
 
 namespace cx {
 
-QRCode Cxbase::genQRcode(uint8_t version, uint8_t ecc, const char *data)
+QRCode CxBase::genQRcode(uint8_t version, uint8_t ecc, const char *data)
 {
     ::QRCode code;
 
@@ -35,7 +34,7 @@ QRCode Cxbase::genQRcode(uint8_t version, uint8_t ecc, const char *data)
     return cxCode;
 }
 
-const QString Cxbase::encryptText(const QString &clearText, const QString &passphrase)
+const QString CxBase::encryptText(const QString &clearText, const QString &passphrase)
 {
     QByteArray ba = clearText.toUtf8();
     std::size_t cpySize = static_cast<std::size_t>(ba.size());
@@ -52,7 +51,7 @@ const QString Cxbase::encryptText(const QString &clearText, const QString &passp
     return encStr;
 }
 
-const QString Cxbase::decryptText(const QString &cryptedText, const QString &passphrase)
+const QString CxBase::decryptText(const QString &cryptedText, const QString &passphrase)
 {
     return QString::fromStdString(Botan::CryptoBox::decrypt(cryptedText.toStdString(), passphrase.toStdString()));
 }

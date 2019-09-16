@@ -5,14 +5,14 @@
 # 2.每个pro文件可用变量在文件开头注释列出
 
 # 变量：
+# CX_TARGET_NAME =
 # QT +=
-# SOURCES +=
-# HEADERS +=
+# DEFINES +=
 # QML_IMPORT_PATH =
 # QML_DESIGNER_IMPORT_PATH =
-#
-# CX_TARGET_NAME =
 # CXLIB_LIST +=
+# SOURCES +=
+# HEADERS +=
 
 # 只读变量
 # CX_FRAMEWORKS_ROOT_DIR
