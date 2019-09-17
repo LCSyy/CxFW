@@ -11,4 +11,4 @@ CONFIG -= app_bundle
 SOURCES += \
         main.cpp
 
-include($$PWD/../../utils/library.pri)
+include($$PWD/../../utils/app.pri)
