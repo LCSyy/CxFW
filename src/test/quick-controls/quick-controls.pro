@@ -8,7 +8,7 @@ QT += quick
 # INCLUDEPATH += $$PWD/thirdparty/include
 # LIBS += $$PWD/thirdparty/lib/libbotan-2.a
 
-CXLIB_LIST += cxquick
+# CXLIB_LIST += cxquick
 
 SOURCES += \
         main.cpp
