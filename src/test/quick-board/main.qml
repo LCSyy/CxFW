@@ -1,5 +1,6 @@
 ﻿import QtQuick 2.12
 import QtQuick.Window 2.12
+import QtQuick.Controls 2.12
 
 Window {
     visible: true
@@ -9,7 +10,8 @@ Window {
 
     ListView {
         id: _listView
-        anchors.fill: parent
+        width: 150
+        height: parent.height
         boundsBehavior: Flickable.StopAtBounds
 
         model: ListModel {
@@ -29,14 +31,16 @@ Window {
             }
         }
 
-        // MouseArea {
-        //     anchors.fill: parent
-        //     onClicked: {
-        //         var item = _listView.itemAt(mouse.x,mouse.y)
-        //         if(item !== null) {
-        //
-        //         }
-        //     }
-        // }
+        MouseArea {
+            anchors.fill: parent
+            onClicked: {
+                _listView.currentIndex = _listView.indexAt(mouse.x,mouse.y)
+            }
+        }
+    }
+
+    Button {
+        anchors.right: parent.right
+        text: "Hello"
     }
 }

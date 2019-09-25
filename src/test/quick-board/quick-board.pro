@@ -8,8 +8,12 @@ QT += quick
 # CXLIB_LIST +=
 
 SOURCES += \
-        main.cpp
+        main.cpp \
+        silencestyle.cpp
 
 RESOURCES += qml.qrc
 
 include($$PWD/../../utils/app.pri)
+
+HEADERS += \
+    silencestyle.h
