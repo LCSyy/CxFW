@@ -1,10 +1,10 @@
-﻿#ifndef SILENCESTYLE_H
-#define SILENCESTYLE_H
+﻿#ifndef WANDERSTYLE_H
+#define WANDERSTYLE_H
 
 #include <QObject>
 #include <QColor>
 
-class SilenceStyle : public QObject
+class WanderStyle : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(QColor background READ background CONSTANT)
@@ -12,9 +12,9 @@ class SilenceStyle : public QObject
     Q_PROPERTY(QColor focusBackground READ focusBackground CONSTANT)
     Q_PROPERTY(QColor focusForeground READ focusForeground CONSTANT)
 public:
-    explicit SilenceStyle(QObject *parent = nullptr);
+    explicit WanderStyle(QObject *parent = nullptr);
 
-    QColor background() const { return QColor("#e5e5e5"); }
+    QColor background() const { return QColor("#7AE0FA"); }
     QColor foreground() const { return QColor("black"); }
 
     QColor focusBackground() const { return QColor("#505050"); }
@@ -24,4 +24,4 @@ public slots:
 
 };
 
-#endif // SILENCESTYLE_H
+#endif // WANDERSTYLE_H

@@ -1,5 +1,5 @@
 CX_TARGET_NAME = quick-board
-QT += quick
+QT += quick quickcontrols2
 
 # DEFINES +=
 # CONFIG +=
@@ -9,11 +9,13 @@ QT += quick
 
 SOURCES += \
         main.cpp \
-        silencestyle.cpp
+        silencestyle.cpp \
+        wanderstyle.cpp
 
 RESOURCES += qml.qrc
 
 include($$PWD/../../utils/app.pri)
 
 HEADERS += \
-    silencestyle.h
+    silencestyle.h \
+    wanderstyle.h

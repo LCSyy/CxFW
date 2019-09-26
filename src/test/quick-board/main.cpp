@@ -3,12 +3,18 @@
 #include <QQmlApplicationEngine>
 #include <QJSValue>
 #include "silencestyle.h"
+#include "wanderstyle.h"
 
 static QJSValue silenceStyleProvider(QQmlEngine *engine, QJSEngine *scriptEngine)
 {
     Q_UNUSED(engine)
-    QJSValue silence = scriptEngine->newQObject(new SilenceStyle(engine));
-    return silence;
+    return scriptEngine->newQObject(new SilenceStyle(engine));
+}
+
+static QJSValue wanderStyleProvider(QQmlEngine *engine, QJSEngine *scriptEngine)
+{
+    Q_UNUSED(engine)
+    return scriptEngine->newQObject(new WanderStyle(engine));
 }
 
 int main(int argc, char *argv[])
@@ -20,6 +26,7 @@ int main(int argc, char *argv[])
     QQuickWindow::setTextRenderType(QQuickWindow::NativeTextRendering);
 
     qmlRegisterSingletonType("SilenceStyle",1,0,"Silence",silenceStyleProvider);
+    qmlRegisterSingletonType("WanderStyle",1,0,"Wander",wanderStyleProvider);
 
     QQmlApplicationEngine engine;
     const QUrl url(QStringLiteral("qrc:/main.qml"));
