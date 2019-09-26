@@ -1,0 +1,9 @@
+<RCC>
+    <qresource prefix="/">
+        <file>main.qml</file>
+        <file>qtquickcontrols2.conf</file>
+        <file>Silence/Button.qml</file>
+        <file>Wander/Button.qml</file>
+        <file>qml/Scaffold.qml</file>
+    </qresource>
+</RCC>

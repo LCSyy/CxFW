@@ -32,13 +32,4 @@ int main(int argc, char *argv[])
     parser.addOption(forceOption);
 
     parser.process(a);
-
-    const QStringList args = parser.positionalArguments();
-    bool force = parser.isSet(forceOption);
-    bool showProgress = parser.isSet(showProgressOption);
-    QString targetDir = parser.value(showProgressOption);
-
-    qDebug() << targetDir;
-
-    return a.exec();
 }
