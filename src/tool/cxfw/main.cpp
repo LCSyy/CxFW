@@ -6,11 +6,12 @@
 #include <QCoreApplication>
 #include <QCommandLineParser>
 #include <QCommandLineOption>
-#include <iostream>
+
+#include <QDebug>
 
 int main(int argc, char *argv[])
 {
-    QCoreApplication app(argc, argv);
+    QCoreApplication a(argc, argv);
     QCoreApplication::setApplicationName("cxfw");
     QCoreApplication::setApplicationVersion("1.0");
 
@@ -18,29 +19,17 @@ int main(int argc, char *argv[])
     parser.setApplicationDescription("CxFW packages manager");
     parser.addHelpOption();
     parser.addVersionOption();
-    // parser.addPositionalArgument("source", QCoreApplication::translate("main", "Source file to copy."));
+    // parser.addPositionalArgument("command", QCoreApplication::translate("main", "Sub command to run."));
     // parser.addPositionalArgument("destination", QCoreApplication::translate("main", "Destination directory."));
 
-    QCommandLineOption showProgressOption("p",
-                                          QCoreApplication::translate("main", "Show progress during copy"));
+    QCommandLineOption showProgressOption(QStringList{"i","install"},
+                                          QCoreApplication::translate("main", "Install sdk."),
+                                          QCoreApplication::translate("main", "sdk name"));
     parser.addOption(showProgressOption);
 
-    QCommandLineOption forceOption(QStringList() << "f" << "force",
-                                   QCoreApplication::translate("main", "Overwrite existing files."));
+    QCommandLineOption forceOption(QStringList{"f","force"},
+            QCoreApplication::translate("main", "Overwrite existing files."));
     parser.addOption(forceOption);
 
-    QCommandLineOption targetDirectoryOption(QStringList() << "t" << "target-directory",
-            QCoreApplication::translate("main", "Copy all source files into <directory>."),
-            QCoreApplication::translate("main", "directory"));
-    parser.addOption(targetDirectoryOption);
-
-    parser.process(app);
-
-    bool showProgress = parser.isSet(showProgressOption);
-    // bool force = parser.isSet(forceOption);
-    // QString targetDir = parser.value(targetDirectoryOption);
-
-    if(showProgress) {
-        std::cout << "----- 100% -----" << std::endl;
-    }
+    parser.process(a);
 }
