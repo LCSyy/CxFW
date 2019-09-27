@@ -39,10 +39,6 @@ Window {
             }
         }
 
-        onCurrentIndexChanged: {
-            // ...
-        }
-
         MouseArea {
             anchors.fill: parent
             onClicked: {
@@ -58,13 +54,54 @@ Window {
         y: _headerItem.height
         width: parent.width - _listView.width
         height: parent.height - _headerItem.height
-        Text {
-            id: _billboard
+
+        Container {
             anchors.fill: parent
-            verticalAlignment: Qt.AlignVCenter
-            horizontalAlignment: Qt.AlignHCenter
-            text: "Home"
-            font.pointSize: 48
+            contentItem: currentItem
+            currentIndex: _listView.currentIndex
+
+            Rectangle { color: "#e5e5e5" }
+            Rectangle { color: "#5e5e5e" }
+            Rectangle { color: "#ac8934" }
         }
+
+        /*
+        SwipeView {
+            anchors.fill: parent
+            currentIndex: _listView.currentIndex
+            interactive: false
+            clip: true
+
+            Text {
+                horizontalAlignment: Qt.AlignHCenter
+                verticalAlignment: Qt.AlignVCenter
+                text: "home"
+                font.pointSize: 48
+            }
+
+            Row {
+                padding: 30
+                spacing: 30
+                Rectangle {
+                    width: 200
+                    height: 150
+                    radius: 10
+                    color: "#e5e5e5"
+                }
+
+                Rectangle {
+                    width: 200
+                    height: 150
+                    radius: 10
+                    color: "#e5e5e5"
+                }
+            }
+
+            Text {
+                padding: 30
+                text: "Log messages ..."
+            }
+        }
+        */
     }
 }
