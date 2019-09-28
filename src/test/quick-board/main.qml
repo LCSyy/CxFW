@@ -12,7 +12,7 @@ Window {
         id: _headerItem
         width: parent.width
         height: 60
-        color: "#404040"
+        color: "#505050"
     }
 
     ListView {
@@ -39,6 +39,18 @@ Window {
             }
         }
 
+        onCurrentIndexChanged: {
+            if(currentIndex === 0) {
+                _bodyLoader.sourceComponent = _dashboard
+                _headerItem.color = _bodyLoader.item.relatePageColor
+            } else if(currentIndex === 1) {
+                _bodyLoader.sourceComponent = _password
+            } else if(currentIndex === 2) {
+                _bodyLoader.sourceComponent = _logs
+            }
+            _headerItem.color = _bodyLoader.item.relatePageColor
+        }
+
         MouseArea {
             anchors.fill: parent
             onClicked: {
@@ -48,60 +60,47 @@ Window {
         }
     }
 
-    Item {
-        id: _bodyItem
+    Loader {
+        id: _bodyLoader
         x: _listView.width
         y: _headerItem.height
         width: parent.width - _listView.width
         height: parent.height - _headerItem.height
+    }
 
-        Container {
-            anchors.fill: parent
-            contentItem: currentItem
-            currentIndex: _listView.currentIndex
+    Component {
+        id: _dashboard
+        Rectangle {
+            color: "red"
+            property color relatePageColor: "#AA1111"
 
-            Rectangle { color: "#e5e5e5" }
-            Rectangle { color: "#5e5e5e" }
-            Rectangle { color: "#ac8934" }
-        }
-
-        /*
-        SwipeView {
-            anchors.fill: parent
-            currentIndex: _listView.currentIndex
-            interactive: false
-            clip: true
-
-            Text {
-                horizontalAlignment: Qt.AlignHCenter
-                verticalAlignment: Qt.AlignVCenter
-                text: "home"
-                font.pointSize: 48
-            }
-
-            Row {
-                padding: 30
-                spacing: 30
-                Rectangle {
-                    width: 200
-                    height: 150
-                    radius: 10
-                    color: "#e5e5e5"
-                }
-
-                Rectangle {
-                    width: 200
-                    height: 150
-                    radius: 10
-                    color: "#e5e5e5"
-                }
-            }
-
-            Text {
-                padding: 30
-                text: "Log messages ..."
+            Component.onDestruction: {
+                console.log("destruction red")
             }
         }
-        */
+    }
+
+    Component {
+        id: _password
+        Rectangle {
+            color: "green"
+            property color relatePageColor: "#11AA11"
+
+            Component.onDestruction: {
+                console.log("destruction green")
+            }
+        }
+    }
+
+    Component {
+        id: _logs
+        Rectangle {
+            color: "blue"
+            property color relatePageColor: "#1111AA"
+
+            Component.onDestruction: {
+                console.log("destruction blue")
+            }
+        }
     }
 }
