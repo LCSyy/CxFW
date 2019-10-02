@@ -5,5 +5,7 @@
         <file>Silence/Button.qml</file>
         <file>Wander/Button.qml</file>
         <file>qml/Scaffold.qml</file>
+        <file>modules/ImageViewer/ImageViewer.qml</file>
+        <file>modules/Password/Password.qml</file>
     </qresource>
 </RCC>

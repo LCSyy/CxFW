@@ -23,9 +23,10 @@ Window {
         boundsBehavior: Flickable.StopAtBounds
 
         model: ListModel {
-            ListElement { text: "Dashboard" }
-            ListElement { text: "Password" }
-            ListElement { text: "Logs" }
+            ListElement { text: "Dashboard"; moduleName: "dash_board"; pageColor: "red" }
+            ListElement { text: "Password"; moduleName: "pass_word"; pageColor: "green" }
+            ListElement { text: "Logs"; moduleName: "logs"; pageColor: "blue" }
+            ListElement { text: "Image Viewer"; moduleName: "image_viewer"; pageColor: "#123456" }
         }
 
         delegate: Rectangle {
@@ -40,22 +41,24 @@ Window {
         }
 
         onCurrentIndexChanged: {
-            if(currentIndex === 0) {
+            const module = model.get(currentIndex);
+            if(module.moduleName === "dash_board") {
                 _bodyLoader.sourceComponent = _dashboard
-                _headerItem.color = _bodyLoader.item.relatePageColor
-            } else if(currentIndex === 1) {
-                _bodyLoader.sourceComponent = _password
-            } else if(currentIndex === 2) {
+            } else if(module.moduleName === "pass_word") {
+                _bodyLoader.source = "qrc:/modules/Password/Password.qml"
+            } else if(module.moduleName === "logs") {
                 _bodyLoader.sourceComponent = _logs
+            } else if(module.moduleName === "image_viewer") {
+                _bodyLoader.source = "qrc:/modules/ImageViewer/ImageViewer.qml"
             }
-            _headerItem.color = _bodyLoader.item.relatePageColor
+            _headerItem.color = module.pageColor
         }
 
         MouseArea {
             anchors.fill: parent
             onClicked: {
-                var idx = _listView.indexAt(mouse.x,mouse.y)
-                if(idx !== -1) { _listView.currentIndex = idx }
+                var idx = _listView.indexAt(mouse.x,mouse.y);
+                if(idx !== -1) { _listView.currentIndex = idx; }
             }
         }
     }
@@ -71,36 +74,12 @@ Window {
     Component {
         id: _dashboard
         Rectangle {
-            color: "red"
-            property color relatePageColor: "#AA1111"
-
-            Component.onDestruction: {
-                console.log("destruction red")
-            }
-        }
-    }
-
-    Component {
-        id: _password
-        Rectangle {
-            color: "green"
-            property color relatePageColor: "#11AA11"
-
-            Component.onDestruction: {
-                console.log("destruction green")
-            }
         }
     }
 
     Component {
         id: _logs
         Rectangle {
-            color: "blue"
-            property color relatePageColor: "#1111AA"
-
-            Component.onDestruction: {
-                console.log("destruction blue")
-            }
         }
     }
 }

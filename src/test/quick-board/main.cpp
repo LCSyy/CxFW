@@ -20,7 +20,8 @@ static QJSValue wanderStyleProvider(QQmlEngine *engine, QJSEngine *scriptEngine)
 int main(int argc, char *argv[])
 {
     QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
-
+    QCoreApplication::setOrganizationName("cxfw");
+    QCoreApplication::setOrganizationDomain("lcs.cxfw");
     QGuiApplication app(argc, argv);
 
     QQuickWindow::setTextRenderType(QQuickWindow::NativeTextRendering);
