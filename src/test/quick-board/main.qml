@@ -1,8 +1,10 @@
 ﻿import QtQuick 2.12
 import QtQuick.Window 2.12
 import QtQuick.Controls 2.12
+import QtQuick.Layouts 1.12
 
 Window {
+    id: _app
     visible: true
     width: 900
     height: 640
@@ -12,23 +14,13 @@ Window {
         id: _headerItem
         width: parent.width
         height: 60
-        color: "#505050"
     }
 
     ListView {
         id: _listView
         x:0; y: _headerItem.height
         width: 150; height: parent.height - _headerItem.height
-
         boundsBehavior: Flickable.StopAtBounds
-
-        model: ListModel {
-            ListElement { text: "Dashboard"; moduleName: "dash_board"; pageColor: "red" }
-            ListElement { text: "Password"; moduleName: "pass_word"; pageColor: "green" }
-            ListElement { text: "Logs"; moduleName: "logs"; pageColor: "blue" }
-            ListElement { text: "Image Viewer"; moduleName: "image_viewer"; pageColor: "#123456" }
-        }
-
         delegate: Rectangle {
             width: parent.width
             height: 30
@@ -40,18 +32,34 @@ Window {
             }
         }
 
+        model: ListModel {
+            ListElement { moduleName: "dash_board"; text: "Dashboard"; pageColor: "red" }
+            ListElement { moduleName: "pass_word"; text: "Password"; pageColor: "green" }
+            ListElement { moduleName: "logs"; text: "Logs"; pageColor: "blue" }
+            ListElement { moduleName: "image_viewer"; text: "Image Viewer"; pageColor: "#123456" }
+        }
+
         onCurrentIndexChanged: {
-            const module = model.get(currentIndex);
-            if(module.moduleName === "dash_board") {
-                _bodyLoader.sourceComponent = _dashboard
-            } else if(module.moduleName === "pass_word") {
-                _bodyLoader.source = "qrc:/modules/Password/Password.qml"
-            } else if(module.moduleName === "logs") {
-                _bodyLoader.sourceComponent = _logs
-            } else if(module.moduleName === "image_viewer") {
-                _bodyLoader.source = "qrc:/modules/ImageViewer/ImageViewer.qml"
+            if(currentIndex < 0) {
+                _headerItem.color = "#505050"
+                return;
             }
+
+            const module = model.get(currentIndex);
+            var url = "";
+            if(module.moduleName === "dash_board") {
+            } else if(module.moduleName === "pass_word") {
+                url = "qrc:/modules/Password/Password.qml";
+            } else if(module.moduleName === "logs") {
+            } else if(module.moduleName === "image_viewer") {
+                url = "qrc:/modules/ImageViewer/ImageViewer.qml";
+            }
+
             _headerItem.color = module.pageColor
+
+            if(url !== "") {
+                _bodyLayout.loadComponent(url, module.moduleName)
+            }
         }
 
         MouseArea {
@@ -60,26 +68,45 @@ Window {
                 var idx = _listView.indexAt(mouse.x,mouse.y);
                 if(idx !== -1) { _listView.currentIndex = idx; }
             }
+
+            onDoubleClicked: {
+                const module = _listView.model.get(_listView.currentIndex)
+                if(module !== undefined && module.moduleName !== "") {
+                    _bodyLayout.removeComponent(module.moduleName)
+                    _listView.currentIndex = -1
+                }
+            }
         }
     }
 
-    Loader {
-        id: _bodyLoader
+    StackLayout {
+        id: _bodyLayout
         x: _listView.width
         y: _headerItem.height
         width: parent.width - _listView.width
         height: parent.height - _headerItem.height
-    }
 
-    Component {
-        id: _dashboard
-        Rectangle {
+        function loadComponent(url, moduleName) {
+            for(const idx in children) {
+                if(children[idx].moduleName === moduleName) {
+                    currentIndex = idx;
+                    return;
+                }
+            }
+            var component = Qt.createComponent(url);
+            if (component.status === Component.Ready) {
+                component.createObject(_bodyLayout,{"moduleName":moduleName});
+            }
         }
-    }
 
-    Component {
-        id: _logs
-        Rectangle {
+        function removeComponent(moduleName) {
+            for(const idx in children) {
+                var item = children[idx];
+                if(item.moduleName === moduleName) {
+                    item.destroy();
+                    break;
+                }
+            }
         }
     }
 }
