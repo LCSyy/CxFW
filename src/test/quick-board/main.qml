@@ -54,11 +54,11 @@ Window {
                 url = "qrc:/modules/ImageViewer/ImageViewer.qml";
             }
 
-            _headerItem.color = module.pageColor
-
             if(url !== "") {
                 _bodyLayout.loadComponent(url, module.moduleName)
             }
+
+            _headerItem.color = module.pageColor
         }
 
         MouseArea {
