@@ -7,5 +7,6 @@
         <file>qml/Scaffold.qml</file>
         <file>modules/ImageViewer/ImageViewer.qml</file>
         <file>modules/Password/Password.qml</file>
+        <file>modules/Dashboard/Dashboard.qml</file>
     </qresource>
 </RCC>

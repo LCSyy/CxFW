@@ -35,7 +35,6 @@ Window {
         model: ListModel {
             ListElement { moduleName: "dash_board"; text: "Dashboard"; pageColor: "red" }
             ListElement { moduleName: "pass_word"; text: "Password"; pageColor: "green" }
-            ListElement { moduleName: "logs"; text: "Logs"; pageColor: "blue" }
             ListElement { moduleName: "image_viewer"; text: "Image Viewer"; pageColor: "#123456" }
         }
 
@@ -48,9 +47,9 @@ Window {
             const module = model.get(currentIndex);
             var url = "";
             if(module.moduleName === "dash_board") {
+                url = "qrc:/modules/Dashboard/Dashboard.qml";
             } else if(module.moduleName === "pass_word") {
                 url = "qrc:/modules/Password/Password.qml";
-            } else if(module.moduleName === "logs") {
             } else if(module.moduleName === "image_viewer") {
                 url = "qrc:/modules/ImageViewer/ImageViewer.qml";
             }
