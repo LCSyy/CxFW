@@ -2,18 +2,22 @@
 #include <QQuickWindow>
 #include <QQmlApplicationEngine>
 #include <QJSValue>
+#include "networkmanager.h"
 #include "silencestyle.h"
 #include "wanderstyle.h"
 
+static QJSValue networkManagerProvider(QQmlEngine *engine, QJSEngine *scriptEngine)
+{
+    return scriptEngine->newQObject(new NetworkManager(engine));
+}
+
 static QJSValue silenceStyleProvider(QQmlEngine *engine, QJSEngine *scriptEngine)
 {
-    Q_UNUSED(engine)
     return scriptEngine->newQObject(new SilenceStyle(engine));
 }
 
 static QJSValue wanderStyleProvider(QQmlEngine *engine, QJSEngine *scriptEngine)
 {
-    Q_UNUSED(engine)
     return scriptEngine->newQObject(new WanderStyle(engine));
 }
 
@@ -26,6 +30,7 @@ int main(int argc, char *argv[])
 
     QQuickWindow::setTextRenderType(QQuickWindow::NativeTextRendering);
 
+    qmlRegisterSingletonType("QuickBoard",1,0,"NetworkManager",networkManagerProvider);
     qmlRegisterSingletonType("SilenceStyle",1,0,"Silence",silenceStyleProvider);
     qmlRegisterSingletonType("WanderStyle",1,0,"Wander",wanderStyleProvider);
 

@@ -1,6 +1,8 @@
 ﻿import QtQuick 2.12
+import QuickBoard 1.0
 
-Rectangle {
-
-    property string moduleName: ""
+Item {
+    Component.onCompleted:{
+        NetworkManager.doSth()
+    }
 }
