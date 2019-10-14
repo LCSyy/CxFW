@@ -3,6 +3,8 @@ import QtQuick.Window 2.12
 import QtQuick.Controls 2.12
 import QtQuick.Layouts 1.12
 
+import "./qml" as Ui
+
 Window {
     id: _app
     visible: true
@@ -33,9 +35,9 @@ Window {
         }
 
         model: ListModel {
-            ListElement { moduleName: "dash_board"; text: "Dashboard"; pageColor: "red" }
-            ListElement { moduleName: "pass_word"; text: "Password"; pageColor: "green" }
-            ListElement { moduleName: "image_viewer"; text: "Image Viewer"; pageColor: "#123456" }
+            ListElement { moduleName: "dash_board"; url: "qrc:/modules/Dashboard/Dashboard.qml";  text: "Dashboard"; pageColor: "red" }
+            ListElement { moduleName: "pass_word"; url: "qrc:/modules/Password/Password.qml"; text: "Password"; pageColor: "green" }
+            ListElement { moduleName: "image_viewer"; url: "qrc:/modules/ImageViewer/ImageViewer.qml"; text: "Image Viewer"; pageColor: "#123456" }
         }
 
         onCurrentIndexChanged: {
@@ -45,17 +47,9 @@ Window {
             }
 
             const module = model.get(currentIndex);
-            var url = "";
-            if(module.moduleName === "dash_board") {
-                url = "qrc:/modules/Dashboard/Dashboard.qml";
-            } else if(module.moduleName === "pass_word") {
-                url = "qrc:/modules/Password/Password.qml";
-            } else if(module.moduleName === "image_viewer") {
-                url = "qrc:/modules/ImageViewer/ImageViewer.qml";
-            }
-
-            if(url !== "") {
-                _bodyLayout.loadComponent(url, module.moduleName)
+            if(module.url !== "") {
+                // _bodyLayout.loadComponent(module.url, module.moduleName)
+                // ... _bodyItem.addItem()
             }
 
             _headerItem.color = module.pageColor
@@ -68,16 +62,17 @@ Window {
                 if(idx !== -1) { _listView.currentIndex = idx; }
             }
 
-            onDoubleClicked: {
-                const module = _listView.model.get(_listView.currentIndex)
-                if(module !== undefined && module.moduleName !== "") {
-                    _bodyLayout.removeComponent(module.moduleName)
-                    _listView.currentIndex = -1
-                }
-            }
+            // onDoubleClicked: {
+            //     const module = _listView.model.get(_listView.currentIndex)
+            //     if(module !== undefined && module.moduleName !== "") {
+            //         // _bodyLayout.removeComponent(module.moduleName)
+            //         _listView.currentIndex = -1
+            //     }
+            // }
         }
     }
 
+    /*
     StackLayout {
         id: _bodyLayout
         x: _listView.width
@@ -95,6 +90,8 @@ Window {
             var component = Qt.createComponent(url);
             if (component.status === Component.Ready) {
                 component.createObject(_bodyLayout,{"moduleName":moduleName});
+            } else if(component.status === Component.Error) {
+                console.log("create error:", component.errorString())
             }
         }
 
@@ -107,5 +104,14 @@ Window {
                 }
             }
         }
+    }
+    */
+
+    Ui.ItemSwitcher {
+        id: _bodyItem
+        x: _listView.width
+        y: _headerItem.height
+        width: parent.width - _listView.width
+        height: parent.height - _headerItem.height
     }
 }

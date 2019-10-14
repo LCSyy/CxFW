@@ -4,9 +4,9 @@
         <file>qtquickcontrols2.conf</file>
         <file>Silence/Button.qml</file>
         <file>Wander/Button.qml</file>
-        <file>qml/Scaffold.qml</file>
         <file>modules/ImageViewer/ImageViewer.qml</file>
         <file>modules/Password/Password.qml</file>
         <file>modules/Dashboard/Dashboard.qml</file>
+        <file>qml/ItemSwitcher.qml</file>
     </qresource>
 </RCC>
