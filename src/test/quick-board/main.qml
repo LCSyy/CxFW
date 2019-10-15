@@ -22,6 +22,7 @@ Window {
             height: parent.height
             font.bold: true
             font.pointSize: 36
+            verticalAlignment: Qt.AlignVCenter
         }
     }
 
@@ -46,19 +47,19 @@ Window {
                 moduleName: "dash_board"
                 url: "qrc:/modules/Dashboard/Dashboard.qml"
                 text: "Dashboard"
-                pageColor: "red"
+                pageColor: "#FA8072"
             }
             ListElement {
                 moduleName: "pass_word"
                 url: "qrc:/modules/Password/Password.qml"
                 text: "Password"
-                pageColor: "green"
+                pageColor: "#00CD66"
             }
             ListElement {
                 moduleName: "image_viewer"
                 url: "qrc:/modules/ImageViewer/ImageViewer.qml"
                 text: "Image Viewer"
-                pageColor: "#123456"
+                pageColor: "#6789AB"
             }
         }
 
