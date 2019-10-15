@@ -16,6 +16,13 @@ Window {
         id: _headerItem
         width: parent.width
         height: 60
+
+        Text {
+            id: _headerText
+            height: parent.height
+            font.bold: true
+            font.pointSize: 36
+        }
     }
 
     ListView {
@@ -35,9 +42,24 @@ Window {
         }
 
         model: ListModel {
-            ListElement { moduleName: "dash_board"; url: "qrc:/modules/Dashboard/Dashboard.qml";  text: "Dashboard"; pageColor: "red" }
-            ListElement { moduleName: "pass_word"; url: "qrc:/modules/Password/Password.qml"; text: "Password"; pageColor: "green" }
-            ListElement { moduleName: "image_viewer"; url: "qrc:/modules/ImageViewer/ImageViewer.qml"; text: "Image Viewer"; pageColor: "#123456" }
+            ListElement {
+                moduleName: "dash_board"
+                url: "qrc:/modules/Dashboard/Dashboard.qml"
+                text: "Dashboard"
+                pageColor: "red"
+            }
+            ListElement {
+                moduleName: "pass_word"
+                url: "qrc:/modules/Password/Password.qml"
+                text: "Password"
+                pageColor: "green"
+            }
+            ListElement {
+                moduleName: "image_viewer"
+                url: "qrc:/modules/ImageViewer/ImageViewer.qml"
+                text: "Image Viewer"
+                pageColor: "#123456"
+            }
         }
 
         onCurrentIndexChanged: {
@@ -82,6 +104,7 @@ Window {
             }
 
             _headerItem.color = module.pageColor
+            _headerText.text = module.text
         }
 
         MouseArea {

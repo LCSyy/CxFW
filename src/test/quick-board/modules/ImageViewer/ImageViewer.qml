@@ -41,6 +41,8 @@ Page {
 
     Image {
         id: _viewer
+        width: 300
+        height: 300
         fillMode: Image.PreserveAspectFit
     }
 
