@@ -4,6 +4,9 @@ import QtQuick.Layouts 1.12
 import QuickBoard 1.0
 
 Page {
+    anchors.fill: parent
+
+    property string moduleName: ""
 
     header: ToolBar {
         RowLayout {

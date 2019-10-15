@@ -48,8 +48,37 @@ Window {
 
             const module = model.get(currentIndex);
             if(module.url !== "") {
-                // _bodyLayout.loadComponent(module.url, module.moduleName)
-                // ... _bodyItem.addItem()
+                var foundItem = false;
+                var nItem = null;
+                // find exsit one
+                for(var idx = 0; idx < _bodyItem.container.count; ++idx) {
+                    nItem = _bodyItem.container.itemAt(idx);
+                    if(nItem.moduleName === module.moduleName) {
+                        nItem.parent = _bodyItem;
+                        foundItem = true;
+                        break;
+                    }
+                }
+
+                if(!foundItem) { // create no exsit component
+                    var component = Qt.createComponent(module.url);
+                    if (component.status === Component.Ready) {
+                        nItem = component.createObject(_bodyItem.container,{"moduleName":module.moduleName});
+                        _bodyItem.container.addItem(nItem)
+                    } else if(component.status === Component.Error) {
+                        console.log("create error:", component.errorString())
+                    }
+                }
+
+                if(nItem !== null) {
+                    const itemCount = _bodyItem.children.length;
+                    for(idx = 0; idx < itemCount; ++idx) {
+                        if(_bodyItem.children[idx] !== undefined && _bodyItem.children[idx].moduleName !== undefined) {
+                            _bodyItem.children[idx].parent = _bodyItem.container
+                        }
+                    }
+                    nItem.parent = _bodyItem
+                }
             }
 
             _headerItem.color = module.pageColor
@@ -61,51 +90,8 @@ Window {
                 var idx = _listView.indexAt(mouse.x,mouse.y);
                 if(idx !== -1) { _listView.currentIndex = idx; }
             }
-
-            // onDoubleClicked: {
-            //     const module = _listView.model.get(_listView.currentIndex)
-            //     if(module !== undefined && module.moduleName !== "") {
-            //         // _bodyLayout.removeComponent(module.moduleName)
-            //         _listView.currentIndex = -1
-            //     }
-            // }
         }
     }
-
-    /*
-    StackLayout {
-        id: _bodyLayout
-        x: _listView.width
-        y: _headerItem.height
-        width: parent.width - _listView.width
-        height: parent.height - _headerItem.height
-
-        function loadComponent(url, moduleName) {
-            for(const idx in children) {
-                if(children[idx].moduleName === moduleName) {
-                    currentIndex = idx;
-                    return;
-                }
-            }
-            var component = Qt.createComponent(url);
-            if (component.status === Component.Ready) {
-                component.createObject(_bodyLayout,{"moduleName":moduleName});
-            } else if(component.status === Component.Error) {
-                console.log("create error:", component.errorString())
-            }
-        }
-
-        function removeComponent(moduleName) {
-            for(const idx in children) {
-                var item = children[idx];
-                if(item.moduleName === moduleName) {
-                    item.destroy();
-                    break;
-                }
-            }
-        }
-    }
-    */
 
     Ui.ItemSwitcher {
         id: _bodyItem

@@ -6,12 +6,9 @@ import QtQuick.Dialogs 1.3
 Page {
     id: _page
     clip: true
+    anchors.fill: parent
 
     property string moduleName: ""
-
-    Component.onCompleted: {
-        console.log("cao ni ma de")
-    }
 
     header: ToolBar {
         RowLayout {
