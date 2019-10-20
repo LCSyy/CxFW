@@ -1,58 +1,33 @@
 ﻿import QtQuick 2.12
 import QtQuick.Controls 2.12
 import QtQuick.Layouts 1.12
+import QtQuick.Shapes 1.12
 import QuickBoard 1.0
 
 Page {
     anchors.fill: parent
-
     property string moduleName: ""
-
-    header: ToolBar {
-        RowLayout {
-            anchors.fill: parent
-            ToolButton {
-                text: "Next"
-                onClicked: {
-                    if(_container.currentIndex === _container.count - 1) {
-                        _container.currentIndex = 0;
-                    } else {
-                        _container.currentIndex += 1;
-                    }
-
-                    const itemCount = _loader.children.length;
-                    for(var idx = 0; idx < itemCount; ++idx) {
-                        _loader.children[idx].parent = _container
-                    }
-                    _container.currentItem.parent = _loader
-                }
-            }
+    Shape {
+        id: _shape
+        width: 300
+        height: 150 * Math.sqrt(3)
+        anchors.centerIn: parent
+        ShapePath {
+            fillColor: "#DC143C"
+            startX: 0; startY: _shape.height
+            PathLine { x:_shape.width/3; y: _shape.height }
+            PathLine { x:_shape.width/2; y: _shape.height*2/3 }
+            PathLine { x:_shape.width*2/3; y: _shape.height }
+            PathLine { x: _shape.width; y: _shape.height }
+            PathLine { x: _shape.width/2; y: 0 }
         }
     }
-
-    Item {
-        id: _loader
-        anchors.fill: parent
+    Text {
+        id: _studioName
+        text: "Arrow Studio"
+        font.pointSize: 48
+        anchors.horizontalCenter: _shape.horizontalCenter
+        anchors.top: _shape.bottom
+        anchors.topMargin: -15
     }
-
-    Container {
-        id: _container
-
-        Rectangle {
-            width: 100
-            height: 100
-            color: "red"
-        }
-        Rectangle {
-            width: 100
-            height: 100
-            color: "green"
-        }
-        Rectangle {
-            width: 100
-            height: 100
-            color: "blue"
-        }
-    }
-
 }

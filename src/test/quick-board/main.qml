@@ -69,6 +69,7 @@ Window {
                 return;
             }
 
+
             const module = model.get(currentIndex);
             if(module.url !== "") {
                 var foundItem = false;
