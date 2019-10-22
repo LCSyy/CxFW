@@ -8,5 +8,6 @@
         <file>modules/Password/Password.qml</file>
         <file>modules/Dashboard/Dashboard.qml</file>
         <file>qml/ItemSwitcher.qml</file>
+        <file>ArrowOnly32x.png</file>
     </qresource>
 </RCC>

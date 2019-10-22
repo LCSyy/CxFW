@@ -14,10 +14,10 @@ class SilenceStyle : public QObject
 public:
     explicit SilenceStyle(QObject *parent = nullptr);
 
-    QColor background() const { return QColor("#e5e5e5"); }
-    QColor foreground() const { return QColor("black"); }
+    QColor background() const { return QColor("#5f768d"); }
+    QColor foreground() const { return QColor("#e5e5e5"); }
 
-    QColor focusBackground() const { return QColor("#505050"); }
+    QColor focusBackground() const { return QColor("#5f768d"); }
     QColor focusForeground() const { return QColor("#e5e5e5"); }
 
 public slots:

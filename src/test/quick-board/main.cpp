@@ -27,6 +27,7 @@ int main(int argc, char *argv[])
     QCoreApplication::setOrganizationName("cxfw");
     QCoreApplication::setOrganizationDomain("lcs.cxfw");
     QGuiApplication app(argc, argv);
+    app.setWindowIcon(QIcon(":/ArrowOnly32x.png"));
 
     QQuickWindow::setTextRenderType(QQuickWindow::NativeTextRendering);
 
