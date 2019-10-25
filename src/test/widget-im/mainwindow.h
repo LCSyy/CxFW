@@ -4,10 +4,13 @@
 #include <QMainWindow>
 
 QT_BEGIN_NAMESPACE
+class QToolBar;
 class QStackedWidget;
-class QTabWidget;
+class QTabBar;
 class QLabel;
+class QSplitter;
 QT_END_NAMESPACE
+class NaviWidget;
 
 class MainWindow : public QMainWindow
 {
@@ -18,12 +21,19 @@ public:
     ~MainWindow();
 
 public slots:
-    void setCurrentPage(int idx);
+    void addNavi(NaviWidget *navi, const QUrl &naviUrl);
+    void collapseNavi(bool collpase = true);
+    void openPage(const QUrl &tabPageUrl);
+
+private slots:
+    void onNaviActionTriggered(bool checked);
 
 private:
-    QStackedWidget *mPage {nullptr};
+    QSplitter *mSplitter {nullptr};
+    QToolBar *mToolBar {nullptr};
+    QStackedWidget *mNaviDock {nullptr};
     QLabel *mCurLabel {nullptr};
-    QTabWidget *mTabWgt {nullptr};
+    QTabBar *mTabBar {nullptr};
 };
 
 #endif // MAINWINDOW_H

@@ -11,34 +11,16 @@
 #include <QActionGroup>
 #include <QVBoxLayout>
 #include <QStackedWidget>
+#include <QUrl>
+#include <QUrlQuery>
 #include "chatwidget.h"
+#include "navi/contactnavi.h"
 
-namespace  {
-    void initToolBar(MainWindow *window, QToolBar *toolbar) {
-        QAction *userAct = new QAction(QIcon(":/ArrowOnly32x.png"),"User Home",toolbar);
-        QAction *historyAct = new QAction("His",toolbar);
-        QAction *contactAct = new QAction("CC",toolbar);
-        QAction *thirdAct = new QAction("Hhi",toolbar);
-
-        userAct->setObjectName("USER_HOME");
-        historyAct->setCheckable(true);
-        historyAct->setObjectName("HISTORY");
-        contactAct->setCheckable(true);
-        contactAct->setObjectName("CONTACT");
-        thirdAct->setCheckable(true);
-        thirdAct->setObjectName("THIRD");
-
-        toolbar->addAction(userAct);
-        toolbar->addAction(historyAct);
-        toolbar->addAction(contactAct);
-        toolbar->addAction(thirdAct);
-
-    }
-}
+#include <QDebug>
 
 namespace cx_test {
 
-    void initStackedWgt(QStackedWidget *wgt) {
+    void initNavi(QStackedWidget *wgt) {
         QWidget *userInfoWgt = new QWidget(wgt);
         userInfoWgt->setStyleSheet("background:#123456");
         wgt->addWidget(userInfoWgt);
@@ -71,34 +53,25 @@ namespace cx_test {
         wgt->addWidget(stWgt);
     }
 
-    void initTabWgt(QTabWidget *wgt) {
-        QWidget *chatWgt = new QWidget(wgt);
-        wgt->addTab(chatWgt,"Bb");
-
-        QWidget *chat2Wgt = new QWidget(wgt);
-        wgt->addTab(chat2Wgt,"lly");
-    }
 }
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
 {
-    QToolBar *toolBar = new QToolBar(this);
-    toolBar->setMovable(false);
-    toolBar->setFloatable(false);
-    ::initToolBar(this, toolBar);
-    addToolBar(Qt::LeftToolBarArea, toolBar);
+    mToolBar = new QToolBar(this);
+    mToolBar->setMovable(false);
+    mToolBar->setFloatable(false);
+    addToolBar(Qt::LeftToolBarArea, mToolBar);
 
-    QSplitter *splitter = new QSplitter(this);
-    splitter->setOrientation(Qt::Horizontal);
-    setCentralWidget(splitter);
+    mSplitter = new QSplitter(this);
+    mSplitter->setOrientation(Qt::Horizontal);
+    setCentralWidget(mSplitter);
 
-    mPage = new QStackedWidget(splitter);
-    mPage->setMinimumWidth(200);
-    mPage->setMaximumWidth(400);
-    cx_test::initStackedWgt(mPage);
+    mNaviDock = new QStackedWidget(mSplitter);
+    mNaviDock->setMinimumWidth(200);
+    mNaviDock->setMaximumWidth(400);
 
-    QWidget *chatWgt = new QWidget(splitter);
+    QWidget *chatWgt = new QWidget(mSplitter);
     QVBoxLayout *chatLayout = new QVBoxLayout(chatWgt);
     chatLayout->setMargin(0);
     chatLayout->setSpacing(0);
@@ -109,13 +82,13 @@ MainWindow::MainWindow(QWidget *parent)
     mCurLabel->setAlignment(Qt::AlignCenter);
     chatLayout->addWidget(mCurLabel);
 
-    QTabBar *tabBar = new QTabBar(chatWgt);
-    tabBar->setExpanding(false);
-    tabBar->setStyleSheet("QTabBar::tab{min-width:150px;}");
-    tabBar->addTab(tr("Frd"));
-    tabBar->addTab(tr("Alli"));
-    tabBar->addTab(tr("Ckd"));
-    chatLayout->addWidget(tabBar);
+    mTabBar = new QTabBar(chatWgt);
+    mTabBar->setExpanding(false);
+    mTabBar->setStyleSheet("QTabBar::tab{min-width:150px;}");
+    mTabBar->addTab(tr("Frd"));
+    mTabBar->addTab(tr("Alli"));
+    mTabBar->addTab(tr("Ckd"));
+    chatLayout->addWidget(mTabBar);
 
     QStackedWidget *tabWgt = new QStackedWidget(chatWgt);
     chatLayout->addWidget(tabWgt,1);
@@ -123,9 +96,15 @@ MainWindow::MainWindow(QWidget *parent)
     ChatWidget *chatPage = new ChatWidget(tabWgt);
     tabWgt->addWidget(chatPage);
 
-    splitter->addWidget(mPage);
-    splitter->addWidget(chatWgt);
-    splitter->setStretchFactor(1,1);
+    mSplitter->addWidget(mNaviDock);
+    mSplitter->addWidget(chatWgt);
+    mSplitter->setStretchFactor(1,1);
+
+    ContactNavi *ccNavi = new ContactNavi(mNaviDock);
+    addNavi(ccNavi,QUrl("navi/contact"));
+    ContactNavi *cc2Navi = new ContactNavi(mNaviDock);
+    addNavi(cc2Navi,QUrl("navi/contact2"));
+
 
     resize(900,540);
 }
@@ -134,9 +113,86 @@ MainWindow::~MainWindow()
 {
 }
 
-void MainWindow::setCurrentPage(int idx)
+void MainWindow::addNavi(NaviWidget *navi, const QUrl &naviUrl)
 {
-    if(idx < 0 || mPage->count() <= idx) { return; }
-    mPage->setCurrentIndex(idx);
+    if(!navi) { return; }
+
+    QAction *act = nullptr;
+    if(navi->icon().isNull()) {
+        act = new QAction(navi->icon(),navi->text(),mToolBar);
+    } else {
+        act = new QAction(navi->text(),mToolBar);
+    }
+
+    navi->setProperty("url",QVariant::fromValue(naviUrl));
+    act->setProperty("url",QVariant::fromValue(naviUrl));
+    act->setCheckable(true);
+    mToolBar->addAction(act);
+    mNaviDock->addWidget(navi);
+
+    QObject::connect(act,SIGNAL(triggered(bool)),this,SLOT(onNaviActionTriggered(bool)));
+}
+
+void MainWindow::collapseNavi(bool collpase)
+{
+    int s = mSplitter->sizes().first();
+    if(collpase) {
+        if(s != 0) {
+            mSplitter->setSizes({0,mSplitter->width()});
+        }
+    } else {
+        mSplitter->setSizes({200,mSplitter->width() - 200});
+    }
+}
+
+/*!
+ * \brief MainWindow::openTabPage
+ * \param tabPageUrl
+ * {path}?{query=value}
+ * path: chat | news | group | ...
+ */
+void MainWindow::openPage(const QUrl &tabPageUrl)
+{
+    bool found {false};
+    for(int i = 0; i < mTabBar->count(); ++i) {
+        const QVariantMap tabMap = mTabBar->tabData(i).toMap();
+        const QUrl tabUrl = tabMap.value("url").toUrl();
+        if(tabUrl == tabPageUrl) {
+            found = true;
+            mTabBar->setCurrentIndex(i);
+            break;
+        }
+    }
+
+    if(!found) { // create tab widget
+
+    }
+}
+
+void MainWindow::onNaviActionTriggered(bool checked)
+{
+    QAction *act = qobject_cast<QAction*>(sender());
+    if(act) {
+        const QUrl naviUrl = act->property("url").toUrl();
+        if(checked) {
+            for(QAction *a: mToolBar->actions()) {
+                if(a->property("url").toUrl() != naviUrl) {
+                    a->setChecked(false);
+                }
+            }
+            for(int i = 0; i < mNaviDock->count(); ++i) {
+                QWidget *wgt = mNaviDock->widget(i);
+                if(wgt) {
+                    if(wgt->property("url").toUrl() == naviUrl) {
+                        mNaviDock->setCurrentIndex(i);
+                        break;
+                    }
+                }
+            }
+            collapseNavi(false);
+        } else {
+            collapseNavi(true);
+        }
+    }
 }
 
