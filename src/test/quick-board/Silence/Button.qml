@@ -67,10 +67,10 @@ T.Button {
             }
         }
 
-        layer.enabled: true
+        layer.enabled: _btn.hovered ? true : false
         layer.effect: DropShadow {
             transparentBorder: true
-            horizontalOffset: 4
+            horizontalOffset: 2
             verticalOffset: 4
         }
 

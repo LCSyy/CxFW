@@ -7,8 +7,12 @@ Page {
     anchors.fill: parent
     property string moduleName: ""
 
-    Button {
-        anchors.centerIn: parent
+    RowLayout {
+        anchors.fill: parent
+        spacing:10
+        ColumnLayout {
+            Button { }
+            TextField { selectByMouse: true }
+        }
     }
-
 }
