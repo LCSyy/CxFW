@@ -1,5 +1,4 @@
 #include "naviwidget.h"
-#include <QIcon>
 
 NaviWidget::NaviWidget(QWidget *parent)
     : QWidget(parent)
@@ -7,12 +6,23 @@ NaviWidget::NaviWidget(QWidget *parent)
 
 }
 
+
+void NaviWidget::setIcon(const QIcon &icon)
+{
+    mIcon = icon;
+}
+
 QIcon NaviWidget::icon() const
 {
-    return QIcon();
+    return mIcon;
+}
+
+void NaviWidget::setText(const QString &text)
+{
+    mText = text;
 }
 
 QString NaviWidget::text() const
 {
-    return QString("Act");
+    return mText;
 }

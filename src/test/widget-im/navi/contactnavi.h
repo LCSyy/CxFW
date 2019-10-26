@@ -3,14 +3,21 @@
 
 #include "naviwidget.h"
 
+QT_BEGIN_NAMESPACE
+class QListWidgetItem;
+QT_END_NAMESPACE
+
 class ContactNavi : public NaviWidget
 {
     Q_OBJECT
+signals:
+    void contactDoubleClicked(const QUrl &url);
+
 public:
     explicit ContactNavi(QWidget *parent = nullptr);
 
-    virtual QIcon icon() const;
-    virtual QString text() const;
+private slots:
+    void onItemDoubleClicked(QListWidgetItem *item);
 };
 
 #endif // CONTACTNAVI_H

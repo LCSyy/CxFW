@@ -2,6 +2,7 @@
 #define NAVIWIDGET_H
 
 #include <QWidget>
+#include <QIcon>
 
 class NaviWidget : public QWidget
 {
@@ -9,8 +10,14 @@ class NaviWidget : public QWidget
 public:
     explicit NaviWidget(QWidget *parent = nullptr);
 
-    virtual QIcon icon() const;
-    virtual QString text() const;
+    void setIcon(const QIcon &icon);
+    QIcon icon() const;
+    void setText(const QString &text);
+    QString text() const;
+
+private:
+    QIcon mIcon;
+    QString mText;
 };
 
 #endif // NAVIWIDGET_H

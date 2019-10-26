@@ -16,12 +16,19 @@ MessageEditWidget::MessageEditWidget(QWidget *parent)
 
     toolbar->addAction("emoji");
 
-    QTextEdit *textedit = new QTextEdit(this);
-    vlayout->addWidget(textedit);
+    mTextEdit = new QTextEdit(this);
+    vlayout->addWidget(mTextEdit);
 
     QToolBar *bottombar = new QToolBar(this);
     vlayout->addWidget(bottombar);
 
-    QPushButton *sendBtn = new QPushButton("Send",bottombar);
-    bottombar->addWidget(sendBtn);
+    mSendBtn = new QPushButton("Send", bottombar);
+    bottombar->addWidget(mSendBtn);
+
+    connect(mSendBtn,SIGNAL(clicked(bool)),this,SIGNAL(sendMessage()));
+}
+
+QString MessageEditWidget::message() const
+{
+    return mTextEdit->toHtml();
 }

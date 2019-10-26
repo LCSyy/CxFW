@@ -1,11 +1,9 @@
-﻿#include "chatwidget.h"
+#include "chatpage.h"
 #include <QSplitter>
 #include <QVBoxLayout>
-
 #include "messageeditwidget.h"
 
-ChatWidget::ChatWidget(QWidget *parent)
-    : QWidget(parent)
+ChatPage::ChatPage(QWidget *parent) : QWidget(parent)
 {
     QVBoxLayout *vlayout = new QVBoxLayout(this);
     vlayout->setMargin(0);

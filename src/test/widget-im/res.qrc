@@ -2,5 +2,9 @@
     <qresource prefix="/">
         <file>ArrowOnly32x.png</file>
         <file>ArrowOnly.png</file>
+        <file>icon/user-circle.svg</file>
+        <file>icon/user-friends.svg</file>
+        <file>icon/comments.svg</file>
+        <file>icon/cog.svg</file>
     </qresource>
 </RCC>

@@ -8,49 +8,34 @@
 #include <QPushButton>
 #include <QListWidget>
 #include <QTabWidget>
+#include <QStatusBar>
 #include <QActionGroup>
 #include <QVBoxLayout>
 #include <QStackedWidget>
 #include <QUrl>
 #include <QUrlQuery>
-#include "chatwidget.h"
+#include "pagecontainer.h"
 #include "navi/contactnavi.h"
+#include "page/chatpage.h"
 
 #include <QDebug>
 
 namespace cx_test {
 
-    void initNavi(QStackedWidget *wgt) {
-        QWidget *userInfoWgt = new QWidget(wgt);
-        userInfoWgt->setStyleSheet("background:#123456");
-        wgt->addWidget(userInfoWgt);
-        QVBoxLayout *userInfoLayout = new QVBoxLayout(userInfoWgt);
-        userInfoLayout->setMargin(0);
-        userInfoLayout->setSpacing(0);
-        QLabel *logo = new QLabel(userInfoWgt);
-        logo->setPixmap(QPixmap(":/ArrowOnly.png"));
-        userInfoLayout->addWidget(logo,0,Qt::AlignHCenter);
-        userInfoLayout->addStretch(1);
+    void initNavi(MainWindow *window, QStackedWidget *naviDock) {
 
-        QWidget *ccWgt = new QWidget(wgt);
-        wgt->addWidget(ccWgt);
-        QVBoxLayout *ccLayout = new QVBoxLayout(ccWgt);
-        ccLayout->setMargin(0);
-        ccLayout->setSpacing(0);
+        ContactNavi *ccNavi = new ContactNavi(naviDock);
+        ccNavi->setIcon(QIcon(":/icon/comments.svg"));
+        ccNavi->setText("Chat");
+        window->addNavi(ccNavi,QUrl("navi/contact"));
 
-        QListWidget *lstWgt = new QListWidget(ccWgt);
-        lstWgt->addItem("Bb");
-        lstWgt->addItem("Uyho");
-        lstWgt->addItem("lly");
-        ccLayout->addWidget(lstWgt,1);
+        ContactNavi *cc2Navi = new ContactNavi(naviDock);
+        cc2Navi->setIcon(QIcon(":/icon/user-friends.svg"));
+        cc2Navi->setText("Friends");
+        window->addNavi(cc2Navi,QUrl("navi/contact_list"));
 
-        QWidget *friWgt = new QWidget(wgt);
-        friWgt->setStyleSheet("background:#789ABC");
-        wgt->addWidget(friWgt);
-
-        QWidget *stWgt = new QWidget(wgt);
-        stWgt->setStyleSheet("background:#CBA987");
-        wgt->addWidget(stWgt);
+        QObject::connect(ccNavi, SIGNAL(contactDoubleClicked(const QUrl&)),
+                window, SLOT(openPage(const QUrl&)));
     }
 
 }
@@ -61,6 +46,8 @@ MainWindow::MainWindow(QWidget *parent)
     mToolBar = new QToolBar(this);
     mToolBar->setMovable(false);
     mToolBar->setFloatable(false);
+    mToolBar->addAction(QIcon(":/icon/user-circle.svg"),"User");
+    mToolBar->addSeparator();
     addToolBar(Qt::LeftToolBarArea, mToolBar);
 
     mSplitter = new QSplitter(this);
@@ -78,35 +65,30 @@ MainWindow::MainWindow(QWidget *parent)
 
     mCurLabel = new QLabel(chatWgt);
     mCurLabel->setFixedHeight(50);
-    mCurLabel->setText("Chating with LLy ...");
     mCurLabel->setAlignment(Qt::AlignCenter);
     chatLayout->addWidget(mCurLabel);
 
-    mTabBar = new QTabBar(chatWgt);
-    mTabBar->setExpanding(false);
-    mTabBar->setStyleSheet("QTabBar::tab{min-width:150px;}");
-    mTabBar->addTab(tr("Frd"));
-    mTabBar->addTab(tr("Alli"));
-    mTabBar->addTab(tr("Ckd"));
-    chatLayout->addWidget(mTabBar);
-
-    QStackedWidget *tabWgt = new QStackedWidget(chatWgt);
-    chatLayout->addWidget(tabWgt,1);
-
-    ChatWidget *chatPage = new ChatWidget(tabWgt);
-    tabWgt->addWidget(chatPage);
+    mPageContainer = new PageContainer(chatWgt);
+    chatLayout->addWidget(mPageContainer);
 
     mSplitter->addWidget(mNaviDock);
     mSplitter->addWidget(chatWgt);
+    mSplitter->setSizes({0,mSplitter->width()});
     mSplitter->setStretchFactor(1,1);
 
-    ContactNavi *ccNavi = new ContactNavi(mNaviDock);
-    addNavi(ccNavi,QUrl("navi/contact"));
-    ContactNavi *cc2Navi = new ContactNavi(mNaviDock);
-    addNavi(cc2Navi,QUrl("navi/contact2"));
+    mCustomSeperator = mToolBar->addSeparator();
+    mToolBar->addAction(QIcon(":/icon/cog.svg"),"Settings");
 
+    statusBar()->showMessage("Welcome to Arrow Chat!",1000 * 10);
+
+    connect(mSplitter,SIGNAL(splitterMoved(int,int)),
+            this,SLOT(onSplitterMoved(int,int)));
+    connect(mPageContainer,SIGNAL(currentPageChanged(const QUrl&)),
+            this,SLOT(onCurrentPageChanged(const QUrl&)));
 
     resize(900,540);
+
+    cx_test::initNavi(this,mNaviDock);
 }
 
 MainWindow::~MainWindow()
@@ -119,18 +101,23 @@ void MainWindow::addNavi(NaviWidget *navi, const QUrl &naviUrl)
 
     QAction *act = nullptr;
     if(navi->icon().isNull()) {
-        act = new QAction(navi->icon(),navi->text(),mToolBar);
-    } else {
         act = new QAction(navi->text(),mToolBar);
+    } else {
+        act = new QAction(navi->icon(),navi->text(),mToolBar);
     }
 
     navi->setProperty("url",QVariant::fromValue(naviUrl));
     act->setProperty("url",QVariant::fromValue(naviUrl));
     act->setCheckable(true);
-    mToolBar->addAction(act);
+    mToolBar->insertAction(mCustomSeperator,act);
     mNaviDock->addWidget(navi);
 
     QObject::connect(act,SIGNAL(triggered(bool)),this,SLOT(onNaviActionTriggered(bool)));
+}
+
+void MainWindow::removeNavi(const QUrl &naviUrl)
+{
+    Q_UNUSED(naviUrl)
 }
 
 void MainWindow::collapseNavi(bool collpase)
@@ -151,21 +138,29 @@ void MainWindow::collapseNavi(bool collpase)
  * {path}?{query=value}
  * path: chat | news | group | ...
  */
-void MainWindow::openPage(const QUrl &tabPageUrl)
+void MainWindow::openPage(const QUrl &pageUrl)
 {
-    bool found {false};
-    for(int i = 0; i < mTabBar->count(); ++i) {
-        const QVariantMap tabMap = mTabBar->tabData(i).toMap();
-        const QUrl tabUrl = tabMap.value("url").toUrl();
-        if(tabUrl == tabPageUrl) {
-            found = true;
-            mTabBar->setCurrentIndex(i);
-            break;
+    mPageContainer->openPage(pageUrl);
+}
+
+void MainWindow::onSplitterMoved(int pos, int idx)
+{
+    if(idx == 1) {
+        const QUrl url = mNaviDock->currentWidget()->property("url").toUrl();
+        QAction *curAct = nullptr;
+        for(QAction *act: mToolBar->actions()) {
+            if(act->property("url").toUrl() == url) {
+                curAct = act;
+                break;
+            }
         }
-    }
-
-    if(!found) { // create tab widget
-
+        if(curAct) {
+            if(pos == 0) {
+                curAct->setChecked(false);
+            } else {
+                curAct->setChecked(true);
+            }
+        }
     }
 }
 
@@ -196,3 +191,8 @@ void MainWindow::onNaviActionTriggered(bool checked)
     }
 }
 
+void MainWindow::onCurrentPageChanged(const QUrl &url)
+{
+    const QUrlQuery query{url.query()};
+    mCurLabel->setText(QString("Chatting with %1 ...").arg(query.queryItemValue("title")));
+}

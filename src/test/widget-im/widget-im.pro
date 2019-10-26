@@ -2,25 +2,27 @@ CX_TARGET_NAME = widget-im
 QT += core gui widgets
 
 SOURCES += \
-    chatwidget.cpp \
     main.cpp \
     mainwindow.cpp \
     messageeditwidget.cpp \
-    naviwidget.cpp
+    naviwidget.cpp \
+    page/chatpage.cpp \
+    pagecontainer.cpp \
+    navi/contactnavi.cpp
 
 HEADERS += \
-    chatwidget.h \
     mainwindow.h \
     messageeditwidget.h \
-    naviwidget.h
+    naviwidget.h \
+    page/chatpage.h \
+    pagecontainer.h \
+    navi/contactnavi.h
 
 # DEFINES +=
 # CONFIG +=
 # QML_IMPORT_PATH =
 # QML_DESIGNER_IMPORT_PATH =
 # CXLIB_LIST +=
-
-include($$PWD/navi/navi.pri)
 
 RESOURCES += \
     res.qrc
