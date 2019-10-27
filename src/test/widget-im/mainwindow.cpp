@@ -22,17 +22,22 @@
 
 namespace cx_test {
 
-    void initNavi(MainWindow *window, QStackedWidget *naviDock) {
-
+    void initNavi(MainWindow *window, QStackedWidget *naviDock)
+    {
         ContactNavi *ccNavi = new ContactNavi(naviDock);
         ccNavi->setIcon(QIcon(":/icon/comments.svg"));
         ccNavi->setText("Chat");
         window->addNavi(ccNavi,QUrl("navi/contact"));
 
         ContactNavi *cc2Navi = new ContactNavi(naviDock);
-        cc2Navi->setIcon(QIcon(":/icon/user-friends.svg"));
+        cc2Navi->setIcon(QIcon(":/icon/user-alt.svg"));
         cc2Navi->setText("Friends");
-        window->addNavi(cc2Navi,QUrl("navi/contact_list"));
+        window->addNavi(cc2Navi,QUrl("navi/friends"));
+
+        ContactNavi *cc3Navi = new ContactNavi(naviDock);
+        cc3Navi->setIcon(QIcon(":/icon/user-friends.svg"));
+        cc3Navi->setText("Friends");
+        window->addNavi(cc3Navi,QUrl("navi/contact_list"));
 
         QObject::connect(ccNavi, SIGNAL(contactDoubleClicked(const QUrl&)),
                 window, SLOT(openPage(const QUrl&)));
@@ -46,6 +51,7 @@ MainWindow::MainWindow(QWidget *parent)
     mToolBar = new QToolBar(this);
     mToolBar->setMovable(false);
     mToolBar->setFloatable(false);
+    mToolBar->toggleViewAction()->setVisible(false);
     mToolBar->addAction(QIcon(":/icon/user-circle.svg"),"User");
     mToolBar->addSeparator();
     addToolBar(Qt::LeftToolBarArea, mToolBar);
@@ -77,7 +83,9 @@ MainWindow::MainWindow(QWidget *parent)
     mSplitter->setStretchFactor(1,1);
 
     mCustomSeperator = mToolBar->addSeparator();
-    mToolBar->addAction(QIcon(":/icon/cog.svg"),"Settings");
+    mToolBar->addAction(QIcon(":/icon/cog.svg"),"Settings",[this](){
+        this->openPage(QUrl("settings?title=Settings"));
+    });
 
     statusBar()->showMessage("Welcome to Arrow Chat!",1000 * 10);
 

@@ -3,6 +3,7 @@
 #include <QVBoxLayout>
 #include <QTextEdit>
 #include <QPushButton>
+#include "globalkv.h"
 
 MessageEditWidget::MessageEditWidget(QWidget *parent)
     : QWidget(parent)
@@ -25,10 +26,15 @@ MessageEditWidget::MessageEditWidget(QWidget *parent)
     mSendBtn = new QPushButton("Send", bottombar);
     bottombar->addWidget(mSendBtn);
 
-    connect(mSendBtn,SIGNAL(clicked(bool)),this,SIGNAL(sendMessage()));
+    connect(mSendBtn,SIGNAL(clicked(bool)),this,SLOT(onSendMsgClicked()));
 }
 
-QString MessageEditWidget::message() const
+void MessageEditWidget::onSendMsgClicked()
 {
-    return mTextEdit->toHtml();
+    const QString msg = mTextEdit->toPlainText();
+    if(!msg.isEmpty()) {
+        pGlobalKV->set(QStringLiteral("send_msg"),msg);
+        mTextEdit->clear();
+        emit sendMessage(QStringLiteral("send_msg"));
+    }
 }

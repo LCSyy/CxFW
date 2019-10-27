@@ -1,22 +1,32 @@
 CX_TARGET_NAME = widget-im
-QT += core gui widgets
+QT += core gui widgets quick quickcontrols2 quickwidgets
 
 SOURCES += \
+    chatitem.cpp \
+    chatmsgmodel.cpp \
+    globalkv.cpp \
     main.cpp \
     mainwindow.cpp \
     messageeditwidget.cpp \
     naviwidget.cpp \
     page/chatpage.cpp \
+    page/settingpage.cpp \
     pagecontainer.cpp \
-    navi/contactnavi.cpp
+    navi/contactnavi.cpp \
+    utility.cpp
 
 HEADERS += \
+    chatitem.h \
+    chatmsgmodel.h \
+    globalkv.h \
     mainwindow.h \
     messageeditwidget.h \
     naviwidget.h \
     page/chatpage.h \
+    page/settingpage.h \
     pagecontainer.h \
-    navi/contactnavi.h
+    navi/contactnavi.h \
+    utility.h
 
 # DEFINES +=
 # CONFIG +=

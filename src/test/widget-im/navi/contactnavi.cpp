@@ -13,6 +13,7 @@ ContactNavi::ContactNavi(QWidget *parent)
     QListWidget *lstWgt = new QListWidget(this);
 
     QListWidgetItem *item1 = new QListWidgetItem("Bb",lstWgt);
+    item1->setData(Qt::DecorationRole,QIcon(":/icon/cog.svg"));
     item1->setData(Qt::UserRole+1,QVariant::fromValue(QString("1")));
     lstWgt->addItem(item1);
 

@@ -6,5 +6,7 @@
         <file>icon/user-friends.svg</file>
         <file>icon/comments.svg</file>
         <file>icon/cog.svg</file>
+        <file>qml/ChatFlow.qml</file>
+        <file>icon/user-alt.svg</file>
     </qresource>
 </RCC>

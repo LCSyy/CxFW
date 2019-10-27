@@ -12,11 +12,13 @@ class MessageEditWidget : public QWidget
 {
     Q_OBJECT
 signals:
-    void sendMessage();
+    void sendMessage(const QString &msgBufferPath);
+
 public:
     explicit MessageEditWidget(QWidget *parent = nullptr);
 
-    QString message() const;
+private slots:
+    void onSendMsgClicked();
 
 private:
     QTextEdit *mTextEdit {nullptr};
