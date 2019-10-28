@@ -35,92 +35,17 @@ PageContainer::PageContainer(QWidget *parent)
 void PageContainer::openPage(const QUrl &url)
 {
     const QUrl oldUrl = currentPage();
-
-    bool foundTab{false};
-    mTabBar->blockSignals(true);
-    for(int i = 0; i < mTabBar->count(); ++i) {
-        const QVariantMap tabMap = mTabBar->tabData(i).toMap();
-        const QUrl tabUrl = tabMap.value("url").toUrl();
-        if(tabUrl == url) {
-            foundTab = true;
-            mTabBar->setCurrentIndex(i);
-            break;
-        }
-    }
-
-    if(!foundTab) {
-        foundTab = true;
-        QUrlQuery query(url.query());
-        int idx = mTabBar->addTab(query.queryItemValue("title"));
-        QVariantMap dataMap;
-        dataMap.insert("url",QVariant::fromValue(url));
-        mTabBar->setTabData(idx,QVariant::fromValue(dataMap));
-        mTabBar->setCurrentIndex(idx);
-    }
-    mTabBar->blockSignals(false);
-
     const QString path = url.path();
-    const QUrlQuery query(url.query());
-    const QString who = query.queryItemValue("who");
-    const QString title = query.queryItemValue("title");
 
     bool foundPage = false;
-    for(int i = 0; i < mPageStack->count(); ++i) {
-        QWidget *page = mPageStack->widget(i);
-        if(page) {
-            const QUrl pageUrl = page->property("url").toUrl();
-            if(path == "chat" && pageUrl.path() == "chat") {
-                foundPage = true;
-                ChatPage *chatWgt = qobject_cast<ChatPage*>(page);
-                if(chatWgt) {
-                    // ... load who's chatting data ...
-                }
-            } else if(path == "group" && pageUrl.path() == "group") {
-                foundPage = true;
-                // ...
-            } else if(path == "news" && pageUrl == url) {
-                foundPage = true;
-            } else if(path == "settings" && pageUrl.path() == "settings") {
-                foundPage = true;
-            }
-
-            if(foundPage) {
-                mPageStack->setCurrentIndex(i);
-                break;
-            }
-        }
+    mTabBar->blockSignals(true);
+    if(path == "chat") {
+        foundPage = openChatPage(url);
+    } else if(path == "settings") {
+        foundPage = openSettingsPage(url);
     }
 
-    if(!foundPage) {
-        QWidget *newPageWgt{nullptr};
-        if(path == "chat") {
-            ChatPage *chatWgt = new ChatPage(mPageStack);
-            chatWgt->setProperty("url",url);
-            newPageWgt = chatWgt;
-
-        } else if(path == "group") {
-            QWidget *group = new QWidget(mPageStack);
-            group->setProperty("url",url);
-            group->setStyleSheet("background:#ABC789");
-            newPageWgt = group;
-        } else if(path == "news") {
-            QWidget *news = new QWidget(mPageStack);
-            news->setProperty("url",url);
-            news->setStyleSheet("background:#ABC789");
-            newPageWgt = news;
-        } else if(path == "settings") {
-            SettingPage *settings = new SettingPage(mPageStack);
-            settings->setProperty("url",url);
-            newPageWgt = settings;
-        }
-
-        if(newPageWgt) {
-            foundPage = true;
-            mPageStack->addWidget(newPageWgt);
-            mPageStack->setCurrentWidget(newPageWgt);
-        }
-    }
-
+    mTabBar->blockSignals(false);
     if(foundPage && oldUrl != url) {
         emit currentPageChanged(url);
     }
@@ -190,4 +115,118 @@ void PageContainer::onTabCurrentChanged(int idx)
 
     const QUrl url = mTabBar->tabData(idx).toMap().value("url").toUrl();
     if(url.isValid()) { openPage(url); }
+}
+
+bool PageContainer::openChatPage(const QUrl &url)
+{
+    bool foundPage {false};
+    const QUrlQuery query(url.query());
+    const QString who = query.queryItemValue("who");
+    const QString title = query.queryItemValue("title");
+
+    // find or create tab
+    // find or create page
+    bool foundTab{false};
+    for(int i = 0; i < mTabBar->count(); ++i) {
+        const QVariantMap tabMap = mTabBar->tabData(i).toMap();
+        const QUrl tabUrl = tabMap.value("url").toUrl();
+        if(tabUrl == url) {
+            foundTab = true;
+            mTabBar->setCurrentIndex(i);
+            break;
+        }
+    }
+
+    if(!foundTab) {
+        foundTab = true;
+        QUrlQuery query(url.query());
+        int idx = mTabBar->addTab(query.queryItemValue("title"));
+        QVariantMap dataMap;
+        dataMap.insert("url",QVariant::fromValue(url));
+        mTabBar->setTabData(idx,QVariant::fromValue(dataMap));
+        mTabBar->setCurrentIndex(idx);
+    }
+
+    for(int i = 0; i < mPageStack->count(); ++i) {
+        QWidget *page = mPageStack->widget(i);
+        if(page) {
+            const QUrl pageUrl = page->property("url").toUrl();
+            if(pageUrl.path() == "chat") {
+                foundPage = true;
+                mPageStack->setCurrentIndex(i);
+                ChatPage *chatWgt = qobject_cast<ChatPage*>(page);
+                if(chatWgt) {
+                    // ... load who's chatting data ...
+                }
+                break;
+            }
+        }
+    }
+
+    if(!foundPage) {
+        foundPage = true;
+        ChatPage *chatWgt = new ChatPage(mPageStack);
+        chatWgt->setProperty("url",url);
+        mPageStack->addWidget(chatWgt);
+        mPageStack->setCurrentWidget(chatWgt);
+    }
+
+    return foundPage;
+}
+
+bool PageContainer::openSettingsPage(const QUrl &url)
+{
+    bool foundPage {false};
+    const QUrlQuery query(url.query());
+    const QString who = query.queryItemValue("who");
+    const QString title = query.queryItemValue("title");
+
+    // find or create tab
+    // find or create page
+    bool foundTab{false};
+    for(int i = 0; i < mTabBar->count(); ++i) {
+        const QVariantMap tabMap = mTabBar->tabData(i).toMap();
+        const QUrl tabUrl = tabMap.value("url").toUrl();
+        if(tabUrl == url) {
+            foundTab = true;
+            mTabBar->setCurrentIndex(i);
+            break;
+        }
+    }
+
+    if(!foundTab) {
+        foundTab = true;
+        QUrlQuery query(url.query());
+        int idx = mTabBar->addTab(query.queryItemValue("title"));
+        QVariantMap dataMap;
+        dataMap.insert("url",QVariant::fromValue(url));
+        mTabBar->setTabData(idx,QVariant::fromValue(dataMap));
+        mTabBar->setCurrentIndex(idx);
+    }
+
+    for(int i = 0; i < mPageStack->count(); ++i) {
+        QWidget *page = mPageStack->widget(i);
+        if(page) {
+            const QUrl pageUrl = page->property("url").toUrl();
+            if(pageUrl.path() == "settings") {
+                foundPage = true;
+                mPageStack->setCurrentIndex(i);
+                SettingPage *settingWgt = qobject_cast<SettingPage*>(page);
+                if(settingWgt) {
+                    // ... visual at setting fragment ...
+                }
+                break;
+            }
+        }
+    }
+
+    if(!foundPage) {
+        foundPage = true;
+        SettingPage *settingWgt = new SettingPage(mPageStack);
+        settingWgt->setProperty("url",url);
+        mPageStack->addWidget(settingWgt);
+        mPageStack->setCurrentWidget(settingWgt);
+    }
+
+    return foundPage;
 }

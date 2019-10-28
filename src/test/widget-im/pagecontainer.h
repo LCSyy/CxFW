@@ -24,6 +24,11 @@ public:
 private slots:
     void onTabCloseRequested(int idx);
     void onTabCurrentChanged(int idx);
+
+private:
+    bool openChatPage(const QUrl &url);
+    bool openSettingsPage(const QUrl &url);
+
 private:
     QTabBar *mTabBar {nullptr};
     QStackedWidget *mPageStack {nullptr};

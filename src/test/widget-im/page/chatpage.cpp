@@ -8,6 +8,7 @@
 #include "globalkv.h"
 #include "chatitem.h"
 #include "utility.h"
+#include "textmetrics.h"
 #include "chatmsgmodel.h"
 #include "messageeditwidget.h"
 
@@ -33,6 +34,7 @@ ChatPage::ChatPage(QWidget *parent) : QWidget(parent)
 
     qmlRegisterSingletonType("CxIM",1,0,"Utils",::utility_provider);
     qmlRegisterType<ChatItem>("CxIM",1,0,"ChatItem");
+    qmlRegisterType<TextMetrics>("CxIM",1,0,"TextMetrics");
 
     mQuick = new QQuickWidget(splitter);
     mQuick->setResizeMode(QQuickWidget::SizeRootObjectToView);
@@ -57,19 +59,12 @@ ChatPage::ChatPage(QWidget *parent) : QWidget(parent)
 void ChatPage::onSendMessage(const QString &msgUrl)
 {
     const QString msg = pGlobalKV->value(msgUrl).toString();
-    const QChar who = msg.back();
     QVariantMap chatMap;
     const QString dt = QDateTime::currentDateTime().toString("MM-dd hh:mm");
-    if(who == 'L') {
-        chatMap.insert("who","L");
-        chatMap.insert("name","LLY");
-        chatMap.insert("color","#123456");
-    } else {
-        chatMap.insert("who","R");
-        chatMap.insert("name","LCS");
-        chatMap.insert("color","#963147");
-    }
+    chatMap.insert("who","ME");
+    chatMap.insert("name","LCS");
+    chatMap.insert("color","#963147");
     chatMap.insert("dt",dt);
-    chatMap.insert("msg",msg.chopped(1));
+    chatMap.insert("msg",msg);
     mChatMsgModel->addMessage(chatMap);
 }

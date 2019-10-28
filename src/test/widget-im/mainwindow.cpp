@@ -72,6 +72,7 @@ MainWindow::MainWindow(QWidget *parent)
     mCurLabel = new QLabel(chatWgt);
     mCurLabel->setFixedHeight(50);
     mCurLabel->setAlignment(Qt::AlignCenter);
+    mCurLabel->setTextFormat(Qt::RichText);
     chatLayout->addWidget(mCurLabel);
 
     mPageContainer = new PageContainer(chatWgt);
@@ -202,5 +203,5 @@ void MainWindow::onNaviActionTriggered(bool checked)
 void MainWindow::onCurrentPageChanged(const QUrl &url)
 {
     const QUrlQuery query{url.query()};
-    mCurLabel->setText(QString("Chatting with %1 ...").arg(query.queryItemValue("title")));
+    mCurLabel->setText(QString("<b>%1</b>").arg(query.queryItemValue("title")));
 }

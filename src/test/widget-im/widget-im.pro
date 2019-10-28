@@ -13,6 +13,8 @@ SOURCES += \
     page/settingpage.cpp \
     pagecontainer.cpp \
     navi/contactnavi.cpp \
+    pagewidget.cpp \
+    textmetrics.cpp \
     utility.cpp
 
 HEADERS += \
@@ -26,6 +28,8 @@ HEADERS += \
     page/settingpage.h \
     pagecontainer.h \
     navi/contactnavi.h \
+    pagewidget.h \
+    textmetrics.h \
     utility.h
 
 # DEFINES +=
@@ -37,4 +41,5 @@ HEADERS += \
 RESOURCES += \
     res.qrc
 
+include($$PWD/im/im.pri)
 include($$PWD/../../utils/app.pri)

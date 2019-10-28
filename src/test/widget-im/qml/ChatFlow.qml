@@ -20,11 +20,13 @@ Item {
             verticalAlignment: Qt.AlignVCenter
         }
         onCountChanged: {
-            console.log('Count:', count)
-            positionViewAtEnd()
+            const headerHeight = 50;
+            const visiableHeight = contentHeight * visibleArea.heightRatio
+            contentY = (contentHeight > height) ? (contentHeight + headerHeight - visiableHeight) : (-headerHeight)
         }
 
         delegate: Item {
+            id: chatItem
             width: parent.width
             height: chatInfo.height + chatMsg.height + 10
 
@@ -55,8 +57,8 @@ Item {
                 anchors.top: chatInfo.bottom
                 anchors.left: model.who === 'L' ? chatInfo.left : undefined
                 anchors.right: model.who === 'L' ? undefined : chatInfo.right
-                width: msg.contentWidth + 20
-                height: msg.contentHeight + 20
+                width: textMetrics.textRect.width + 20
+                height: textMetrics.textRect.height + 20
                 color: Qt.lighter(model.color,1.3)
                 radius: 5
                 Text {
@@ -64,8 +66,13 @@ Item {
                     anchors.fill: parent
                     anchors.margins: 10
                     text: model.msg
+                    wrapMode: Text.WrapAtWordBoundaryOrAnywhere
                     color: "white"
                     // textFormat: Text.RichText
+                }
+                TextMetrics {
+                    id: textMetrics
+                    property rect textRect: boundingRect(Qt.rect(0,0,chatItem.width - chatUserIcon.width - 10 - 100,100), model.msg)
                 }
             }
         }
