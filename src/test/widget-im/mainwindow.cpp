@@ -48,6 +48,8 @@ namespace cx_test {
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
 {
+    setWindowTitle(tr("widget-im"));
+
     mToolBar = new QToolBar(this);
     mToolBar->setMovable(false);
     mToolBar->setFloatable(false);

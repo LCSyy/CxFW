@@ -1,4 +1,5 @@
-#include "textmetrics.h"
+﻿#include "textmetrics.h"
+#include <QDebug>
 
 TextMetrics::TextMetrics(QObject *parent)
     : QObject(parent)
@@ -9,10 +10,6 @@ TextMetrics::TextMetrics(QObject *parent)
 
 QRect TextMetrics::boundingRect(const QRect &rect, const QString &text) const
 {
-    return mMetrics.boundingRect(rect,Qt::TextWordWrap,text);
+    return mMetrics.boundingRect(rect,Qt::AlignLeft | Qt::TextWrapAnywhere,text);
 }
 
-QSize TextMetrics::size(const QString &str) const
-{
-    return mMetrics.size(Qt::TextWordWrap,str);
-}

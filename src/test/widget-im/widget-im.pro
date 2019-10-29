@@ -1,5 +1,5 @@
 CX_TARGET_NAME = widget-im
-QT += core gui widgets quick quickcontrols2 quickwidgets
+QT += core gui widgets network quick quickcontrols2 quickwidgets
 
 SOURCES += \
     chatitem.cpp \
@@ -42,4 +42,5 @@ RESOURCES += \
     res.qrc
 
 include($$PWD/im/im.pri)
+include($$PWD/login/login.pri)
 include($$PWD/../../utils/app.pri)

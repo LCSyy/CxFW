@@ -1,4 +1,4 @@
-#ifndef CHATPAGE_H
+﻿#ifndef CHATPAGE_H
 #define CHATPAGE_H
 
 #include <QWidget>
@@ -16,6 +16,7 @@ public:
 
 private slots:
     void onSendMessage(const QString &msgUrl);
+
 private:
     QQuickWidget *mQuick {nullptr};
     ChatMsgModel *mChatMsgModel {nullptr};

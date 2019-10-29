@@ -1,4 +1,4 @@
-#include "chatpage.h"
+﻿#include "chatpage.h"
 #include <QSplitter>
 #include <QVBoxLayout>
 #include <QQuickWidget>
@@ -47,7 +47,6 @@ ChatPage::ChatPage(QWidget *parent) : QWidget(parent)
 
     MessageEditWidget *msgEdit = new MessageEditWidget(splitter);
     msgEdit->setMinimumHeight(150);
-
     splitter->addWidget(mQuick);
     splitter->addWidget(msgEdit);
     splitter->setStretchFactor(0,1);

@@ -3,7 +3,12 @@
 #include <QVBoxLayout>
 #include <QTextEdit>
 #include <QPushButton>
+#include <QKeySequence>
+#include <QShortcut>
+#include <QKeyEvent>
 #include "globalkv.h"
+
+#include <QDebug>
 
 MessageEditWidget::MessageEditWidget(QWidget *parent)
     : QWidget(parent)
@@ -36,5 +41,12 @@ void MessageEditWidget::onSendMsgClicked()
         pGlobalKV->set(QStringLiteral("send_msg"),msg);
         mTextEdit->clear();
         emit sendMessage(QStringLiteral("send_msg"));
+    }
+}
+
+void MessageEditWidget::keyPressEvent(QKeyEvent *event)
+{
+    if(event->key() == Qt::Key_Return) { // ctrl + enter
+        mSendBtn->click();
     }
 }

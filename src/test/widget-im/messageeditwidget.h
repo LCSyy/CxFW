@@ -20,6 +20,9 @@ public:
 private slots:
     void onSendMsgClicked();
 
+protected:
+    void keyPressEvent(QKeyEvent *event) override;
+
 private:
     QTextEdit *mTextEdit {nullptr};
     QPushButton *mSendBtn {nullptr};
