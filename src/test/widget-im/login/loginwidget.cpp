@@ -6,6 +6,7 @@
 #include <QPushButton>
 #include <QStatusBar>
 #include <QLabel>
+#include <QIntValidator>
 
 #include <QTcpSocket>
 
@@ -30,8 +31,8 @@ LoginWidget::LoginWidget(QWidget *parent)
     vlayout->addWidget(label,1);
     QFormLayout *formLayout = new QFormLayout;
     vlayout->addLayout(formLayout);
-    formLayout->addRow(tr("Name"), mUserNameField);
-    formLayout->addRow(tr("Password"), mPasswordField);
+    formLayout->addRow(tr("name"), mUserNameField);
+    formLayout->addRow(tr("password"), mPasswordField);
     QPushButton *loginBtn = new QPushButton(tr("login"),this);
     vlayout->addWidget(loginBtn);
     mStatusBar->setSizeGripEnabled(false);
@@ -46,18 +47,18 @@ void LoginWidget::onLogin()
     const QString password = mPasswordField->text().trimmed();
     if(userName.isEmpty()) {
         mStatusBar->showMessage(tr("username cant be empty"),5000);
-        return;
+    //    return;
     }
     if(password.isEmpty()) {
         mStatusBar->showMessage(tr("password cant be empty"),5000);
-        return;
+    //    return;
     }
 
     QTcpSocket socket;
-    socket.connectToHost("127.0.0.1", 11511);
+    socket.connectToHost("192.168.2.119", 11511);
 
     if (socket.waitForConnected(1000)) {
-        socket.write("login://user:password@host:port/path/?param=value#fragment");
+        socket.write(R"({"name":"AA","password":"123"})");
         socket.flush();
     }
 

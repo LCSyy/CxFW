@@ -1,4 +1,4 @@
-import QtQuick 2.12
+﻿import QtQuick 2.12
 import QtQuick.Controls 2.12
 import QtQuick.Layouts 1.12
 import CxIM 1.0
@@ -15,7 +15,7 @@ Item {
         header: Text {
             width: parent.width
             height: 50
-            text: qsTr("No more messages")
+            text: qsTr("no more messages")
             horizontalAlignment: Qt.AlignHCenter
             verticalAlignment: Qt.AlignVCenter
         }
