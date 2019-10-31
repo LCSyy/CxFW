@@ -11,6 +11,7 @@
 #include "textmetrics.h"
 #include "chatmsgmodel.h"
 #include "messageeditwidget.h"
+#include "im/messenger.h"
 
 #include <QDebug>
 
@@ -53,6 +54,7 @@ ChatPage::ChatPage(QWidget *parent) : QWidget(parent)
     splitter->setSizes({splitter->height() - 150,150});
 
     connect(msgEdit,SIGNAL(sendMessage(const QString&)),this,SLOT(onSendMessage(const QString&)));
+    connect(Messenger::instance(),SIGNAL(messageReadyRead(const Message&)),this,SLOT(onMessageReadyRead(const Message&)));
 }
 
 void ChatPage::onSendMessage(const QString &msgUrl)
@@ -66,4 +68,17 @@ void ChatPage::onSendMessage(const QString &msgUrl)
     chatMap.insert("dt",dt);
     chatMap.insert("msg",msg);
     mChatMsgModel->addMessage(chatMap);
+    Messenger::instance()->sendMessage({"127.0.0.1",11500,msg});
+}
+
+void ChatPage::onMessageReadyRead(const Message &msg)
+{
+    QVariantMap chatMap;
+     const QString dt = QDateTime::currentDateTime().toString("MM-dd hh:mm");
+     chatMap.insert("who","L");
+     chatMap.insert("name",msg.host + ":" + QString(msg.port));
+     chatMap.insert("color","#008080");
+     chatMap.insert("dt",dt);
+     chatMap.insert("msg",QString(msg.msg));
+     mChatMsgModel->addMessage(chatMap);
 }

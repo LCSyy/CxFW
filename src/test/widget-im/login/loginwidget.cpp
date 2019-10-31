@@ -6,9 +6,8 @@
 #include <QPushButton>
 #include <QStatusBar>
 #include <QLabel>
-#include <QIntValidator>
 
-#include <QTcpSocket>
+#include "im/messenger.h"
 
 #include <QDebug>
 
@@ -26,7 +25,7 @@ LoginWidget::LoginWidget(QWidget *parent)
     QVBoxLayout *vlayout = new QVBoxLayout(this);
     QLabel *label = new QLabel(this);
     label->setTextFormat(Qt::RichText);
-    label->setText("<b style=color:#123456;font-size:xx-large>Widget-IM</b>");
+    label->setText("<b style=color:#DC143C;font-size:xx-large>Widget-IM</b>");
     label->setAlignment(Qt::AlignCenter);
     vlayout->addWidget(label,1);
     QFormLayout *formLayout = new QFormLayout;
@@ -54,17 +53,18 @@ void LoginWidget::onLogin()
     //    return;
     }
 
-    QTcpSocket socket;
-    socket.connectToHost("192.168.2.119", 11511);
-
-    if (socket.waitForConnected(1000)) {
-        socket.write(R"({"name":"AA","password":"123"})");
-        socket.flush();
-    }
-
-    if(socket.waitForReadyRead()) {
-        if(socket.readAll() == QByteArray("Ok")) {
-            accept();
-        }
-    }
+    Messenger::instance()->sendMessage({"127.0.0.1",11500,"Hello"});
+    // QTcpSocket socket;
+    // socket.connectToHost("192.168.2.119", 11511);
+    //
+    // if (socket.waitForConnected(1000)) {
+    //     socket.write(R"({"name":"AA","password":"123"})");
+    //     socket.flush();
+    // }
+    //
+    // if(socket.waitForReadyRead()) {
+    //     if(socket.readAll() == QByteArray("Ok")) {
+             accept();
+    //     }
+    // }
 }

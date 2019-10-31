@@ -8,6 +8,7 @@ class QQuickWidget;
 QT_END_NAMESPACE
 class ChatMsgModel;
 
+struct Message;
 class ChatPage : public QWidget
 {
     Q_OBJECT
@@ -16,6 +17,7 @@ public:
 
 private slots:
     void onSendMessage(const QString &msgUrl);
+    void onMessageReadyRead(const Message &msg);
 
 private:
     QQuickWidget *mQuick {nullptr};

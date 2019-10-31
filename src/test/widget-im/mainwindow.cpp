@@ -74,6 +74,7 @@ MainWindow::MainWindow(QWidget *parent)
     mCurLabel = new QLabel(chatWgt);
     mCurLabel->setFixedHeight(50);
     mCurLabel->setAlignment(Qt::AlignCenter);
+    mCurLabel->setText("<b style=color:#DC143C;font-size:xx-large>Widget-IM</b>");
     mCurLabel->setTextFormat(Qt::RichText);
     chatLayout->addWidget(mCurLabel);
 
@@ -205,5 +206,5 @@ void MainWindow::onNaviActionTriggered(bool checked)
 void MainWindow::onCurrentPageChanged(const QUrl &url)
 {
     const QUrlQuery query{url.query()};
-    mCurLabel->setText(QString("<b>%1</b>").arg(query.queryItemValue("title")));
+    mCurLabel->setText(QString("<b style=color:#DC143C;font-size:xx-large>%1</b>").arg(query.queryItemValue("title")));
 }
