@@ -1,8 +1,8 @@
 ﻿#include <QApplication>
-#include "mainwindow.h"
-#include "login/loginwidget.h"
-#include "globalkv.h"
-#include "im/messenger.h"
+#include "cpp/mainwindow.h"
+#include "cpp/login/loginwidget.h"
+#include "cpp/globalkv.h"
+#include "cpp/im/messenger.h"
 
 #include <QDebug>
 

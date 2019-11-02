@@ -5,6 +5,13 @@ import CxIM 1.0
 
 Item {
 
+    Connections {
+        target: chatMsgModel
+        onAddItem: {
+            listView.currentIndex = idx;
+        }
+    }
+
     ListView {
         id: listView
         anchors.fill: parent
@@ -19,10 +26,9 @@ Item {
             horizontalAlignment: Qt.AlignHCenter
             verticalAlignment: Qt.AlignVCenter
         }
-        onCountChanged: {
-            const headerHeight = 50;
-            const visiableHeight = contentHeight * visibleArea.heightRatio
-            contentY = (contentHeight > height) ? (contentHeight + headerHeight - visiableHeight) : (-headerHeight)
+
+        populate: Transition {
+            NumberAnimation { property: "y"; duration: 100 }
         }
 
         delegate: Item {

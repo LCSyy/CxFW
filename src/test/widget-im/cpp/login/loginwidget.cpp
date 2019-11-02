@@ -6,8 +6,10 @@
 #include <QPushButton>
 #include <QStatusBar>
 #include <QLabel>
+#include <QJsonDocument>
+#include <QJsonObject>
 
-#include "im/messenger.h"
+#include "cpp/im/messenger.h"
 
 #include <QDebug>
 
@@ -38,6 +40,8 @@ LoginWidget::LoginWidget(QWidget *parent)
     vlayout->addWidget(mStatusBar);
 
     connect(loginBtn,SIGNAL(clicked()),this,SLOT(onLogin()));
+    connect(Messenger::instance(), SIGNAL(messageReadyRead(const Message&)),
+            this, SLOT(onMessageReadyRead(const Message&)));
 }
 
 void LoginWidget::onLogin()
@@ -46,25 +50,26 @@ void LoginWidget::onLogin()
     const QString password = mPasswordField->text().trimmed();
     if(userName.isEmpty()) {
         mStatusBar->showMessage(tr("username cant be empty"),5000);
-    //    return;
+        return;
     }
     if(password.isEmpty()) {
         mStatusBar->showMessage(tr("password cant be empty"),5000);
-    //    return;
+        return;
     }
 
-    Messenger::instance()->sendMessage({"127.0.0.1",11500,"Hello"});
-    // QTcpSocket socket;
-    // socket.connectToHost("192.168.2.119", 11511);
-    //
-    // if (socket.waitForConnected(1000)) {
-    //     socket.write(R"({"name":"AA","password":"123"})");
-    //     socket.flush();
-    // }
-    //
-    // if(socket.waitForReadyRead()) {
-    //     if(socket.readAll() == QByteArray("Ok")) {
-             accept();
-    //     }
-    // }
+    mStatusBar->showMessage(tr("waiting for login ..."));
+
+    Messenger::instance()->sendMessage({"127.0.0.1",11500,
+                                        QString(R"({"type":1,"usr":"%1","pwd":"%2"})").arg(userName).arg(password)});
+}
+
+void LoginWidget::onMessageReadyRead(const Message &msg)
+{
+    QJsonObject loginInfo = QJsonDocument::fromJson(QByteArray().append(msg.msg)).object();
+
+    if(loginInfo.value("result").toString() == "OK") {
+        accept();
+    } else {
+        mStatusBar->showMessage(tr("User not exists!"),5000);
+    }
 }

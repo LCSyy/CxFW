@@ -17,6 +17,7 @@ QIcon NaviWidget::icon() const
     return mIcon;
 }
 
+
 void NaviWidget::setText(const QString &text)
 {
     mText = text;

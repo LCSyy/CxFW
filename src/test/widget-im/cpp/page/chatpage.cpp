@@ -5,13 +5,15 @@
 #include <QQmlContext>
 #include <QJSEngine>
 #include <QDateTime>
-#include "globalkv.h"
-#include "chatitem.h"
-#include "utility.h"
-#include "textmetrics.h"
-#include "chatmsgmodel.h"
-#include "messageeditwidget.h"
-#include "im/messenger.h"
+#include <QJsonDocument>
+#include <QJsonObject>
+#include "cpp/globalkv.h"
+#include "cpp/chatitem.h"
+#include "cpp/utility.h"
+#include "cpp/textmetrics.h"
+#include "cpp/chatmsgmodel.h"
+#include "cpp/messageeditwidget.h"
+#include "cpp/im/messenger.h"
 
 #include <QDebug>
 
@@ -53,8 +55,10 @@ ChatPage::ChatPage(QWidget *parent) : QWidget(parent)
     splitter->setStretchFactor(0,1);
     splitter->setSizes({splitter->height() - 150,150});
 
-    connect(msgEdit,SIGNAL(sendMessage(const QString&)),this,SLOT(onSendMessage(const QString&)));
-    connect(Messenger::instance(),SIGNAL(messageReadyRead(const Message&)),this,SLOT(onMessageReadyRead(const Message&)));
+    connect(msgEdit,SIGNAL(sendMessage(const QString&)),
+            this, SLOT(onSendMessage(const QString&)));
+    connect(Messenger::instance(),SIGNAL(messageReadyRead(const Message&)),
+            this, SLOT(onMessageReadyRead(const Message&)));
 }
 
 void ChatPage::onSendMessage(const QString &msgUrl)
@@ -68,17 +72,19 @@ void ChatPage::onSendMessage(const QString &msgUrl)
     chatMap.insert("dt",dt);
     chatMap.insert("msg",msg);
     mChatMsgModel->addMessage(chatMap);
-    Messenger::instance()->sendMessage({"127.0.0.1",11500,msg});
+    QString chatMsg = QString(R"({"type":2,"user":"LCS","msg":"%1"})").arg(msg);
+    Messenger::instance()->sendMessage({"127.0.0.1",11500,chatMsg});
 }
 
 void ChatPage::onMessageReadyRead(const Message &msg)
 {
+    QJsonObject chatMsg = QJsonDocument::fromJson(QByteArray().append(msg.msg)).object();
     QVariantMap chatMap;
      const QString dt = QDateTime::currentDateTime().toString("MM-dd hh:mm");
      chatMap.insert("who","L");
-     chatMap.insert("name",msg.host + ":" + QString(msg.port));
+     chatMap.insert("name",msg.host + ":" + QString::number(msg.port));
      chatMap.insert("color","#008080");
      chatMap.insert("dt",dt);
-     chatMap.insert("msg",QString(msg.msg));
+     chatMap.insert("msg",QString(chatMsg.value("msg").toString()));
      mChatMsgModel->addMessage(chatMap);
 }

@@ -7,6 +7,7 @@ QT_BEGIN_NAMESPACE
 class QLineEdit;
 class QStatusBar;
 QT_END_NAMESPACE
+struct Message;
 
 class LoginWidget : public QDialog
 {
@@ -16,6 +17,7 @@ public:
 
 private slots:
     void onLogin();
+    void onMessageReadyRead(const Message &msg);
 
 private:
     QLineEdit *mUserNameField {nullptr};

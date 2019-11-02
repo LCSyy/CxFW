@@ -57,4 +57,5 @@ void ChatMsgModel::addMessage(const QVariantMap &chatMsg)
     beginInsertRows(QModelIndex(),rowCount,rowCount);
     mMsgLst.append(chatMsg);
     endInsertRows();
+    emit addItem(rowCount);
 }

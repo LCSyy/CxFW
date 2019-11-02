@@ -14,6 +14,9 @@ enum class ChatItemRole {
 class ChatMsgModel: public QAbstractListModel
 {
     Q_OBJECT
+signals:
+    void addItem(int idx);
+
 public:
     ChatMsgModel(QObject *parent = nullptr);
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;
