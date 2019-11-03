@@ -32,6 +32,7 @@ int main(int argc, char *argv[])
         win.show();
         return a.exec();
     } else {
+        // onQuit();
         a.quit();
         return 0;
     }

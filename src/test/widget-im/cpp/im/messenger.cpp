@@ -26,7 +26,7 @@ void Messenger::init()
     if(!mSocket) {
         mSocket = new QTcpSocket(this);
         connect(mSocket,SIGNAL(readyRead()),this,SLOT(onReadyRead()));
-        mSocket->bind(QHostAddress(QHostAddress::LocalHost),11501);
+        mSocket->bind(QHostAddress(QHostAddress::LocalHost),11510);
     }
 }
 
@@ -48,15 +48,17 @@ void Messenger::onReadyRead()
     Message msg;
     msg.host = mSocket->peerName();
     msg.port = mSocket->peerPort();
-    msg.msg = QString(mSocket->readAll());
+    msg.msg = mSocket->readAll();
     emit messageReadyRead(msg);
 }
 
 void Messenger::sendMessage(const Message &msg)
 {
-    mSocket->connectToHost(msg.host,msg.port,QIODevice::ReadWrite);
+    if(mSocket->state() != QAbstractSocket::ConnectedState) {
+        mSocket->connectToHost(msg.host,msg.port,QIODevice::ReadWrite);
+    }
     if(mSocket->waitForConnected()) {
-        mSocket->write(QByteArray().append(msg.msg));
+        mSocket->write(msg.msg);
         mSocket->waitForBytesWritten();
     }
 }

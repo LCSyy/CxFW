@@ -8,10 +8,15 @@
 #include <QLabel>
 #include <QJsonDocument>
 #include <QJsonObject>
+#include <QFile>
+#include <QTextStream>
 
 #include "cpp/im/messenger.h"
 
 #include <QDebug>
+
+namespace {
+}
 
 LoginWidget::LoginWidget(QWidget *parent)
     : QDialog(parent)
@@ -59,8 +64,16 @@ void LoginWidget::onLogin()
 
     mStatusBar->showMessage(tr("waiting for login ..."));
 
-    Messenger::instance()->sendMessage({"127.0.0.1",11500,
-                                        QString(R"({"type":1,"usr":"%1","pwd":"%2"})").arg(userName).arg(password)});
+    Message msg;
+    msg.host = "127.0.0.1";
+    msg.port = 11500;
+    QDataStream ser(&msg.msg,QIODevice::WriteOnly);
+    LoginMsg login;
+    login.data = QString(R"({"user":"%1","password":"%2"})").arg(userName).arg(password);
+    login.size = login.data.size();
+    ser << login.size;
+    msg.msg.append(login.data);
+    Messenger::instance()->sendMessage(msg);
 }
 
 void LoginWidget::onMessageReadyRead(const Message &msg)
