@@ -69,7 +69,7 @@ void LoginWidget::onLogin()
     msg.port = 11500;
     QDataStream ser(&msg.msg,QIODevice::WriteOnly);
     LoginMsg login;
-    login.data = QString(R"({"user":"%1","password":"%2"})").arg(userName).arg(password);
+    login.data = QString(R"({"login":{"user":"%1","password":"%2","timestamp":"","md5":"akjdfljak4545"}})").arg(userName).arg(password);
     login.size = login.data.size();
     ser << login.size;
     msg.msg.append(login.data);
