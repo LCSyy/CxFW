@@ -51,6 +51,8 @@ LoginWidget::LoginWidget(QWidget *parent)
 
 void LoginWidget::onLogin()
 {
+    accept();
+    /*
     const QString userName = mUserNameField->text().trimmed();
     const QString password = mPasswordField->text().trimmed();
     if(userName.isEmpty()) {
@@ -74,6 +76,7 @@ void LoginWidget::onLogin()
     ser << login.size;
     msg.msg.append(login.data);
     Messenger::instance()->sendMessage(msg);
+    */
 }
 
 void LoginWidget::onMessageReadyRead(const Message &msg)

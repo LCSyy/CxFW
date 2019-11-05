@@ -73,7 +73,7 @@ void ChatPage::onSendMessage(const QString &msgUrl)
     chatMap.insert("msg",msg);
     mChatMsgModel->addMessage(chatMap);
     QString chatMsg = QString(R"({"type":2,"user":"LCS","msg":"%1"})").arg(msg);
-    Messenger::instance()->sendMessage({"127.0.0.1",11500,chatMsg});
+    Messenger::instance()->sendMessage({"127.0.0.1",11500,QByteArray().append(chatMsg)});
 }
 
 void ChatPage::onMessageReadyRead(const Message &msg)
