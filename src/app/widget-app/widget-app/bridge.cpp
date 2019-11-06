@@ -5,6 +5,8 @@
 #include <QTabWidget>
 #include <QUrl>
 
+#include "module/colortoolwidget.h"
+
 namespace {
 
 void userPage() {
@@ -26,6 +28,21 @@ void setNavi() {
         navi->setProperty("url", url);
         navi->setStyleSheet("background-color:#AB56AA");
         MainWindow::self()->addNavi(navi);
+    } else {
+        MainWindow::self()->setNavi(url);
+    }
+    MainWindow::self()->expandNavi();
+}
+
+void colorPage() {
+    const QUrl url{"app:/navi/color"};
+    ColorToolWidget *navi = qobject_cast<ColorToolWidget*>(MainWindow::self()->findNavi(url));
+    if(!navi) {
+        navi = new ColorToolWidget(MainWindow::self()->stackedWidget());
+        navi->setProperty("url", url);
+        MainWindow::self()->addNavi(navi);
+    } else {
+        MainWindow::self()->setNavi(url);
     }
     MainWindow::self()->expandNavi();
 }
@@ -36,14 +53,23 @@ void Bridge::initToolBar()
 {
     QToolBar *toolBar = MainWindow::self()->toolBar();
 
+    // user list
     QAction *user = new QAction(QObject::tr("U"),toolBar);
-    user->setProperty("url",QUrl("app://toolbar/action/user"));
+    user->setProperty("url",QUrl("app:/toolbar/action/user"));
     QObject::connect(user,&QAction::triggered,userPage);
     toolBar->addAction(user);
+    toolBar->addSeparator();
 
+    // color tool
+    QAction * color = new QAction(QObject::tr("C"),toolBar);
+    color->setProperty("url",QUrl("app:/toolbar/action/color"));
+    QObject::connect(color,&QAction::triggered,colorPage);
+    toolBar->addAction(color);
+
+    toolBar->addSeparator();
     // settings
     QAction *act = new QAction(QObject::tr("S"),toolBar);
-    act->setProperty("url",QUrl("app://toolbar/action/settings"));
+    act->setProperty("url",QUrl("app:/toolbar/action/settings"));
     QObject::connect(act, &QAction::triggered, setNavi);
     toolBar->addAction(act);
 }

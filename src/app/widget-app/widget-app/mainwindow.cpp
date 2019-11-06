@@ -109,8 +109,8 @@ void MainWindow::expandNavi(bool expand)
 {
     int s = mSplitter->sizes()[1];
     int minWidth = mStackedWgt->minimumWidth();
-    if(expand && s == 0) {
-        mSplitter->setSizes({mSplitter->width() - minWidth,minWidth});
+    if(expand) {
+        if(s == 0) mSplitter->setSizes({mSplitter->width() - minWidth,minWidth});
     } else {
         mSplitter->setSizes({mSplitter->width(), 0});
     }

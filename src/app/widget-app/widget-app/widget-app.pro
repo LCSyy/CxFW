@@ -11,4 +11,6 @@ HEADERS += \
     bridge.h \
     mainwindow.h
 
+include($$PWD/module/module.pri)
+
 include($$PWD/../../../utils/app.pri)

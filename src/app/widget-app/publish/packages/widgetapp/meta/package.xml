@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<Package>
+    <DisplayName>Widget-app</DisplayName>
+    <Description>Widget App</Description>
+    <Description xml:lang="zhcn">主要是IM相关工具</Description>
+    <Version>0.0.1</Version>
+    <ReleaseDate>2019-11-06</ReleaseDate>
+    <Name>hello-lcs</Name>
+    <License></License>
+    <Script></Script>
+    <UserInterfaces></UserInterfaces>
+    <Translations></Translations>
+    <ForceInstallation>true</ForceInstallation>
+    <Essential>true</Essential>
+</Package>
