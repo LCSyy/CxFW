@@ -1,5 +1,7 @@
 HEADERS += \
-    $$PWD/colortoolwidget.h
+    $$PWD/colortoolwidget.h \
+    $$PWD/userlistwidget.h
 
 SOURCES += \
-    $$PWD/colortoolwidget.cpp
+    $$PWD/colortoolwidget.cpp \
+    $$PWD/userlistwidget.cpp

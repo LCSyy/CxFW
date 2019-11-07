@@ -1,4 +1,4 @@
-#include "bridge.h"
+﻿#include "bridge.h"
 #include "mainwindow.h"
 #include <QToolBar>
 #include <QStackedWidget>
@@ -6,18 +6,21 @@
 #include <QUrl>
 
 #include "module/colortoolwidget.h"
+#include "module/userlistwidget.h"
 
 namespace {
 
-void userPage() {
-    const QUrl url{"app:/page/user"};
-    QWidget *userPage = MainWindow::self()->findPage(url);
-    if(!userPage) {
-        userPage = new QWidget(MainWindow::self()->tabWidget());
-        userPage->setProperty("url",url);
-        userPage->setStyleSheet("background-color:#731946");
-        MainWindow::self()->addPage(userPage);
+void userList() {
+    const QUrl url{"app:/page/users"};
+    QWidget *userList = MainWindow::self()->findPage(url);
+    if(!userList) {
+        userList = new UserListWidget(MainWindow::self()->tabWidget());
+        userList->setProperty("url",url);
+        MainWindow::self()->addNavi(userList);
+    } else {
+        MainWindow::self()->setNavi(url);
     }
+    MainWindow::self()->expandNavi();
 }
 
 void setNavi() {
@@ -54,10 +57,10 @@ void Bridge::initToolBar()
     QToolBar *toolBar = MainWindow::self()->toolBar();
 
     // user list
-    QAction *user = new QAction(QObject::tr("U"),toolBar);
-    user->setProperty("url",QUrl("app:/toolbar/action/user"));
-    QObject::connect(user,&QAction::triggered,userPage);
-    toolBar->addAction(user);
+    QAction *users = new QAction(QObject::tr("U"),toolBar);
+    users->setProperty("url",QUrl("app:/toolbar/action/user"));
+    QObject::connect(users,&QAction::triggered,userList);
+    toolBar->addAction(users);
     toolBar->addSeparator();
 
     // color tool
@@ -66,8 +69,8 @@ void Bridge::initToolBar()
     QObject::connect(color,&QAction::triggered,colorPage);
     toolBar->addAction(color);
 
-    toolBar->addSeparator();
     // settings
+    toolBar->addSeparator();
     QAction *act = new QAction(QObject::tr("S"),toolBar);
     act->setProperty("url",QUrl("app:/toolbar/action/settings"));
     QObject::connect(act, &QAction::triggered, setNavi);

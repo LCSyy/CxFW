@@ -1,4 +1,4 @@
-#include "colortoolwidget.h"
+﻿#include "colortoolwidget.h"
 #include <QVBoxLayout>
 #include <QFormLayout>
 #include <QLineEdit>
@@ -6,6 +6,9 @@
 #include <QColor>
 #include <QRegularExpression>
 #include "mainwindow.h"
+
+#include <QListWidget>
+#include <QListWidgetItem>
 
 ColorToolWidget::ColorToolWidget(QWidget *parent)
     : QWidget(parent)
@@ -43,7 +46,19 @@ ColorToolWidget::ColorToolWidget(QWidget *parent)
     mImgBtn = new QPushButton(tr("image"),this);
     vlayout->addWidget(mImgBtn);
 
-    vlayout->addStretch(9999);
+    QListWidget *historyColorLst = new QListWidget(this);
+    vlayout->addWidget(historyColorLst,1);
+
+    QListWidgetItem *redItem = new QListWidgetItem(historyColorLst);
+    redItem->setBackground(QBrush(QColor("#EE4444")));
+    historyColorLst->addItem(redItem);
+    QListWidgetItem *greenItem = new QListWidgetItem(historyColorLst);
+    greenItem->setBackground(QBrush(QColor("#44EE44")));
+    historyColorLst->addItem(greenItem);
+    QListWidgetItem *blueItem = new QListWidgetItem(historyColorLst);
+    blueItem->setBackground(QBrush(QColor("#4444EE")));
+    historyColorLst->addItem(blueItem);
+
     connect(colorField,SIGNAL(textEdited(const QString&)),
             this,SLOT(onColorFieldEdited(const QString&)));
     connect(mSnapBtn,SIGNAL(clicked()),this,SLOT(onSnapBtnClicked()));
