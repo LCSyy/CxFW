@@ -51,12 +51,15 @@ ColorToolWidget::ColorToolWidget(QWidget *parent)
 
     QListWidgetItem *redItem = new QListWidgetItem(historyColorLst);
     redItem->setBackground(QBrush(QColor("#EE4444")));
+    redItem->setText("#EE4444");
     historyColorLst->addItem(redItem);
     QListWidgetItem *greenItem = new QListWidgetItem(historyColorLst);
     greenItem->setBackground(QBrush(QColor("#44EE44")));
+    greenItem->setText("#44EE44");
     historyColorLst->addItem(greenItem);
     QListWidgetItem *blueItem = new QListWidgetItem(historyColorLst);
     blueItem->setBackground(QBrush(QColor("#4444EE")));
+    blueItem->setText("#4444EE");
     historyColorLst->addItem(blueItem);
 
     connect(colorField,SIGNAL(textEdited(const QString&)),

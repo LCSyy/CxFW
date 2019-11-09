@@ -3,16 +3,32 @@
 #include <QToolBar>
 #include <QStackedWidget>
 #include <QTabWidget>
+#include <QQuickWidget>
 #include <QUrl>
 
 #include "module/colortoolwidget.h"
 #include "module/userlistwidget.h"
+#include "module/chatwidget.h"
 
 namespace {
 
+void meInfo() {
+    const QUrl url{"app:/page/chat"};
+    QQuickWidget *chatView = qobject_cast<QQuickWidget*>(MainWindow::self()->findPage(url));
+    if(!chatView) {
+        chatView = new QQuickWidget(MainWindow::self()->tabWidget());
+        chatView->setProperty("url",url);
+        chatView->setResizeMode(QQuickWidget::SizeRootObjectToView);
+        chatView->setSource(QUrl("qrc:/qml/ChatView.qml"));
+        MainWindow::self()->addPage(chatView);
+    } else {
+        MainWindow::self()->setPage(url);
+    }
+}
+
 void userList() {
     const QUrl url{"app:/page/users"};
-    QWidget *userList = MainWindow::self()->findPage(url);
+    QWidget *userList = MainWindow::self()->findNavi(url);
     if(!userList) {
         userList = new UserListWidget(MainWindow::self()->tabWidget());
         userList->setProperty("url",url);
@@ -56,12 +72,18 @@ void Bridge::initToolBar()
 {
     QToolBar *toolBar = MainWindow::self()->toolBar();
 
+    // me
+    QAction *me = new QAction(QObject::tr("M"),toolBar);
+    me->setProperty("url",QUrl("app:/toolbar/action/user"));
+    QObject::connect(me,&QAction::triggered,meInfo);
+    toolBar->addAction(me);
+    toolBar->addSeparator();
+
     // user list
     QAction *users = new QAction(QObject::tr("U"),toolBar);
     users->setProperty("url",QUrl("app:/toolbar/action/user"));
     QObject::connect(users,&QAction::triggered,userList);
     toolBar->addAction(users);
-    toolBar->addSeparator();
 
     // color tool
     QAction * color = new QAction(QObject::tr("C"),toolBar);
