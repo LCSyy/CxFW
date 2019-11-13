@@ -66,6 +66,20 @@ void colorPage() {
     MainWindow::self()->expandNavi();
 }
 
+void quickPage() {
+    const QUrl url{"app:/page/quick"};
+    QQuickWidget *quickView = qobject_cast<QQuickWidget*>(MainWindow::self()->findPage(url));
+    if(!quickView) {
+        quickView = new QQuickWidget(MainWindow::self()->tabWidget());
+        quickView->setProperty("url",url);
+        quickView->setResizeMode(QQuickWidget::SizeRootObjectToView);
+        quickView->setSource(QUrl("qrc:/qml/Draft.qml"));
+        MainWindow::self()->addPage(quickView);
+    } else {
+        MainWindow::self()->setPage(url);
+    }
+}
+
 }
 
 void Bridge::initToolBar()
@@ -90,6 +104,12 @@ void Bridge::initToolBar()
     color->setProperty("url",QUrl("app:/toolbar/action/color"));
     QObject::connect(color,&QAction::triggered,colorPage);
     toolBar->addAction(color);
+
+    // quick ui
+    QAction *quick = new QAction(QObject::tr("Q"),toolBar);
+    quick->setProperty("url",QUrl("app:/toolbar/action/quick"));
+    QObject::connect(quick,&QAction::triggered,quickPage);
+    toolBar->addAction(quick);
 
     // settings
     toolBar->addSeparator();

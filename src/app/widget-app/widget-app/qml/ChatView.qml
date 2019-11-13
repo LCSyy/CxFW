@@ -1,5 +1,6 @@
-import QtQuick 2.12
+﻿import QtQuick 2.12
 import QtQuick.Controls 2.13
+import QtQuick.Layouts 1.12
 import CxIM 1.0
 
 Item {
@@ -13,8 +14,6 @@ Item {
             SplitView.fillWidth: true
             SplitView.fillHeight: true
             boundsBehavior: Flickable.StopAtBounds
-            clip: true
-
             model: ListModel { id: msgModel }
 
             CxTextMetrics { id: textMetrics }
@@ -64,15 +63,35 @@ Item {
             }
         }
 
-        ScrollView {
-              SplitView.fillWidth: true
-              SplitView.preferredHeight: 100
-              SplitView.minimumHeight: 50
-              TextArea {
-                  id: msgEdit
-                  wrapMode: TextEdit.WrapAtWordBoundaryOrAnywhere
-              }
-          }
+        ColumnLayout {
+            SplitView.fillWidth: true
+            SplitView.preferredHeight: 100
+            SplitView.minimumHeight: 100
+            spacing: 0
+            RowLayout {
+                Layout.fillWidth: true
+                height: 20
+                spacing: 0
+                ToolButton {
+                    width: 50
+                    height: 20
+                    text: 'emoji'
+                }
+            }
+
+            ScrollView {
+                Layout.fillWidth: true
+                Layout.fillHeight: true
+                TextArea {
+                    id: msgEdit
+                    wrapMode: TextEdit.WrapAtWordBoundaryOrAnywhere
+                    background: Rectangle {
+                        anchors.fill: parent
+                        color: msgEdit.activeFocus ? "white" : "#F8F8F8"
+                    }
+                }
+            }
+        }
     }
 
     Button {
@@ -81,6 +100,8 @@ Item {
         anchors.right: parent.right
         anchors.rightMargin: 10
         anchors.bottomMargin: 10
+        width: 100
+        height: 30
         text: "send"
         onClicked: {
             const msg = msgEdit.text
