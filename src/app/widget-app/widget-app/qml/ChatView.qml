@@ -6,6 +6,22 @@ import CxIM 1.0
 import "." as CxQml
 
 Item {
+    id: chatPage
+
+    property var lastMsgTime: undefined
+
+    Component {
+        id: chatItem
+        CxQml.ChatItem {}
+    }
+
+    Component {
+        id: dtItem
+        Text {
+            horizontalAlignment: Qt.AlignHCenter
+            verticalAlignment: Qt.AlignVCenter
+        }
+    }
 
     SplitView {
         anchors.fill: parent
@@ -26,13 +42,27 @@ Item {
 
                 CxTextMetrics { id: textMetrics }
 
-                delegate: CxQml.ChatItem {
+                delegate: Item {
                     width: parent.width
-                    who: model.me
-                    message: model.msg
-                    textRect: textMetrics.boundingRect(
-                                  Qt.rect(0,0,width-140,100),
-                                  model.msg)
+
+                    Component.onCompleted:{
+                        var obj = undefined;
+                        if(model.user !== "dt") {
+                            obj = chatItem.createObject(this,{
+                                                            width: Qt.binding(function(){ return width; }),
+                                                            who: model.me,
+                                                            message: model.msg,
+                                                            textRect: Qt.binding(function() {
+                                                                return textMetrics.boundingRect(
+                                                                                      Qt.rect(0,0,width-140,100),
+                                                                                      model.msg)
+                                                            })
+                                                        })
+                        } else {
+                           obj = dtItem.createObject(this,{width: Qt.binding(function(){ return width; }), height: 30, text: model.dt})
+                        }
+                        height = obj.height
+                    }
                 }
             }
         }
@@ -80,7 +110,27 @@ Item {
         onClicked: {
             const msg = msgEdit.text
             if(msg !== '') {
-                msgModel.append({"me":true,"user":"Ll","msg":msg});
+                var duration = 0;
+                const dt = Utils.now();
+
+                if(chatPage.lastMsgTime === undefined) {
+                    chatPage.lastMsgTime = dt;
+                } else {
+                    duration = Utils.timeDurationSeconds(chatPage.lastMsgTime,dt);
+                }
+
+                if(duration > 60) {
+                    msgModel.append({"me":false,"user":"dt","msg":"","dt":Utils.dateTime2Str(dt)});
+                    chatPage.lastMsgTime = dt;
+                }
+
+                const rn = Math.random();
+                if(rn <= 0.59) {
+                    msgModel.append({"me":true,"user":"Ll","msg":msg,"dt":Utils.dateTime2Str(dt)});
+                } else {
+                    msgModel.append({"me":false,"user":"Ll","msg":msg,"dt":Utils.dateTime2Str(dt)});
+                }
+
                 msgEdit.clear();
                 chatList.currentIndex = msgModel.count - 1
             }

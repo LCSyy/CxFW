@@ -6,12 +6,14 @@ SOURCES += \
     bridge.cpp \
     main.cpp \
     mainwindow.cpp \
-    textmetrics.cpp
+    textmetrics.cpp \
+    utils.cpp
 
 HEADERS += \
     bridge.h \
     mainwindow.h \
-    textmetrics.h
+    textmetrics.h \
+    utils.h
 
 include($$PWD/module/module.pri)
 
