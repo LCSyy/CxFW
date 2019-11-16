@@ -28,13 +28,17 @@ public:
     QWidget *findNavi(const QUrl &url) const;
     void addNavi(QWidget *wgt);
     void setNavi(const QUrl &url);
+    void closeNavi(const QUrl &url);
     void expandNavi(bool expand = true);
     bool naviExpanded() const;
-
 
     QWidget *findPage(const QUrl &url) const;
     void addPage(QWidget *wgt);
     void setPage(const QUrl &url);
+    void closePage(const QUrl &url);
+
+private slots:
+    void onTabClose(int idx);
 
 private:
     QToolBar *mToolBar {nullptr};

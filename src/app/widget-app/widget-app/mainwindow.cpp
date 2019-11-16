@@ -25,6 +25,7 @@ MainWindow::MainWindow(QWidget *parent)
     setCentralWidget(mSplitter);
 
     mTabWgt = new QTabWidget(mSplitter);
+    mTabWgt->setTabsClosable(true);
     mSplitter->addWidget(mTabWgt);
 
     mStackedWgt = new QStackedWidget(mSplitter);
@@ -34,6 +35,8 @@ MainWindow::MainWindow(QWidget *parent)
 
     Bridge::initToolBar();
     Bridge::startSetting();
+
+    connect(mTabWgt,SIGNAL(tabCloseRequested(int)),this,SLOT(onTabClose(int)));
 }
 
 MainWindow::~MainWindow()
@@ -105,6 +108,11 @@ void MainWindow::setNavi(const QUrl &url)
     }
 }
 
+void MainWindow::closeNavi(const QUrl &url)
+{
+    Q_UNUSED(url)
+}
+
 void MainWindow::expandNavi(bool expand)
 {
     int s = mSplitter->sizes()[1];
@@ -160,3 +168,16 @@ void MainWindow::setPage(const QUrl &url)
     }
 }
 
+void MainWindow::closePage(const QUrl &url)
+{
+    Q_UNUSED(url)
+}
+
+void MainWindow::onTabClose(int idx)
+{
+    QWidget *wgt = mTabWgt->widget(idx);
+    if(wgt) {
+        mTabWgt->removeTab(idx);
+        delete wgt;
+    }
+}
