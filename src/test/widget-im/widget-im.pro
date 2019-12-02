@@ -1,12 +1,5 @@
 CX_TARGET_NAME = widget-im
-QT += core gui widgets network quick quickcontrols2 quickwidgets
-
-CONFIG(release, debug|release) {
-    CONFIG += qtquickcompiler
-}
-
-SOURCES += \
-    main.cpp
+QT += core gui widgets network
 
 # DEFINES +=
 # CONFIG +=
@@ -14,12 +7,18 @@ SOURCES += \
 # QML_DESIGNER_IMPORT_PATH =
 # CXLIB_LIST +=
 
+SOURCES += \
+    main.cpp \
+    mainwindow.cpp \
+    messenger.cpp
+
+HEADERS += \
+    mainwindow.h \
+    messenger.h
+
 TRANSLATIONS += \
     $${CX_TARGET_NAME}_zh.ts \
     $${CX_TARGET_NAME}_en.ts
 
 RESOURCES += \
     res.qrc
-
-include($$PWD/cpp/cpp.pri)
-include($$PWD/../../utils/app.pri)

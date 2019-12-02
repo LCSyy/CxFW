@@ -8,7 +8,6 @@ QT_BEGIN_NAMESPACE
 class QTcpSocket;
 QT_END_NAMESPACE
 
-
 struct LoginMsg {
     int size;
     QString data;
@@ -41,6 +40,7 @@ public:
 
 public slots:
     void sendMessage(const Message &msg);
+    void sendRawMessage(const char *msg, qint64 size);
 
 protected:
     Q_DISABLE_COPY_MOVE(Messenger)

@@ -2,6 +2,9 @@
 #include <QTcpSocket>
 #include <QHostAddress>
 
+#define SERVER_HOST "127.0.0.1"
+#define SERVER_PORT 7878
+
 static Messenger *msg_socket {nullptr};
 
 Messenger *Messenger::instance()
@@ -55,10 +58,21 @@ void Messenger::onReadyRead()
 void Messenger::sendMessage(const Message &msg)
 {
     if(mSocket->state() != QAbstractSocket::ConnectedState) {
-        mSocket->connectToHost(msg.host,msg.port,QIODevice::ReadWrite);
+        mSocket->connectToHost(SERVER_HOST,SERVER_PORT,QIODevice::ReadWrite);
     }
     if(mSocket->waitForConnected()) {
         mSocket->write(msg.msg);
+        mSocket->waitForBytesWritten();
+    }
+}
+
+void Messenger::sendRawMessage(const char *msg, qint64 size)
+{
+    if(mSocket->state() != QAbstractSocket::ConnectedState) {
+        mSocket->connectToHost(SERVER_HOST,SERVER_PORT,QIODevice::ReadWrite);
+    }
+    if(mSocket->waitForConnected()) {
+        mSocket->write(msg,size);
         mSocket->waitForBytesWritten();
     }
 }
