@@ -47,9 +47,9 @@ CONFIG(release,debug|release) {
 
 for(LIB,CXLIB_LIST) {
     CONFIG(debug,debug|release) {
-        win32:LIBS += $${DESTDIR}/lib$${LIB}d.a
+        win32:LIBS += $${DESTDIR}/$${LIB}d.dll
     }
     CONFIG(release,debug|release) {
-        win32:LIBS += $${DESTDIR}/lib$${LIB}.a
+        win32:LIBS += $${DESTDIR}/$${LIB}.dll
     }
 }

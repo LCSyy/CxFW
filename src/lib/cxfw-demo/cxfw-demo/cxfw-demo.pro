@@ -10,3 +10,7 @@ HEADERS += \
     cxfw.h
 
 include($$PWD/../../../utils/library.pri)
+
+cxfw-demo.files += $${HEADERS}
+cxfw-demo.path = $${CX_PROD_DIR}/include/cxfw-demo
+INSTALLS += cxfw-demo

@@ -1,7 +1,7 @@
 TEMPLATE = subdirs
 
 SUBDIRS += \
-    cxfw-demo \
-    cxfw-run
+    quickplugin \
+    quickplugin-demo
 
 CONFIG += ordered

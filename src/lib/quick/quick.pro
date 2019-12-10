@@ -1,7 +1,6 @@
 TEMPLATE = subdirs
 
 SUBDIRS += \
-    cxfw-demo \
-    cxfw-run
+    quick
 
 CONFIG += ordered
