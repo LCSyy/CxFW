@@ -88,6 +88,7 @@ void Bridge::initToolBar()
 
     // me
     QAction *me = new QAction(QObject::tr("M"),toolBar);
+    me->setToolTip(QObject::tr("Instant Message"));
     me->setProperty("url",QUrl("app:/toolbar/action/user"));
     QObject::connect(me,&QAction::triggered,meInfo);
     toolBar->addAction(me);
@@ -95,12 +96,14 @@ void Bridge::initToolBar()
 
     // user list
     QAction *users = new QAction(QObject::tr("U"),toolBar);
+    users->setToolTip(QObject::tr("User List"));
     users->setProperty("url",QUrl("app:/toolbar/action/user"));
     QObject::connect(users,&QAction::triggered,userList);
     toolBar->addAction(users);
 
     // color tool
     QAction * color = new QAction(QObject::tr("C"),toolBar);
+    color->setToolTip(QObject::tr("Color Tool"));
     color->setProperty("url",QUrl("app:/toolbar/action/color"));
     QObject::connect(color,&QAction::triggered,colorPage);
     toolBar->addAction(color);
