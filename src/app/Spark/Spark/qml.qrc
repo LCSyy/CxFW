@@ -1,0 +1,10 @@
+<RCC>
+    <qresource prefix="/">
+        <file>main.qml</file>
+        <file>qml/style/SparkStyle/MenuBar.qml</file>
+        <file>qml/style/SparkStyle/Button.qml</file>
+        <file>qml/style/SparkStyle/MenuBarItem.qml</file>
+        <file>qml/StartUpPage.qml</file>
+        <file>qml/style/SparkStyle/TextField.qml</file>
+    </qresource>
+</RCC>
