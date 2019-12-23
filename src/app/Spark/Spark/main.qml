@@ -66,64 +66,74 @@ ApplicationWindow {
         Menu { title: qsTr("Help") }
     }
 
-    Spark.Canvas {
-        id: canvas
+    Rectangle {
         anchors.centerIn: parent
-        width: 100
-        height: 100
+        width: 64
+        height: 64
         scale: 10
-        smooth: false
+        color: "#235689"
+        Spark.Canvas {
+            id: canvas
+            anchors.fill: parent
+            smooth: false
 
-        penColor: Qt.rgba(0.5,0.6,0.35,1)
+            penColor: Qt.rgba(0.5,0.6,0.35,1)
 
-        property point startPoint: Qt.point(-1,-1)
+            property point startPoint: Qt.point(-1,-1)
+
+            MouseArea {
+                anchors.fill: parent
+
+                onPressed: {
+                    canvas.startPaint();
+                    canvas.startPoint = Qt.point(mouse.x,mouse.y)
+                }
+
+                onPositionChanged: {
+                    if(canvasMode.mode === "line") {
+                        canvas.drawLine(canvas.startPoint,Qt.point(mouse.x,mouse.y));
+                    }
+                }
+
+                onReleased: {
+                    canvas.stopPaint();
+                }
+
+                onWheel: {}
+            }
+        }
+    }
+
+    ListView {
+        id: colorLst
+        width: 30
+        height: 300
+        boundsBehavior: Flickable.StopAtBounds
+        model: 5
+
+        highlight: Rectangle {
+            width: 30; height: 30
+            color: "#FFFF88"
+            y: colorLst.currentItem.y
+        }
+        highlightFollowsCurrentItem: false
+
+        delegate: Rectangle {
+            width: parent.width - 5
+            height: parent.width
+            color: Qt.lighter("#235679",modelData/1.8)
+        }
 
         MouseArea {
             anchors.fill: parent
 
-            onPressed: {
-                canvas.startPaint();
-                canvas.startPoint = Qt.point(mouse.x,mouse.y)
-            }
-
-            onPositionChanged: {
-                if(canvasMode.mode === "line") {
-                    canvas.drawLine(canvas.startPoint,Qt.point(mouse.x,mouse.y));
+            onClicked: {
+                const idx = colorLst.indexAt(mouse.x,mouse.y);
+                if(idx !== -1) {
+                    colorLst.currentIndex = idx;
+                    canvas.penColor = colorLst.currentItem.color;
                 }
             }
-
-            onReleased: {
-                canvas.stopPaint();
-            }
-
-            onWheel: {}
-        }
-    }
-
-    Page {
-        anchors.top: parent.top
-        anchors.right: parent.right
-        anchors.margins: 20
-
-        header: Text {
-            text: qsTr("Drawing Panel")
-        }
-
-        contentItem: SparkQuick.FormLayout {
-                width: parent.width
-                height: parent.height - header.height
-                SparkQuick.FormItem {
-                    text: qsTr("Draw Type")
-                    ComboBox {
-                        model: ["point","line","rect","triangle","circle","ellipse"]
-                    }
-                }
-            }
-
-        background: Rectangle {
-            implicitWidth: 300
-            implicitHeight: 400
-            color: "grey"
         }
     }
 
