@@ -4,7 +4,10 @@
         <file>qml/style/SparkStyle/MenuBar.qml</file>
         <file>qml/style/SparkStyle/Button.qml</file>
         <file>qml/style/SparkStyle/MenuBarItem.qml</file>
-        <file>qml/StartUpPage.qml</file>
         <file>qml/style/SparkStyle/TextField.qml</file>
+        <file>qml/spark/StartUpPage.qml</file>
+        <file>qml/FormLayout.qml</file>
+        <file>qml/FormItem.qml</file>
+        <file>qml/style/SparkStyle/ComboBox.qml</file>
     </qresource>
 </RCC>
