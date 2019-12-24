@@ -151,7 +151,9 @@ ApplicationWindow {
             anchors.fill: parent
             SparkQuick.FormItem {
                 text: qsTr("File Name")
-                TextField {}
+                TextField {
+                    placeholderText: qsTr("file name")
+                }
             }
 
             SparkQuick.FormItem {
