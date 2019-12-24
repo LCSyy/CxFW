@@ -1,9 +1,9 @@
 ﻿import QtQuick 2.13
 import QtQuick.Window 2.13
-import QtQuick.Controls 2.12
+import QtQuick.Controls 2.13
 
 import "./qml" as SparkQuick
-import "./qml/spark" as Spark
+import "./qml/spark" as SparkItem
 import Spark 1.0 as Spark
 
 /*!
@@ -66,149 +66,87 @@ ApplicationWindow {
         Menu { title: qsTr("Help") }
     }
 
-    Rectangle {
-        anchors.centerIn: parent
-        width: 64
-        height: 64
-        scale: 10
-        color: "#235689"
-        Spark.Canvas {
-            id: canvas
-            anchors.fill: parent
-            smooth: false
+    SplitView {
+        anchors.fill: parent
+        orientation: Qt.Horizontal
 
-            penColor: Qt.rgba(0.5,0.6,0.35,1)
+        Rectangle {
+            SplitView.fillHeight: true
+            SplitView.preferredWidth: 200
+            color: "#134679"
+            clip: true
 
-            property point startPoint: Qt.point(-1,-1)
+            Text {
+                anchors.centerIn: parent
+                text: "Tools"
+                font.pointSize: 24
+            }
+        }
 
-            MouseArea {
-                anchors.fill: parent
+        Rectangle {
+            SplitView.fillWidth: true
+            SplitView.fillHeight: true
+            color: "#125613"
+            clip: true
 
-                onPressed: {
-                    canvas.startPaint();
-                    canvas.startPoint = Qt.point(mouse.x,mouse.y)
-                }
+            Rectangle {
+                anchors.centerIn: parent
+                width: 64
+                height: 64
+                scale: 10
+                color: "#235689"
 
-                onPositionChanged: {
-                    if(canvasMode.mode === "line") {
-                        canvas.drawLine(canvas.startPoint,Qt.point(mouse.x,mouse.y));
+                Spark.Canvas {
+                    id: canvas
+                    anchors.fill: parent
+                    smooth: false
+
+                    penColor: Qt.rgba(0.5,0.6,0.35,1)
+
+                    property point startPoint: Qt.point(-1,-1)
+
+                    MouseArea {
+                        anchors.fill: parent
+
+                        onPressed: {
+                            canvas.startPaint();
+                            canvas.startPoint = Qt.point(mouse.x,mouse.y)
+                        }
+
+                        onPositionChanged: {
+                            if(canvasMode.mode === "line") {
+                                canvas.drawLine(canvas.startPoint,Qt.point(mouse.x,mouse.y));
+                            }
+                        }
+
+                        onReleased: {
+                            canvas.stopPaint();
+                        }
                     }
                 }
+            }
 
-                onReleased: {
-                    canvas.stopPaint();
-                }
+            Text {
+                anchors.centerIn: parent
+                text: "Canvas"
+            }
+        }
 
-                onWheel: {}
+        Rectangle {
+            SplitView.fillHeight: true
+            SplitView.preferredWidth: 200
+            color: "#134679"
+            clip: true
+
+            Text {
+                anchors.centerIn: parent
+                text: "Properties"
+                font.pointSize: 24
             }
         }
     }
 
-    ListView {
-        id: colorLst
-        width: 30
-        height: 300
-        boundsBehavior: Flickable.StopAtBounds
-        model: 5
-
-        highlight: Rectangle {
-            width: 30; height: 30
-            color: "#FFFF88"
-            y: colorLst.currentItem.y
-        }
-        highlightFollowsCurrentItem: false
-
-        delegate: Rectangle {
-            width: parent.width - 5
-            height: parent.width
-            color: Qt.lighter("#235679",modelData/1.8)
-        }
-
-        MouseArea {
-            anchors.fill: parent
-
-            onClicked: {
-                const idx = colorLst.indexAt(mouse.x,mouse.y);
-                if(idx !== -1) {
-                    colorLst.currentIndex = idx;
-                    canvas.penColor = colorLst.currentItem.color;
-                }
-            }
-        }
-    }
-
-    Dialog {
+    SparkItem.NewCanvasDialog {
         id: newSettingPopup
-        anchors.centerIn: parent
-        dim: true
-        closePolicy: Popup.NoAutoClose
-        margins: 20
-        width: 400
-        height: 450
-        title: qsTr("New Canvas")
-
-        SparkQuick.FormLayout {
-            anchors.fill: parent
-            SparkQuick.FormItem {
-                text: qsTr("File Name")
-                TextField {
-                    id: fileNameField
-                    placeholderText: qsTr("file name")
-                }
-            }
-
-            SparkQuick.FormItem {
-                text: qsTr("Canvas Width")
-                TextField {
-                    id: widthField
-                    validator: IntValidator{ bottom:0 }
-                }
-            }
-
-            SparkQuick.FormItem {
-                text: qsTr("Canvas Height")
-                TextField {
-                    id: heightField
-                    validator: IntValidator{ bottom:0 }
-                }
-            }
-        }
-
-        function setData(data) {
-            console.log(data);
-            if(data === undefined || data === null) {
-                fileNameField.text = "";
-                widthField.text = "";
-                heightField.text = "";
-            }
-        }
-
-        function getData() {
-            return {
-                fileName: fileNameField.text,
-                canvas: {
-                    width: parseInt(widthField.text),
-                    height: parseInt(heightField.text)
-                }
-            };
-        }
-
-        footer: Row {
-            layoutDirection: Qt.RightToLeft
-            spacing: 5
-            padding: 10
-            Button {
-                text: qsTr("Cancel")
-                onClicked: newSettingPopup.reject()
-            }
-            Button {
-                text: qsTr("Ok")
-                onClicked: {
-                    newSettingPopup.accept();
-                    console.log("--- data ---",JSON.stringify(newSettingPopup.getData()));
-                    newSettingPopup.setData();
-                }
-            }
-        }
     }
 }
