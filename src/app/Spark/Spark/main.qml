@@ -1,6 +1,7 @@
 ﻿import QtQuick 2.13
 import QtQuick.Window 2.13
 import QtQuick.Controls 2.13
+import QtQuick.Layouts 1.13
 
 import "./qml" as SparkQuick
 import "./qml/spark" as SparkItem
@@ -76,6 +77,18 @@ ApplicationWindow {
             color: "#134679"
             clip: true
 
+            GridLayout {
+                anchors.fill: parent
+                Repeater {
+                    model: ["#AC23DC","#AC23DC","#AC23DC","#AC23DC","#AC23DC","#AC23DC"]
+                    delegate: Rectangle {
+                        width: 40
+                        height: 40
+                        color: modelData
+                    }
+                }
+            }
+
             Text {
                 anchors.centerIn: parent
                 text: "Tools"
@@ -129,6 +142,7 @@ ApplicationWindow {
             Text {
                 anchors.centerIn: parent
                 text: "Canvas"
+                font.pointSize: 24
             }
         }
 
