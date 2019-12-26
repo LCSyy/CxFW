@@ -4,30 +4,43 @@
 #include <QQuickPaintedItem>
 #include <QLine>
 
+class CanvasShape;
+
 struct CanvasData
 {
+    ~CanvasData();
+
     bool startPaint {false};
-    QLine curLine;
     QColor penColor;
-    QVector<QLine> lines;
+    CanvasShape *currentShape {nullptr};
+    QString shapeType;
+    QVector<CanvasShape*> shapes;
 };
 
 class Canvas : public QQuickPaintedItem
 {
     Q_OBJECT
+    Q_PROPERTY(QString shapeType READ shapeType WRITE setShapeType)
     Q_PROPERTY(QColor penColor READ penColor WRITE setPenColor)
 public:
     Canvas(QQuickItem *parent = nullptr);
 
-    void paint(QPainter *painter);
+    void paint(QPainter *painter) override;
 
-    QColor penColor() const;
+    const QString &shapeType() const;
+    void setShapeType(const QString &sh);
+
+    const QColor &penColor() const;
     void setPenColor(const QColor &color);
 
-    Q_INVOKABLE void startPaint();
+    Q_INVOKABLE void startPaint(const QPoint &point);
     Q_INVOKABLE void stopPaint();
+
 public slots:
-    void drawLine(const QPoint &start, const QPoint &stop);
+    void draw(const QPoint &stop);
+
+private:
+    CanvasShape *createShape(const QString &type);
 
 private:
     QScopedPointer<CanvasData> d;

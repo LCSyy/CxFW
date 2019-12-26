@@ -2,22 +2,52 @@
 #include <QPainter>
 #include <QColor>
 #include <QBrush>
+#include "canvas_shape.h"
+
+#include <QDebug>
+
+CanvasData::~CanvasData()
+{
+    qDeleteAll(shapes);
+    shapes.clear();
+}
 
 Canvas::Canvas(QQuickItem *parent)
     : QQuickPaintedItem(parent)
     , d(new CanvasData)
 {
+    d->shapeType = "line";
     setRenderTarget(QQuickPaintedItem::FramebufferObject);
 }
 
 void Canvas::paint(QPainter *painter)
 {
-    painter->setPen(QPen(d->penColor));
-    painter->drawLines(d->lines);
-    painter->drawLine(d->curLine);
+    Q_UNUSED(painter)
+
+    for(CanvasShape *shape: d->shapes) {
+        if(shape) {
+            shape->paint(painter);
+        }
+    }
+
+    if(d->currentShape) {
+        d->currentShape->paint(painter);
+    }
 }
 
-QColor Canvas::penColor() const
+const QString &Canvas::shapeType() const
+{
+    return d->shapeType;
+}
+
+void Canvas::setShapeType(const QString &sh)
+{
+    if(sh != d->shapeType) {
+        d->shapeType = sh;
+    }
+}
+
+const QColor &Canvas::penColor() const
 {
     return d->penColor;
 }
@@ -29,20 +59,45 @@ void Canvas::setPenColor(const QColor &color)
     }
 }
 
-void Canvas::startPaint()
+void Canvas::startPaint(const QPoint &point)
 {
     d->startPaint = true;
+
+    d->currentShape = createShape(d->shapeType);
+
+    if(d->currentShape) {
+        d->currentShape->setColor(d->penColor);
+        d->currentShape->setStartPoint(point);
+    }
 }
 
 void Canvas::stopPaint()
 {
-    d->lines.append(d->curLine);
     d->startPaint = false;
+    if(d->currentShape) {
+        d->shapes.append(d->currentShape);
+        d->currentShape = nullptr;
+    }
 }
 
-void Canvas::drawLine(const QPoint &start, const QPoint &stop)
+void Canvas::draw(const QPoint &stop)
 {
-    d->curLine.setP1(start);
-    d->curLine.setP2(stop);
-    update();
+    if(d->currentShape) {
+        d->currentShape->setStopPoint(stop);
+        update();
+    }
 }
+
+CanvasShape *Canvas::createShape(const QString &type)
+{
+    if(type == QLatin1Literal("line")) {
+        return new LineCanvasShape;
+    } else if(type == QLatin1Literal("rect")) {
+        return new RectCanvasShape;
+    } else if(type == QLatin1Literal("ellipse")) {
+        return new EllipseCanvasShape;
+    } else {
+        return nullptr;
+    }
+}
+

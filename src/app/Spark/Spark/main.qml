@@ -20,14 +20,14 @@ Spark Theme:
 
 ApplicationWindow {
     visible: true
-    width: 640
-    height: 480
+    width: 800
+    height: 600
     title: qsTr("Hello World")
-    Component.onCompleted: showMaximized()
 
     QtObject {
         id: canvasMode
-        property string mode: "line" // point, line, rect, ...
+        property alias shapeType: canvas.shapeType
+        property alias penColor: canvas.penColor
     }
 
     menuBar: MenuBar {
@@ -71,28 +71,88 @@ ApplicationWindow {
         anchors.fill: parent
         orientation: Qt.Horizontal
 
-        Rectangle {
+        Column {
             SplitView.fillHeight: true
             SplitView.preferredWidth: 200
-            color: "#134679"
             clip: true
 
-            GridLayout {
-                anchors.fill: parent
-                Repeater {
-                    model: ["#AC23DC","#AC23DC","#AC23DC","#AC23DC","#AC23DC","#AC23DC"]
+            Rectangle {
+                width: parent.width
+                height: 100
+                color: "#134679"
+
+                GridView {
+                    id: mostUsedColorView
+                    width: Math.min(parent.width,200)
+                    height: parent.height
+                    cellWidth: 30
+                    cellHeight: 30
+                    clip: true
+                    boundsBehavior: Flickable.StopAtBounds
+                    model: ["#AC23DC","#CD2389","#0223DC","#23CDDC","#AC23DC","#CC2ADC"]
                     delegate: Rectangle {
-                        width: 40
-                        height: 40
                         color: modelData
+                        width: 30
+                        height: 30
+                    }
+
+                    MouseArea {
+                        anchors.fill: parent
+                        onClicked: {
+                            const vx = mouse.x + mostUsedColorView.contentX;
+                            const vy = mouse.y + mostUsedColorView.contentY;
+                            const idx = mostUsedColorView.indexAt(vx,vy);
+                            if(idx !== -1) {
+                                mostUsedColorView.currentIndex = idx;
+                                canvasMode.penColor = mostUsedColorView.currentItem.color;
+                            }
+                        }
                     }
                 }
             }
 
-            Text {
-                anchors.centerIn: parent
-                text: "Tools"
-                font.pointSize: 24
+            Rectangle {
+                width: parent.width
+                height: 300
+                color: "#521030"
+
+                GridView {
+                    id: toolView
+                    width: Math.min(parent.width,200)
+                    height: parent.height
+                    cellWidth: 30
+                    cellHeight: 30
+                    clip: true
+                    boundsBehavior: Flickable.StopAtBounds
+                    model: ListModel{
+                        id: toolModel
+                        ListElement {bg:"#CD2389";tool:"line"}
+                        ListElement {bg:"#0223DC";tool:"rect"}
+                        ListElement {bg:"#AC23DC";tool:"ellipse"}
+                    }
+                    delegate: Rectangle {
+                        color: bg
+                        width: 30
+                        height: 30
+                        Text {
+                            text: tool
+                            anchors.fill: parent
+                        }
+                    }
+
+                    MouseArea {
+                        anchors.fill: parent
+                        onClicked: {
+                            const vx = mouse.x + toolView.contentX;
+                            const vy = mouse.y + toolView.contentY;
+                            const idx = toolView.indexAt(vx,vy);
+                            if(idx !== -1) {
+                                toolView.currentIndex = idx;
+                                canvasMode.shapeType = toolModel.get(idx).tool;
+                            }
+                        }
+                    }
+                }
             }
         }
 
@@ -114,22 +174,18 @@ ApplicationWindow {
                     anchors.fill: parent
                     smooth: false
 
-                    penColor: Qt.rgba(0.5,0.6,0.35,1)
-
-                    property point startPoint: Qt.point(-1,-1)
+                    penColor: canvasMode.penColor
+                    shapeType: "line"
 
                     MouseArea {
                         anchors.fill: parent
 
                         onPressed: {
-                            canvas.startPaint();
-                            canvas.startPoint = Qt.point(mouse.x,mouse.y)
+                            canvas.startPaint(Qt.point(mouse.x,mouse.y));
                         }
 
                         onPositionChanged: {
-                            if(canvasMode.mode === "line") {
-                                canvas.drawLine(canvas.startPoint,Qt.point(mouse.x,mouse.y));
-                            }
+                            canvas.draw(Qt.point(mouse.x,mouse.y));
                         }
 
                         onReleased: {
