@@ -4,6 +4,7 @@
 #include <QScopedPointer>
 #include <QPainter>
 #include <QColor>
+#include <QPolygon>
 #include <QPoint>
 #include <QLine>
 
@@ -21,10 +22,10 @@ public:
 
     virtual void paint(QPainter *painter) = 0;
 
-    void setStartPoint(const QPoint &p);
+    virtual void setStartPoint(const QPoint &p);
     const QPoint &startPoint() const;
 
-    void setStopPoint(const QPoint &p);
+    virtual void setStopPoint(const QPoint &p);
     const QPoint &stopPoint() const;
 
     const QColor &color() const;
@@ -61,5 +62,19 @@ public:
     void paint(QPainter *painter) override;
 };
 
+class PolylineCanvasShape: public CanvasShape
+{
+public:
+    PolylineCanvasShape();
+    ~PolylineCanvasShape() override;
+
+    void paint(QPainter *painter) override;
+
+    void setStartPoint(const QPoint &p) override;
+    void setStopPoint(const QPoint &p) override;
+
+protected:
+    QPolygon polyline;
+};
 
 #endif // CANVASSHAPE_H

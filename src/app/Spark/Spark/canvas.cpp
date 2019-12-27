@@ -96,6 +96,8 @@ CanvasShape *Canvas::createShape(const QString &type)
         return new RectCanvasShape;
     } else if(type == QLatin1Literal("ellipse")) {
         return new EllipseCanvasShape;
+    } else if(type == QLatin1Literal("polyline")) {
+        return new PolylineCanvasShape;
     } else {
         return nullptr;
     }

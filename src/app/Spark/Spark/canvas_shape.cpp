@@ -124,3 +124,34 @@ void EllipseCanvasShape::paint(QPainter *painter)
     painter->drawEllipse(points2Rect(startPoint(),stopPoint()));
     painter->restore();
 }
+
+PolylineCanvasShape::PolylineCanvasShape()
+    : CanvasShape()
+{
+
+}
+
+PolylineCanvasShape::~PolylineCanvasShape()
+{
+
+}
+
+void PolylineCanvasShape::paint(QPainter *painter)
+{    painter->save();
+     painter->setPen(d->penColor);
+      painter->drawPolyline(polyline);
+     painter->restore();
+}
+
+void PolylineCanvasShape::setStartPoint(const QPoint &p)
+{
+    polyline.clear();
+    polyline.push_back(p);
+    CanvasShape::setStartPoint(p);
+}
+
+void PolylineCanvasShape::setStopPoint(const QPoint &p)
+{
+    polyline.push_back(p);
+    CanvasShape::setStopPoint(p);
+}

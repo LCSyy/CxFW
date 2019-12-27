@@ -85,15 +85,17 @@ ApplicationWindow {
                     id: mostUsedColorView
                     width: Math.min(parent.width,200)
                     height: parent.height
-                    cellWidth: 30
-                    cellHeight: 30
+                    cellWidth: 25
+                    cellHeight: 25
                     clip: true
                     boundsBehavior: Flickable.StopAtBounds
                     model: ["#AC23DC","#CD2389","#0223DC","#23CDDC","#AC23DC","#CC2ADC"]
                     delegate: Rectangle {
                         color: modelData
-                        width: 30
-                        height: 30
+                        width: 25
+                        height: 25
+                        border.width: GridView.isCurrentItem ? 1 : 2
+                        border.color: GridView.isCurrentItem ? "#454545" : "#A5A5A5"
                     }
 
                     MouseArea {
@@ -114,29 +116,33 @@ ApplicationWindow {
             Rectangle {
                 width: parent.width
                 height: 300
-                color: "#521030"
 
                 GridView {
                     id: toolView
                     width: Math.min(parent.width,200)
                     height: parent.height
-                    cellWidth: 30
-                    cellHeight: 30
+                    cellWidth: 34
+                    cellHeight: 34
                     clip: true
                     boundsBehavior: Flickable.StopAtBounds
                     model: ListModel{
                         id: toolModel
-                        ListElement {bg:"#CD2389";tool:"line"}
-                        ListElement {bg:"#0223DC";tool:"rect"}
-                        ListElement {bg:"#AC23DC";tool:"ellipse"}
+                        ListElement {tool:"line";text:"L"}
+                        ListElement {tool:"rect";text:"R"}
+                        ListElement {tool:"ellipse";text:"E"}
+                        ListElement {tool:"polyline";text:"P"}
                     }
                     delegate: Rectangle {
-                        color: bg
-                        width: 30
-                        height: 30
+                        color: "#E5E5E5"
+                        width: 34
+                        height: 34
+                        border.width: GridView.isCurrentItem ? 1 : 2
+                        border.color: GridView.isCurrentItem ? "#454545" : "#A5A5A5"
                         Text {
-                            text: tool
+                            text:model.text
                             anchors.fill: parent
+                            horizontalAlignment: Qt.AlignHCenter
+                            verticalAlignment: Qt.AlignVCenter
                         }
                     }
 
