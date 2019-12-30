@@ -71,29 +71,31 @@ ApplicationWindow {
         anchors.fill: parent
         orientation: Qt.Horizontal
 
-        Column {
+        SplitView {
             SplitView.fillHeight: true
             SplitView.preferredWidth: 200
+            SplitView.minimumWidth: 34
+            orientation: Qt.Vertical
             clip: true
 
             Rectangle {
-                width: parent.width
-                height: 100
+                SplitView.fillWidth: true
+                SplitView.preferredHeight: 100
                 color: "#134679"
 
                 GridView {
                     id: mostUsedColorView
                     width: Math.min(parent.width,200)
                     height: parent.height
-                    cellWidth: 25
-                    cellHeight: 25
+                    cellWidth: 34
+                    cellHeight: 34
                     clip: true
                     boundsBehavior: Flickable.StopAtBounds
                     model: ["#AC23DC","#CD2389","#0223DC","#23CDDC","#AC23DC","#CC2ADC"]
                     delegate: Rectangle {
                         color: modelData
-                        width: 25
-                        height: 25
+                        width: 34
+                        height: 34
                         border.width: GridView.isCurrentItem ? 1 : 2
                         border.color: GridView.isCurrentItem ? "#454545" : "#A5A5A5"
                     }
@@ -114,8 +116,8 @@ ApplicationWindow {
             }
 
             Rectangle {
-                width: parent.width
-                height: 300
+                SplitView.fillWidth: true
+                SplitView.preferredHeight: 300
 
                 GridView {
                     id: toolView
@@ -160,6 +162,12 @@ ApplicationWindow {
                     }
                 }
             }
+
+            Rectangle {
+                SplitView.fillWidth: true
+                SplitView.preferredHeight: 300
+                color: "#568794"
+            }
         }
 
         Rectangle {
@@ -199,12 +207,6 @@ ApplicationWindow {
                         }
                     }
                 }
-            }
-
-            Text {
-                anchors.centerIn: parent
-                text: "Canvas"
-                font.pointSize: 24
             }
         }
 

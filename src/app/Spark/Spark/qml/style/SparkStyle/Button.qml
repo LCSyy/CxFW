@@ -1,5 +1,5 @@
-import QtQuick 2.12
-import QtQuick.Templates 2.12 as T
+﻿import QtQuick 2.13
+import QtQuick.Templates 2.13 as T
 
 T.Button {
     id: control
