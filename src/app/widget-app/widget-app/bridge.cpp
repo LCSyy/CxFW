@@ -109,7 +109,8 @@ void Bridge::initToolBar()
     toolBar->addAction(color);
 
     // quick ui
-    QAction *quick = new QAction(QObject::tr("Q"),toolBar);
+    QAction *quick = new QAction(QObject::tr("D"),toolBar);
+    quick->setToolTip(QObject::tr("Diary"));
     quick->setProperty("url",QUrl("app:/toolbar/action/quick"));
     QObject::connect(quick,&QAction::triggered,quickPage);
     toolBar->addAction(quick);
