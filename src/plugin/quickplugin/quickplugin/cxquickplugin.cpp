@@ -1,15 +1,15 @@
 ﻿#include "cxquickplugin.h"
+#include <QQmlEngine>
+#include "canvas.h"
+
 #include <QDebug>
 
 CxQuickPlugin::CxQuickPlugin(QObject *parent)
-    : QGenericPlugin(parent)
+    : QQmlExtensionPlugin(parent)
 {
 }
 
-QObject *CxQuickPlugin::create(const QString &name, const QString &spec)
+void CxQuickPlugin::registerTypes(const char *uri)
 {
-    if(name == "cxquick" && spec == "noitem") {
-        return nullptr;
-    }
-    return nullptr;
+    qmlRegisterType<Canvas>(uri,1,0,"Canvas");
 }

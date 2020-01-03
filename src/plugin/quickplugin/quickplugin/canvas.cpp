@@ -62,9 +62,7 @@ void Canvas::setPenColor(const QColor &color)
 void Canvas::startPaint(const QPoint &point)
 {
     d->startPaint = true;
-
     d->currentShape = createShape(d->shapeType);
-
     if(d->currentShape) {
         d->currentShape->setColor(d->penColor);
         d->currentShape->setStartPoint(point);

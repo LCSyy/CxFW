@@ -21,7 +21,8 @@
 # CX_PLATFORM
 # CX_PROD_DIR
 
-TARGET = $$qtLibraryTarget($${CX_TARGET_NAME})
+# TARGET = $$qtLibraryTarget($${CX_TARGET_NAME})
+TARGET = $$CX_TARGET_NAME
 
 CONFIG += c++14
 
@@ -45,11 +46,14 @@ CONFIG(release,debug|release) {
     DESTDIR = $${CX_PROD_DIR}/release/
 }
 
+# for(LIB,CXLIB_LIST) {
+#     CONFIG(debug,debug|release) {
+#         win32:LIBS += $${DESTDIR}/$${LIB}d.dll
+#     }
+#     CONFIG(release,debug|release) {
+#         win32:LIBS += $${DESTDIR}/$${LIB}.dll
+#     }
+# }
 for(LIB,CXLIB_LIST) {
-    CONFIG(debug,debug|release) {
-        win32:LIBS += $${DESTDIR}/$${LIB}d.dll
-    }
-    CONFIG(release,debug|release) {
-        win32:LIBS += $${DESTDIR}/$${LIB}.dll
-    }
+    win32:LIBS += $${DESTDIR}/$${LIB}.dll
 }

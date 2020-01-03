@@ -1,7 +1,6 @@
 ﻿import QtQuick 2.12
 import QtQuick.Controls 2.12
 
-import Spark 1.0 as Spark
 import ".." as SparkQuick
 
 Dialog {
