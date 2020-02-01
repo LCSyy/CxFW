@@ -56,4 +56,5 @@ CONFIG(release,debug|release) {
 # }
 for(LIB,CXLIB_LIST) {
     win32:LIBS += $${DESTDIR}/$${LIB}.dll
+    unix:LIBS += $${DESTDIR}/-l$${LIB}.so
 }
