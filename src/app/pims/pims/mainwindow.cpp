@@ -7,6 +7,7 @@
 
 #include <QSqlDatabase>
 #include <QSqlQuery>
+#include <QSqlRecord>
 #include <QSqlError>
 
 #include <QDebug>
@@ -73,11 +74,17 @@ MainWindow::MainWindow(QWidget *parent)
 
     mTextEdit->setFontPointSize(14);
     setCentralWidget(mTextEdit);
-
     QShortcut *saveShortCut = new QShortcut(QKeySequence("Ctrl+S"),mTextEdit);
-    connect(saveShortCut,SIGNAL(activated()), this, SLOT(onSave()));
 
+    setWindowTitle("My Note[*]");
     resize(800,600);
+
+    loadContent();
+
+    connect(mTextEdit,&QTextEdit::textChanged, [this](){
+        setWindowModified(true);
+    });
+    connect(saveShortCut,SIGNAL(activated()), this, SLOT(onSave()));
 }
 
 MainWindow::~MainWindow()
@@ -86,6 +93,23 @@ MainWindow::~MainWindow()
 
 void MainWindow::onSave()
 {
-    qDebug() << mTextEdit->toPlainText();
+    setWindowModified(false);
+
+    QSqlQuery query(QSqlDatabase::database("pims_local"));
+    query.prepare("UPDATE note SET content = ?, edit_dt = datetime('now') WHERE id = 1;");
+    query.bindValue(0,mTextEdit->toPlainText());
+    if (!query.exec()) {
+        qDebug() << query.lastError().text();
+    }
+}
+
+void MainWindow::loadContent()
+{
+    QSqlQuery query(QSqlDatabase::database("pims_local"));
+    query.exec("SELECT content FROM note WHERE id = 1;");
+    QSqlRecord record = query.record();
+    while (query.next()) {
+        mTextEdit->setPlainText(query.value("content").toString());
+    }
 }
 

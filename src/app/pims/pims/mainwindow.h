@@ -28,6 +28,7 @@ public:
 
 private slots:
     void onSave();
+    void loadContent();
 
 private:
     QTextEdit *mTextEdit {nullptr};
