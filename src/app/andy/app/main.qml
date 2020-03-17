@@ -3,6 +3,8 @@ import QtQuick.Window 2.12
 import QtQuick.Controls 2.12
 import QtQuick.Layouts 1.12
 
+import Andy.Model 1.0
+
 /*! Ui Spec
   Inner Spacing: 3
   Item Spacing: 6
@@ -32,9 +34,8 @@ Window {
         verticalAlignment: Qt.AlignVCenter
     }
 
-    ListModel {
+    ListStorageModel {
         id: dataModel
-        ListElement { text: "Welcome to [Snippet Manager]" }
     }
 
     ListView {
@@ -54,7 +55,7 @@ Window {
                 id: textEdit
                 anchors.fill: parent
                 anchors.margins: 12
-                text: model.text
+                text: model.content
                 wrapMode: Text.WordWrap
                 clip: true
             }
@@ -63,7 +64,7 @@ Window {
                 anchors.fill: parent
                 onClicked: {
                     editItem.index = model.index;
-                    editItem.content = model.text;
+                    editItem.content = model.content;
                     editItem.x = 0;
                 }
             }
@@ -106,7 +107,7 @@ Window {
                 text: "Ok"
                 onClicked: {
                     if (editItem.index === -1) {
-                        dataModel.append({ "text": contentEdit.text });
+                        dataModel.appendRow({"uid": "", "content": contentEdit.text });
                     } else {
                         dataModel.setProperty(editItem.index,"text",contentEdit.text);
                     }
@@ -138,7 +139,7 @@ Window {
             text: "Delete"
             onClicked: {
                 if (editItem.index !== -1) {
-                    dataModel.remove(editItem.index);
+                    dataModel.removeRow(editItem.index);
                 }
                 editItem.hideItem();
             }

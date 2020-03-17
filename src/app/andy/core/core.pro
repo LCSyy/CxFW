@@ -9,10 +9,4 @@ HEADERS += \
     core_global.h \
     core.h
 
-include ($$PWD/../../../utils/library.pri)
-
-# Default rules for deployment.
-# unix {
-#     target.path = /usr/lib
-# }
-# !isEmpty(target.path): INSTALLS += target
+include($$PWD/../../../utils/library.pri)
