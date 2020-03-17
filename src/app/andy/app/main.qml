@@ -55,6 +55,8 @@ Window {
                 anchors.fill: parent
                 anchors.margins: 12
                 text: model.text
+                wrapMode: Text.WordWrap
+                clip: true
             }
 
             MouseArea {
@@ -124,6 +126,8 @@ Window {
             anchors.fill: parent
             anchors.topMargin: 30 + 12
             anchors.bottomMargin: 30 + 12
+            wrapMode: TextEdit.WordWrap
+            font.pointSize: 14
         }
 
         Button {
@@ -140,5 +144,4 @@ Window {
             }
         }
     }
-
 }

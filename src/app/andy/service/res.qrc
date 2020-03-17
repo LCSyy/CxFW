@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/">
+        <file>icon/andy-service.png</file>
+    </qresource>
+</RCC>

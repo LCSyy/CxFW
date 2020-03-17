@@ -24,7 +24,7 @@
 # TARGET = $$qtLibraryTarget($${CX_TARGET_NAME})
 TARGET = $$CX_TARGET_NAME
 
-CONFIG += c++11
+CONFIG += c++17
 
 DEFINES += QT_DEPRECATED_WARNINGS
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
@@ -54,6 +54,7 @@ CONFIG(release,debug|release) {
 #         win32:LIBS += $${DESTDIR}/$${LIB}.dll
 #     }
 # }
+
 for(LIB,CXLIB_LIST) {
     win32:LIBS += $${DESTDIR}/$${LIB}.dll
     unix:LIBS += $${DESTDIR}/-l$${LIB}.so

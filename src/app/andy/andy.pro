@@ -1,7 +1,8 @@
 TEMPLATE = subdirs
 
 SUBDIRS += \
-    core \
-    app
+    # core \
+    app \
+    service
 
 CONFIG += ordered
