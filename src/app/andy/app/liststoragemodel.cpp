@@ -4,18 +4,23 @@
 #include <QSqlDatabase>
 #include <QSqlQuery>
 #include <QSqlRecord>
-#include <andy-core/localstorage.h>
+// #include <andy-core/localstorage.h>
 
 #include <QDebug>
 
 namespace {
 void initDatabase() {
     QDir dir(qApp->applicationDirPath());
-    const QString relativeLocalDB{"../common/localdb"};
-    if (!dir.cd(relativeLocalDB)) {
-        dir.mkdir(relativeLocalDB);
-        dir.cd(relativeLocalDB);
+    dir.cdUp();
+    if (!dir.cd("common")) {
+        dir.mkdir("common");
+        dir.cd("common");
     }
+    if (!dir.cd("localdb")) {
+        dir.mkdir("localdb");
+        dir.cd("localdb");
+    }
+    qDebug() << "localdb dir:" << dir.absolutePath();
 
     QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE");
     db.setDatabaseName(dir.absoluteFilePath("andy-app.db"));

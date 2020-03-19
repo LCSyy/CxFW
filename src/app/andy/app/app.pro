@@ -10,7 +10,7 @@ HEADERS += \
 
 RESOURCES += qml.qrc
 
-CXLIB_LIST += andy-core
+# CXLIB_LIST += andy-core
 
 include ($$PWD/../../../utils/app.pri)
 
