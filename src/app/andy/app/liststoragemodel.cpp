@@ -4,8 +4,7 @@
 #include <QSqlDatabase>
 #include <QSqlQuery>
 #include <QSqlRecord>
-// #include <andy-core/localstorage.h>
-
+#include <cxcore/localstorage.h>
 #include <QDebug>
 
 namespace {
@@ -95,6 +94,7 @@ QVariantList db_selectData() {
 ListStorageModel::ListStorageModel(QObject *parent)
     : QAbstractListModel(parent)
 {
+    qDebug() << "name:" << LocalStorage::self().myName();
     initDatabase();
     refresh();
 }
