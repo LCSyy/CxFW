@@ -1,5 +1,8 @@
 #include "core.h"
+#include <QCoreApplication>
+#include <QDir>
 
-Core::Core()
+QString Core::localStorageDirPath()
 {
+    return QString("");
 }

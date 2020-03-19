@@ -6,7 +6,7 @@
 class CORE_EXPORT Core
 {
 public:
-    Core();
+    static QString localStorageDirPath();
 };
 
 #endif // CORE_H

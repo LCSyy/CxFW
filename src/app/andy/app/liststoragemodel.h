@@ -13,23 +13,25 @@ public:
     struct Row{
         QString uid;
         QString content;
+        QString createTime;
     };
 
     enum ContentRole {
         Index = Qt::UserRole + 1,
         Uid,
-        Content
+        Content,
+        CreateTime
     };
 
     QHash<int, QByteArray> roleNames() const override;
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
-    bool removeRows(int row, int count, const QModelIndex &parent = QModelIndex()) override;
 
 public slots:
+    void refresh();
     void appendRow(const QVariantMap &row);
-    void removeRow(int row);
-    void setProperty(int row, const QString &key, const QVariant &val);
+    void removeRow(const QString &uid);
+    void setProperty(const QString &uid, const QString &key, const QVariant &val);
 
 private:
     QList<Row> mContents;
