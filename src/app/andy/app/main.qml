@@ -16,8 +16,9 @@ import "./qml" as AndyQuick
 Window {
     visible: true
     width: 320
-    height: 580
+    minimumWidth: 320
     maximumWidth: 500
+    height: 580
     title: "Snippet Manager"
     color: "#F1F1F1"
 
@@ -26,14 +27,30 @@ Window {
         anchors.fill: parent
         visible: false
 
-        Text {
+        RowLayout {
             width: parent.width
             height: 45
-            text: "Snippet Manager"
-            font.bold: true
-            font.pointSize: 14
-            horizontalAlignment: Qt.AlignHCenter
-            verticalAlignment: Qt.AlignVCenter
+
+            Text {
+                Layout.fillWidth: true
+                Layout.fillHeight: true
+                text: "Snippet Manager"
+                font.bold: true
+                font.pointSize: 14
+                horizontalAlignment: Qt.AlignHCenter
+                verticalAlignment: Qt.AlignVCenter
+            }
+
+            Button {
+                width: 45
+                Layout.fillHeight: true
+                text: "Lock"
+                onClicked: {
+                    loginPage.clearPassword();
+                    loginPage.visible = true;
+                    centralItem.visible = false;
+                }
+            }
         }
 
         ListStorageModel {
@@ -66,7 +83,7 @@ Window {
                     anchors.right: parent.right
                     anchors.bottom: parent.bottom
                     anchors.margins: 12
-                    text: model.createTime
+                    text: model.modifyTime
                     color: "#666"
                     wrapMode: Text.NoWrap
                 }
@@ -88,7 +105,7 @@ Window {
 
                 onClicked: {
                     editItem.uid = -1;
-                    editItem.content = "New Content ...";
+                    editItem.content = "";
                     editItem.x = 0;
                 }
             }
@@ -133,14 +150,26 @@ Window {
                 }
             }
 
-            TextEdit {
-                id: contentEdit
-                anchors.fill: parent
-                anchors.topMargin: 30 + 12
-                anchors.bottomMargin: 30 + 12
-                wrapMode: TextEdit.WordWrap
-                font.pointSize: 14
-            }
+            ScrollView {
+                  anchors.fill: parent
+                  anchors.topMargin: 30 + 12
+                  anchors.bottomMargin: 30 + 12
+
+                  TextArea {
+                      id: contentEdit
+                      wrapMode: TextEdit.WordWrap
+                      font.pointSize: 14
+                      tabStopDistance: 4
+                      placeholderText: "New Content ..."
+                      FontMetrics {
+                          font: contentEdit.font
+
+                          Component.onCompleted: {
+                              contentEdit.tabStopDistance = advanceWidth('A') * 4
+                          }
+                      }
+                  }
+              }
 
             Button {
                 width: 100
@@ -160,11 +189,14 @@ Window {
     }
 
     AndyQuick.LoginPage {
+        id: loginPage
         anchors.fill: parent
         onLogin: {
             if (account === 'andy' && passwd === 'okandy') {
                 visible = false;
                 centralItem.visible = true;
+                dataModel.setPassword(passwd + 'af7fFDAf548dFd87');
+                dataModel.refresh();
             }
         }
     }

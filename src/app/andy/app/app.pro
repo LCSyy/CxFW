@@ -1,4 +1,5 @@
 CX_TARGET_NAME = andy-app
+
 QT += quick sql
 
 SOURCES += \
@@ -10,7 +11,7 @@ HEADERS += \
 
 RESOURCES += qml.qrc
 
-CXLIB_LIST += cxcore
+CXLIB_LIST += cxcore cxbase
 
 include ($$PWD/../../../utils/app.pri)
 

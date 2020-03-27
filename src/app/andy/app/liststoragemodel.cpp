@@ -5,7 +5,11 @@
 #include <QSqlQuery>
 #include <QSqlRecord>
 #include <cxcore/localstorage.h>
+#include <cxbase/cxbase.h>
 #include <QDebug>
+
+constexpr int CURRENT_VERSION_NUM = 1;
+constexpr char CURRENT_VERSION_NAME[] = "0.0.1";
 
 namespace {
 void initDatabase() {
@@ -27,7 +31,32 @@ void initDatabase() {
         qDebug() << "[ERROR] local database connection error";
     } else {
         QSqlQuery query(db);
-        query.exec("CREATE TABLE IF NOT EXISTS andy_app(id INTEGER PRIMARY KEY AUTOINCREMENT, content TEXT, create_time TEXT);");
+        query.exec("CREATE TABLE IF NOT EXISTS sys_info(id INTEGER PRIMARY KEY AUTOINCREMENT, ver_num INTEGER, ver_text TEXT, update_log TEXT, create_time TEXT);");
+        query.exec("CREATE TABLE IF NOT EXISTS andy_app(id INTEGER PRIMARY KEY AUTOINCREMENT, content BLOB, create_time TEXT, modify_time TEXT);");
+
+        query.exec("SELECT max(ver_num) AS ver_num FROM sys_info;");
+        QSqlRecord record = query.record();
+        const int verNumIdx = record.indexOf("ver_num");
+        int maxVerNum = -1;
+        while (query.next()) {
+            maxVerNum = query.value(verNumIdx).toInt();
+        }
+
+        qDebug() << "Current version:" << maxVerNum;
+
+        const QString writeVersionInfoSql = QString("INSERT INTO sys_info(ver_num,ver_text,create_time) "
+                                                    "VALUES(%1,'%2',datetime('now','localtime'));").arg(CURRENT_VERSION_NUM).arg(CURRENT_VERSION_NAME);
+
+        if (maxVerNum == -1) {
+            query.exec(writeVersionInfoSql);
+        }
+
+        // if (maxVerNum != -1 && maxVerNum < CURRENT_VERSION_NUM) { // 没有升级到当前版本，需要升级
+        //     query.exec(QString("BEGIN;"
+        //                "ALTER TABLE andy_app ADD COLUMN content_blob BLOB;"
+        //                "ALTER TABLE andy_app ADD COLUMN modify_time TEXT;%1"
+        //                "COMMIT;").arg(writeVersionInfoSql));
+        // }
     }
 }
 
@@ -46,7 +75,7 @@ void db_createData(const QVariantMap &row) {
     qDebug() << "[CREATE]" << row;
     QSqlDatabase db = QSqlDatabase::database();
     QSqlQuery query(db);
-    query.prepare("INSERT INTO andy_app(content,create_time) VALUES(?,datetime('now','localtime'));");
+    query.prepare("INSERT INTO andy_app(content,create_time,modify_time) VALUES(?,datetime('now','localtime'),datetime('now','localtime'));");
     query.addBindValue(row.value("content"));
     query.exec();
 }
@@ -63,7 +92,7 @@ void db_removeData(const QString &id) {
 void db_alterData(const QString &id, const QString &key, const QVariant &val) {
     QSqlDatabase db = QSqlDatabase::database();
     QSqlQuery query(db);
-    query.prepare(QString("UPDATE andy_app SET %1 = ? WHERE id = ?;").arg(key));
+    query.prepare(QString("UPDATE andy_app SET %1 = ?, modify_time = datetime('now','localtime') WHERE id = ?;").arg(key));
     query.addBindValue(val);
     query.addBindValue(id);
     query.exec();
@@ -78,25 +107,27 @@ QVariantList db_selectData() {
     const int idIdx = r.indexOf("id");
     const int contentIdx = r.indexOf("content");
     const int createTimeIdx = r.indexOf("create_time");
+    const int modifyTimeIdx = r.indexOf("modify_time");
     QVariantList dataLst;
     while (query.next()) {
         QVariantMap dataMap;
         dataMap.insert("uid",query.value(idIdx));
+
         dataMap.insert("content",query.value(contentIdx));
-        dataMap.insert("createTime",query.value(createTimeIdx));
+        dataMap.insert("createTime", query.value(createTimeIdx));
+        dataMap.insert("modifyTime",query.value(modifyTimeIdx));
         dataLst.append(dataMap);
     }
     qDebug() << "[SELECT] size:" << dataLst.size();
     return dataLst;
 }
+
 }
 
 ListStorageModel::ListStorageModel(QObject *parent)
     : QAbstractListModel(parent)
 {
-    qDebug() << "name:" << LocalStorage::self().myName();
     initDatabase();
-    refresh();
 }
 
 ListStorageModel::~ListStorageModel()
@@ -111,6 +142,7 @@ QHash<int, QByteArray> ListStorageModel::roleNames() const
     roles[Uid] = "uid";
     roles[Content] = "content";
     roles[CreateTime] = "createTime";
+    roles[ModifyTime] = "modifyTime";
     return roles;
 }
 
@@ -133,6 +165,8 @@ QVariant ListStorageModel::data(const QModelIndex &index, int role) const
         return d.content;
     } else if (r == CreateTime) {
         return d.createTime;
+    } else if (r == ModifyTime) {
+        return d.modifyTime;
     }
     return QVariant();
 }
@@ -149,8 +183,9 @@ void ListStorageModel::refresh()
         const QVariantMap rowMap = row.toMap();
         Row r;
         r.uid = rowMap.value("uid").toString();
-        r.content = rowMap.value("content").toString();
+        r.content = cx::CxBase::decryptText(rowMap.value("content").toString(),mPassword);
         r.createTime = rowMap.value("createTime").toString();
+        r.modifyTime = rowMap.value("modifyTime").toString();
         mContents.append(r);
     }
     endInsertRows();
@@ -158,7 +193,10 @@ void ListStorageModel::refresh()
 
 void ListStorageModel::appendRow(const QVariantMap &row)
 {
-    db_createData(row);
+    const QString content = row.value("content").toString();
+    QVariantMap data = row;
+    data.insert("content",cx::CxBase::encryptText(content,mPassword));
+    db_createData(data);
     refresh();
 }
 
@@ -170,6 +208,15 @@ void ListStorageModel::removeRow(const QString &uid)
 
 void ListStorageModel::setProperty(const QString &uid, const QString &key, const QVariant &val)
 {
-    db_alterData(uid,key,val);
+    QVariant d = val;
+    if (key == "content") {
+        d = cx::CxBase::encryptText(d.toString(),mPassword);
+    }
+    db_alterData(uid,key,d);
     refresh();
+}
+
+void ListStorageModel::setPassword(const QString &ps)
+{
+    mPassword = ps;
 }

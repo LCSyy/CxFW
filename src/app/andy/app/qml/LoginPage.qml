@@ -8,6 +8,10 @@ Rectangle {
 
     signal login(string account, string passwd);
 
+    function clearPassword() {
+        password.text = "";
+    }
+
     Column {
         spacing: 6
         anchors.centerIn: parent

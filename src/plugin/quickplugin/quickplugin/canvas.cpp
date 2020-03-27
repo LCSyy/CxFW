@@ -12,6 +12,26 @@ CanvasData::~CanvasData()
     shapes.clear();
 }
 
+/*!
+ * \brief Canvas::Canvas
+ *
+ * \code
+ * Cx.Canvas {
+ *     width: 100
+ *     height: 100
+ *     shapeType: "polyline"
+ *     penColor: "#468914"
+ *     Component.onCompleted: {
+ *         startPaint(Qt.point(10,10));
+ *         draw(Qt.point(34,44));
+ *         draw(Qt.point(89,100));
+ *         stopPaint();
+ *     }
+ * }
+ * \endcode
+ *
+ * \param parent
+ */
 Canvas::Canvas(QQuickItem *parent)
     : QQuickPaintedItem(parent)
     , d(new CanvasData)

@@ -1,20 +1,21 @@
-﻿#include <QCoreApplication>
-#include <QGenericPluginFactory>
-#include <QPluginLoader>
-#include <QDebug>
+#include <QGuiApplication>
+#include <QQmlApplicationEngine>
 
 int main(int argc, char *argv[])
 {
-    QCoreApplication a(argc, argv);
-    qDebug() << QCoreApplication::applicationDirPath();
-    QCoreApplication::addLibraryPath(QCoreApplication::applicationDirPath() + "/plugins");
+    QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
 
-    QPluginLoader quickPlugin("quickplugind");
-    if(quickPlugin.load()) {
-        qDebug() << "It's Ok!";
-        qDebug() << quickPlugin.metaData().toVariantMap();
+    QGuiApplication app(argc, argv);
 
-    }
-    qDebug() << QGenericPluginFactory::keys();
-    return a.exec();
+    QQmlApplicationEngine engine;
+    engine.addImportPath(QCoreApplication::applicationDirPath() + "/qml");
+    const QUrl url(QStringLiteral("qrc:/main.qml"));
+    QObject::connect(&engine, &QQmlApplicationEngine::objectCreated,
+                     &app, [url](QObject *obj, const QUrl &objUrl) {
+        if (!obj && url == objUrl)
+            QCoreApplication::exit(-1);
+    }, Qt::QueuedConnection);
+    engine.load(url);
+
+    return app.exec();
 }

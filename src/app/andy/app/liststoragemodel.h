@@ -14,13 +14,15 @@ public:
         QString uid;
         QString content;
         QString createTime;
+        QString modifyTime;
     };
 
     enum ContentRole {
         Index = Qt::UserRole + 1,
         Uid,
         Content,
-        CreateTime
+        CreateTime,
+        ModifyTime
     };
 
     QHash<int, QByteArray> roleNames() const override;
@@ -32,9 +34,11 @@ public slots:
     void appendRow(const QVariantMap &row);
     void removeRow(const QString &uid);
     void setProperty(const QString &uid, const QString &key, const QVariant &val);
+    void setPassword(const QString &ps);
 
 private:
     QList<Row> mContents;
+    QString mPassword;
 };
 
 #endif // LISTSTORAGEMODEL_H

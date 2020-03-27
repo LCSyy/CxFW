@@ -1,10 +1,10 @@
 CX_TARGET_NAME = quickplugin-demo
-QT += core gui
-CONFIG += c++11 console
-CONFIG -= app_bundle
+
+QT += quick
 
 SOURCES += \
         main.cpp
 
-include($$PWD/../../../utils/app.pri)
+RESOURCES += qml.qrc
 
+include ($$PWD/../../../utils/app.pri)
