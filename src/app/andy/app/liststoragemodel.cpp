@@ -178,6 +178,7 @@ void ListStorageModel::refresh()
     endResetModel();
 
     const QVariantList dataLst = db_selectData();
+    if (dataLst.size() == 0) { return; }
     beginInsertRows(QModelIndex(),0,dataLst.size()-1);
     for (const QVariant &row: dataLst) {
         const QVariantMap rowMap = row.toMap();
