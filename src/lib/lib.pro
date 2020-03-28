@@ -4,3 +4,5 @@ SUBDIRS += \
     base \
     core \
     quick
+
+CONFIG += ordered
