@@ -1,7 +1,7 @@
 ﻿#include "storage.h"
 #include <QVariantMap>
-#include <botan/rng.h>
-#include <sqlite/sqlite3.h>
+// #include <botan/rng.h>
+#include <third_party/sqlite3/sqlite3.h>
 
 #include <iostream>
 #include <QDebug>

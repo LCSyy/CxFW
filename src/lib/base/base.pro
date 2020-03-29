@@ -10,19 +10,7 @@ QT       -= gui
 
 DEFINES += CXBASE_LIBRARY
 
-QMAKE_LFLAGS_SHLIB += -fstack-protector
-
-INCLUDEPATH += \
-    $${PWD}/thirdparty/include/ \
-    $${PWD}/embed/
-
-THIRD_PARTY_SOURCES += \
-    embed/qrcode/qrcode.c \
-    embed/sqlite/sqlite3.c
-
-THIRD_PARTY_HEADERS += \
-    embed/qrcode/qrcode.h \
-    embed/sqlite/sqlite3.h
+#QMAKE_LFLAGS_SHLIB += -fstack-protector
 
 CXBASE_SOURCES += \
     cxbase.cpp \
@@ -34,14 +22,14 @@ CXBASE_HEADERS += \
     storage.h
 
 SOURCES += \
-    $${THIRD_PARTY_SOURCES} \
+    #$${THIRD_PARTY_SOURCES} \
     $${CXBASE_SOURCES}
 
 HEADERS += \
-    $${THIRD_PARTY_HEADERS} \
+    #${THIRD_PARTY_HEADERS} \
     $${CXBASE_HEADERS}
 
-LIBS += $${PWD}/thirdparty/lib/libbotan-2.a
+CX_LIBLIST += qrcode sqlite3 botan-2
 
 include($$PWD/../../utils/library.pri)
 

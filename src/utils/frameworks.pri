@@ -6,11 +6,11 @@
 
 # 变量：
 # CX_TARGET_NAME =
+# CXLIB_LIST +=
 # QT +=
 # DEFINES +=
 # QML_IMPORT_PATH =
 # QML_DESIGNER_IMPORT_PATH =
-# CXLIB_LIST +=
 # SOURCES +=
 # HEADERS +=
 
@@ -37,7 +37,8 @@ CX_PLATFORM = qt$${QT_MAJOR_VERSION}-$$last(_SPEC)
 CX_PROD_DIR = $${CX_DIST_DIR}/$$CX_PLATFORM/
 
 INCLUDEPATH += \
-    $${CX_PROD_DIR}/include/
+    $${CX_PROD_DIR}/include/ \
+    $${CX_PROD_DIR}/include/third_party/
 
 CONFIG(debug,debug|release) {
     DESTDIR = $${CX_PROD_DIR}/debug/
