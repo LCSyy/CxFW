@@ -1,6 +1,5 @@
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
-#include <cxcore/localstorage.h>
 #include "liststoragemodel.h"
 
 int main(int argc, char *argv[])
@@ -9,7 +8,7 @@ int main(int argc, char *argv[])
 
     QGuiApplication app(argc, argv);
     QObject::connect(&app,&QGuiApplication::aboutToQuit,[](){
-        LocalStorage::drop();
+        // LocalStorage::drop();
     });
 
     qmlRegisterType<ListStorageModel>("Andy.Model",1,0,"ListStorageModel");

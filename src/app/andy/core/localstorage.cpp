@@ -41,9 +41,25 @@ struct LocalStorageData {
         QObject::connect(self, SIGNAL(initStorage(const QString&)), dbWorker, SLOT(initDatabase(const QString&)));
         QObject::connect(dbWorker, SIGNAL(storageInitialed()), self, SIGNAL(storageInitialed()));
 
+        // drop storage
+        QObject::connect(self,SIGNAL(dropStorage()),dbWorker,SLOT(dropDatabase()));
+
         // load data
         QObject::connect(self, SIGNAL(loadData()), dbWorker, SLOT(loadDataList()));
         QObject::connect(dbWorker, SIGNAL(dataLoaded(const QVariantList&)), self, SIGNAL(dataHasLoad(QVariantList)));
+
+        // create data
+        QObject::connect(self, SIGNAL(createData(const QVariantMap&)), dbWorker, SLOT(createData(const QVariantMap&)));
+        QObject::connect(dbWorker, SIGNAL(dataCreated()), self, SIGNAL(dataCreated()));
+
+        // remove data
+        QObject::connect(self, SIGNAL(removeData(const QString&)), dbWorker, SLOT(removeData(const QString&)));
+        QObject::connect(dbWorker, SIGNAL(dataRemoved()), self, SIGNAL(dataRemoved()));
+
+        // alter data
+        QObject::connect(self, SIGNAL(alterData(const QString &, const QString &, const QVariant&)),
+                         dbWorker, SLOT(alterData(const QString &, const QString &, const QVariant&)));
+        QObject::connect(dbWorker, SIGNAL(dataAltered()), self, SIGNAL(dataAltered()));
 
         QObject::connect(dbThread, SIGNAL(finished()),
                          dbWorker, SLOT(deleteLater()));
@@ -52,24 +68,29 @@ struct LocalStorageData {
         dbThread->start();
     }
 
+    ~LocalStorageData() {
+        dbThread->exit();
+        dbThread->wait();
+    }
 };
 
 LocalStorage::LocalStorage(QObject *parent)
     : QObject(parent)
     , d(new LocalStorageData(this))
 {
-    qDebug() << "Construct LocalStorage";
+    qDebug() << "[Construct] LocalStorage";
 }
 
 LocalStorage::~LocalStorage()
 {
+    emit dropStorage(QPrivateSignal{});
+
     if (d) {
-        d->dbThread->exit();
         delete d;
         d = nullptr;
     }
 
-    qDebug() << "Drop LocalStorage";
+    qDebug() << "[Drop] LocalStorage";
 }
 
 LocalStorage *LocalStorage::self()
@@ -151,6 +172,18 @@ void DatabaseWorker::initDatabase(const QString &dbPath)
     }
 }
 
+void DatabaseWorker::dropDatabase()
+{
+    QString connectionName;
+    {
+        QSqlDatabase db = QSqlDatabase::database();
+        connectionName = db.connectionName();
+        db.close();
+    }
+    QSqlDatabase::removeDatabase(connectionName);
+    qDebug() << "[Drop] Database";
+}
+
 void DatabaseWorker::loadDataList()
 {
     QSqlDatabase db = QSqlDatabase::database();
@@ -173,4 +206,41 @@ void DatabaseWorker::loadDataList()
     }
     qDebug() << "[SELECT] size:" << dataLst.size();
     emit dataLoaded(dataLst);
+}
+
+void DatabaseWorker::createData(const QVariantMap &row)
+{
+    qDebug() << "[CREATE]" << row;
+    QSqlDatabase db = QSqlDatabase::database();
+    QSqlQuery query(db);
+    query.prepare("INSERT INTO andy_app(content,create_time,modify_time) VALUES(?,datetime('now','localtime'),datetime('now','localtime'));");
+    query.addBindValue(row.value("content"));
+    query.exec();
+
+    emit dataCreated();
+}
+
+void DatabaseWorker::removeData(const QString &id)
+{
+    QSqlDatabase db = QSqlDatabase::database();
+    QSqlQuery query(db);
+    query.prepare("DELETE FROM andy_app WHERE id = ?;");
+    query.addBindValue(id);
+    query.exec();
+    qDebug() << "[REMOVE] row:" << id;
+
+    emit dataRemoved();
+}
+
+void DatabaseWorker::alterData(const QString &id, const QString &key, const QVariant &val)
+{
+    QSqlDatabase db = QSqlDatabase::database();
+    QSqlQuery query(db);
+    query.prepare(QString("UPDATE andy_app SET %1 = ?, modify_time = datetime('now','localtime') WHERE id = ?;").arg(key));
+    query.addBindValue(val);
+    query.addBindValue(id);
+    query.exec();
+    qDebug() << "[ALTER] uid:" << id << "," << key << ":" << val;
+
+    emit dataAltered();
 }

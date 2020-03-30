@@ -10,7 +10,7 @@ QT       -= gui
 
 DEFINES += CXBASE_LIBRARY
 
-#QMAKE_LFLAGS_SHLIB += -fstack-protector
+QMAKE_LFLAGS_SHLIB += -fstack-protector -fPIC
 
 CXBASE_SOURCES += \
     cxbase.cpp \
@@ -29,9 +29,11 @@ HEADERS += \
     #${THIRD_PARTY_HEADERS} \
     $${CXBASE_HEADERS}
 
-CX_LIBLIST += qrcode sqlite3 botan-2
+CXLIB_LIST += qrcode sqlite3 botan-2
 
 include($$PWD/../../utils/library.pri)
+
+ message($$LIBS)
 
 cxbase.files += $${CXBASE_HEADERS}
 cxbase.path = $$CX_PROD_DIR/include/cxbase

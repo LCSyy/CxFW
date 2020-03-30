@@ -36,25 +36,24 @@ QRCode CxBase::genQRcode(uint8_t version, uint8_t ecc, const char *data)
 
 const QString CxBase::encryptText(const QString &clearText, const QString &passphrase)
 {
-    // QByteArray ba = clearText.toUtf8();
-    // std::size_t cpySize = static_cast<std::size_t>(ba.size());
+    QByteArray ba = clearText.toUtf8();
+    std::size_t cpySize = static_cast<std::size_t>(ba.size());
     QString encStr;
-    // if(cpySize) {
-    //     uint8_t *tmpMem = new uint8_t[cpySize + 1];
-    //     std::memset(tmpMem,0,cpySize + 1);
-    //     std::memcpy(tmpMem,ba.data(),cpySize);
-    //     encStr = QString::fromStdString(Botan::CryptoBox::encrypt(tmpMem,cpySize,passphrase.toStdString(),Botan::system_rng()));
-    //     std::memset(tmpMem,0,cpySize);
-    //     delete[] tmpMem;
-    //     tmpMem = nullptr;
-    // }
+    if(cpySize) {
+        uint8_t *tmpMem = new uint8_t[cpySize + 1];
+        std::memset(tmpMem,0,cpySize + 1);
+        std::memcpy(tmpMem,ba.data(),cpySize);
+        encStr = QString::fromStdString(Botan::CryptoBox::encrypt(tmpMem,cpySize,passphrase.toStdString(),Botan::system_rng()));
+        std::memset(tmpMem,0,cpySize);
+        delete[] tmpMem;
+        tmpMem = nullptr;
+    }
     return encStr;
 }
 
 const QString CxBase::decryptText(const QString &cryptedText, const QString &passphrase)
 {
-    // return QString::fromStdString(Botan::CryptoBox::decrypt(cryptedText.toStdString(), passphrase.toStdString()));
-    return QString("");
+    return QString::fromStdString(Botan::CryptoBox::decrypt(cryptedText.toStdString(), passphrase.toStdString()));
 }
 
 }

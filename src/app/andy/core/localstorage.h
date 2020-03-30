@@ -19,12 +19,24 @@ public:
 
     QString localStorageFilePath() const;
 
+
 signals:
     void initStorage(const QString &path);
     void storageInitialed();
 
+    void dropStorage(QPrivateSignal);
+
     void loadData();
     void dataHasLoad(QVariantList);
+
+    void createData(const QVariantMap&);
+    void dataCreated();
+
+    void removeData(const QString &);
+    void dataRemoved();
+
+    void alterData(const QString &, const QString &, const QVariant&);
+    void dataAltered();
 
 protected:
     // explicit LocalStorage(QObject *parent = nullptr);
@@ -48,10 +60,17 @@ public:
 signals:
     void storageInitialed();
     void dataLoaded(const QVariantList&);
+    void dataCreated();
+    void dataRemoved();
+    void dataAltered();
 
 public slots:
     void initDatabase(const QString &dbPath);
+    void dropDatabase();
     void loadDataList();
+    void createData(const QVariantMap &row);
+    void removeData(const QString &id);
+    void alterData(const QString &id, const QString &key, const QVariant &val);
 };
 
 #endif // LOCALSTORAGE_H

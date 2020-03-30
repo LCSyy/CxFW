@@ -132,14 +132,17 @@ ListStorageModel::ListStorageModel(QObject *parent)
     // connect(LocalStorage::self(), &LocalStorage::dataHasLoad, this, &ListStorageModel::onDataLoaded);
     // emit LocalStorage::instance().initStorage(LocalStorage::instance().localStorageFilePath());
 
-    connect(storage,&LocalStorage::storageInitialed,[](){ qDebug() << "Storage init."; });
-    connect(storage, &LocalStorage::dataHasLoad, this, &ListStorageModel::onDataLoaded);
-    emit LocalStorage::instance().initStorage(LocalStorage::instance().localStorageFilePath());
+    connect(storage, SIGNAL(dataHasLoad(const QVariantList&)), this, SLOT(onDataLoaded(const QVariantList&)));
+    connect(storage,SIGNAL(dataCreated()),this,SLOT(refresh()));
+    connect(storage,SIGNAL(dataRemoved()),this,SLOT(refresh()));
+    connect(storage,SIGNAL(dataAltered()),this,SLOT(refresh()));
+
+    emit storage->initStorage(storage->localStorageFilePath());
 }
 
 ListStorageModel::~ListStorageModel()
 {
-    destroyDatabase();
+    // destroyDatabase();
     // LocalStorage::drop();
 }
 
@@ -190,14 +193,17 @@ void ListStorageModel::appendRow(const QVariantMap &row)
     const QString content = row.value("content").toString();
     QVariantMap data = row;
     data.insert("content",cx::CxBase::encryptText(content,mPassword));
-    db_createData(data);
+    qDebug() << "[Content] " << content;
+    // db_createData(data);
+    emit storage->createData(data);
     refresh();
 }
 
 void ListStorageModel::removeRow(const QString &uid)
 {
-    db_removeData(uid);
-    refresh();
+    // db_removeData(uid);
+    // refresh();
+    emit storage->removeData(uid);
 }
 
 void ListStorageModel::setProperty(const QString &uid, const QString &key, const QVariant &val)
@@ -206,8 +212,9 @@ void ListStorageModel::setProperty(const QString &uid, const QString &key, const
     if (key == "content") {
         d = cx::CxBase::encryptText(d.toString(),mPassword);
     }
-    db_alterData(uid,key,d);
-    refresh();
+    // db_alterData(uid,key,d);
+    // refresh();
+    emit storage->alterData(uid,key,d);
 }
 
 void ListStorageModel::setPassword(const QString &ps)
