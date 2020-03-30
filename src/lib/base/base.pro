@@ -36,3 +36,4 @@ include($$PWD/../../utils/library.pri)
 cxbase.files += $${CXBASE_HEADERS}
 cxbase.path = $$CX_PROD_DIR/include/cxbase
 INSTALLS += cxbase
+

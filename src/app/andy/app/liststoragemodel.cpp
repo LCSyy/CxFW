@@ -4,12 +4,9 @@
 #include <QSqlDatabase>
 #include <QSqlQuery>
 #include <QSqlRecord>
-#include <cxcore/localstorage.h>
 #include <cxbase/cxbase.h>
+#include <andy-core/localstorage.h>
 #include <QDebug>
-
-constexpr int CURRENT_VERSION_NUM = 1;
-constexpr char CURRENT_VERSION_NAME[] = "0.0.1";
 
 namespace {
 void initDatabase() {
@@ -45,7 +42,7 @@ void initDatabase() {
         qDebug() << "Current version:" << maxVerNum;
 
         const QString writeVersionInfoSql = QString("INSERT INTO sys_info(ver_num,ver_text,create_time) "
-                                                    "VALUES(%1,'%2',datetime('now','localtime'));").arg(CURRENT_VERSION_NUM).arg(CURRENT_VERSION_NAME);
+                                                    "VALUES(%1,'%2',datetime('now','localtime'));").arg(1).arg("0.0.1");
 
         if (maxVerNum == -1) {
             query.exec(writeVersionInfoSql);
@@ -126,13 +123,24 @@ QVariantList db_selectData() {
 
 ListStorageModel::ListStorageModel(QObject *parent)
     : QAbstractListModel(parent)
+    , storage(new LocalStorage(this))
 {
-    initDatabase();
+    // initDatabase();
+    // LocalStorage::self();
+
+    // connect(LocalStorage::self(),&LocalStorage::storageInitialed,[](){ qDebug() << "Storage init."; });
+    // connect(LocalStorage::self(), &LocalStorage::dataHasLoad, this, &ListStorageModel::onDataLoaded);
+    // emit LocalStorage::instance().initStorage(LocalStorage::instance().localStorageFilePath());
+
+    connect(storage,&LocalStorage::storageInitialed,[](){ qDebug() << "Storage init."; });
+    connect(storage, &LocalStorage::dataHasLoad, this, &ListStorageModel::onDataLoaded);
+    emit LocalStorage::instance().initStorage(LocalStorage::instance().localStorageFilePath());
 }
 
 ListStorageModel::~ListStorageModel()
 {
     destroyDatabase();
+    // LocalStorage::drop();
 }
 
 QHash<int, QByteArray> ListStorageModel::roleNames() const
@@ -173,23 +181,8 @@ QVariant ListStorageModel::data(const QModelIndex &index, int role) const
 
 void ListStorageModel::refresh()
 {
-    beginResetModel();
-    mContents.clear();
-    endResetModel();
-
-    const QVariantList dataLst = db_selectData();
-    if (dataLst.size() == 0) { return; }
-    beginInsertRows(QModelIndex(),0,dataLst.size()-1);
-    for (const QVariant &row: dataLst) {
-        const QVariantMap rowMap = row.toMap();
-        Row r;
-        r.uid = rowMap.value("uid").toString();
-        r.content = cx::CxBase::decryptText(rowMap.value("content").toString(),mPassword);
-        r.createTime = rowMap.value("createTime").toString();
-        r.modifyTime = rowMap.value("modifyTime").toString();
-        mContents.append(r);
-    }
-    endInsertRows();
+    // emit LocalStorage::instance().loadData();
+    emit storage->loadData();
 }
 
 void ListStorageModel::appendRow(const QVariantMap &row)
@@ -220,4 +213,27 @@ void ListStorageModel::setProperty(const QString &uid, const QString &key, const
 void ListStorageModel::setPassword(const QString &ps)
 {
     mPassword = ps;
+}
+
+void ListStorageModel::onDataLoaded(const QVariantList &dataLst)
+{
+    qDebug() << dataLst;
+
+    beginResetModel();
+    mContents.clear();
+    endResetModel();
+
+    // const QVariantList dataLst = db_selectData();
+    if (dataLst.size() == 0) { return; }
+    beginInsertRows(QModelIndex(),0,dataLst.size()-1);
+    for (const QVariant &row: dataLst) {
+        const QVariantMap rowMap = row.toMap();
+        Row r;
+        r.uid = rowMap.value("uid").toString();
+        r.content = cx::CxBase::decryptText(rowMap.value("content").toString(),mPassword);
+        r.createTime = rowMap.value("createTime").toString();
+        r.modifyTime = rowMap.value("modifyTime").toString();
+        mContents.append(r);
+    }
+    endInsertRows();
 }

@@ -29,22 +29,22 @@ CONFIG += c++11
 DEFINES += QT_DEPRECATED_WARNINGS
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
-CX_FRAMEWORKS_ROOT_DIR = $${PWD}/../../
-CX_SOURCE_DIR = $${CX_FRAMEWORKS_ROOT_DIR}/src/
-CX_DIST_DIR = $${CX_FRAMEWORKS_ROOT_DIR}/dist/
+CX_FRAMEWORKS_ROOT_DIR = $${PWD}/../..
+CX_SOURCE_DIR = $${CX_FRAMEWORKS_ROOT_DIR}/src
+CX_DIST_DIR = $${CX_FRAMEWORKS_ROOT_DIR}/dist
 _SPEC = $$split(QMAKESPEC,/)
 CX_PLATFORM = qt$${QT_MAJOR_VERSION}-$$last(_SPEC)
-CX_PROD_DIR = $${CX_DIST_DIR}/$$CX_PLATFORM/
+CX_PROD_DIR = $${CX_DIST_DIR}/$$CX_PLATFORM
 
 INCLUDEPATH += \
-    $${CX_PROD_DIR}/include/ \
-    $${CX_PROD_DIR}/include/third_party/
+    $${CX_PROD_DIR}/include \
+    $${CX_PROD_DIR}/include/third_party
 
 CONFIG(debug,debug|release) {
-    DESTDIR = $${CX_PROD_DIR}/debug/
+    DESTDIR = $${CX_PROD_DIR}/debug
 }
 CONFIG(release,debug|release) {
-    DESTDIR = $${CX_PROD_DIR}/release/
+    DESTDIR = $${CX_PROD_DIR}/release
 }
 
 # for(LIB,CXLIB_LIST) {

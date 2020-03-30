@@ -3,6 +3,7 @@
 
 #include <QAbstractListModel>
 
+class LocalStorage;
 class ListStorageModel : public QAbstractListModel
 {
     Q_OBJECT
@@ -36,9 +37,13 @@ public slots:
     void setProperty(const QString &uid, const QString &key, const QVariant &val);
     void setPassword(const QString &ps);
 
+private slots:
+    void onDataLoaded(const QVariantList &dataLst);
+
 private:
     QList<Row> mContents;
     QString mPassword;
+    LocalStorage *storage;
 };
 
 #endif // LISTSTORAGEMODEL_H

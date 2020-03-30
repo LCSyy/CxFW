@@ -1,7 +1,0 @@
-<RCC>
-    <qresource prefix="/">
-        <file>qml/ChatView.qml</file>
-        <file>qml/Draft.qml</file>
-        <file>qml/ChatItem.qml</file>
-    </qresource>
-</RCC>

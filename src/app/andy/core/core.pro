@@ -14,8 +14,6 @@ HEADERS += \
 
 include($$PWD/../../../utils/library.pri)
 
-# LIBS += $${DESTDIR}/libsqlite.a
-
 target.path = $${CX_PROD_DIR}/include/andy-core
 target.files = $$PWD/*.h
 INSTALLS += target

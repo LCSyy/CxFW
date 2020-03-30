@@ -11,7 +11,7 @@ HEADERS += \
 
 RESOURCES += qml.qrc
 
-CXLIB_LIST += cxcore cxbase
+CXLIB_LIST += andy-core cxcore cxbase
 
 include ($$PWD/../../../utils/app.pri)
 
