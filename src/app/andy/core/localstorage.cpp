@@ -8,14 +8,8 @@
 
 #include <QDebug>
 
-LocalStorage *LocalStorage::mOnly{nullptr};
-
 constexpr int CURRENT_VERSION_NUM = 1;
 constexpr char CURRENT_VERSION_NAME[] = "0.0.1";
-
-// const char ANDY_APP_TABLE[] = "andy_app";
-// const char SYS_INFO_TABLE[] = "sys_info";
-// const char USER_INFO_TABLE[] = "user_info";
 
 struct LocalStorageData {
     QThread *dbThread;
@@ -93,49 +87,28 @@ LocalStorage::~LocalStorage()
     qDebug() << "[Drop] LocalStorage";
 }
 
-LocalStorage *LocalStorage::self()
-{
-    if (!mOnly) {
-        mOnly = new LocalStorage();
-    }
-    return mOnly;
-}
-
-LocalStorage &LocalStorage::instance()
-{
-    if (!mOnly) {
-        mOnly = new LocalStorage();
-    }
-    return *mOnly;
-}
-
-void LocalStorage::drop()
-{
-    if (mOnly) {
-        delete mOnly;
-        mOnly = nullptr;
-    }
-}
-
 QString LocalStorage::localStorageFilePath() const
 {
-    return d->localStorageDir.absoluteFilePath("andy-app.db");
+    if (d && !d->localStorageDir.isEmpty()) {
+        return d->localStorageDir.absoluteFilePath("andy-app.db");
+    }
+    return QString("");
 }
 
 DatabaseWorker::DatabaseWorker(QObject *parent)
     : QObject(parent)
 {
-
+    qDebug() << "[Construct] DatabaseWorker";
 }
 
 DatabaseWorker::~DatabaseWorker()
 {
-    qDebug() << "Database worker destroyed!";
+    qDebug() << "[Drop] DatabaseWorker";
 }
 
 void DatabaseWorker::initDatabase(const QString &dbPath)
 {
-    qDebug() << "localdb dir:" << dbPath;
+    qDebug() << "[Init] database";
 
     QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE");
     db.setDatabaseName(dbPath);
@@ -153,8 +126,6 @@ void DatabaseWorker::initDatabase(const QString &dbPath)
         while (query.next()) {
             maxVerNum = query.value(verNumIdx).toInt();
         }
-
-        qDebug() << "Current version:" << maxVerNum;
 
         const QString writeVersionInfoSql = QString("INSERT INTO sys_info(ver_num,ver_text,create_time) "
                                                     "VALUES(%1,'%2',datetime('now','localtime'));").arg(CURRENT_VERSION_NUM).arg(CURRENT_VERSION_NAME);
@@ -174,6 +145,8 @@ void DatabaseWorker::initDatabase(const QString &dbPath)
 
 void DatabaseWorker::dropDatabase()
 {
+    qDebug() << "[Drop] database";
+
     QString connectionName;
     {
         QSqlDatabase db = QSqlDatabase::database();
@@ -181,11 +154,11 @@ void DatabaseWorker::dropDatabase()
         db.close();
     }
     QSqlDatabase::removeDatabase(connectionName);
-    qDebug() << "[Drop] Database";
 }
 
 void DatabaseWorker::loadDataList()
 {
+    qDebug() << "[Load] datalist";
     QSqlDatabase db = QSqlDatabase::database();
     QSqlQuery query(db);
     query.exec("SELECT * FROM andy_app");
@@ -204,13 +177,12 @@ void DatabaseWorker::loadDataList()
         dataMap.insert("modifyTime",query.value(modifyTimeIdx));
         dataLst.append(dataMap);
     }
-    qDebug() << "[SELECT] size:" << dataLst.size();
     emit dataLoaded(dataLst);
 }
 
 void DatabaseWorker::createData(const QVariantMap &row)
 {
-    qDebug() << "[CREATE]" << row;
+    qDebug() << "[CREATE]";
     QSqlDatabase db = QSqlDatabase::database();
     QSqlQuery query(db);
     query.prepare("INSERT INTO andy_app(content,create_time,modify_time) VALUES(?,datetime('now','localtime'),datetime('now','localtime'));");
@@ -222,25 +194,27 @@ void DatabaseWorker::createData(const QVariantMap &row)
 
 void DatabaseWorker::removeData(const QString &id)
 {
+    qDebug() << "[REMOVE]";
+
     QSqlDatabase db = QSqlDatabase::database();
     QSqlQuery query(db);
     query.prepare("DELETE FROM andy_app WHERE id = ?;");
     query.addBindValue(id);
     query.exec();
-    qDebug() << "[REMOVE] row:" << id;
 
     emit dataRemoved();
 }
 
 void DatabaseWorker::alterData(const QString &id, const QString &key, const QVariant &val)
 {
+    qDebug() << "[ALTER]";
+
     QSqlDatabase db = QSqlDatabase::database();
     QSqlQuery query(db);
     query.prepare(QString("UPDATE andy_app SET %1 = ?, modify_time = datetime('now','localtime') WHERE id = ?;").arg(key));
     query.addBindValue(val);
     query.addBindValue(id);
     query.exec();
-    qDebug() << "[ALTER] uid:" << id << "," << key << ":" << val;
 
     emit dataAltered();
 }

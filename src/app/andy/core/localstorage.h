@@ -13,12 +13,7 @@ public:
     explicit LocalStorage(QObject *parent = nullptr);
     ~LocalStorage();
 
-    static LocalStorage *self();
-    static LocalStorage &instance();
-    static void drop();
-
     QString localStorageFilePath() const;
-
 
 signals:
     void initStorage(const QString &path);
@@ -37,13 +32,6 @@ signals:
 
     void alterData(const QString &, const QString &, const QVariant&);
     void dataAltered();
-
-protected:
-    // explicit LocalStorage(QObject *parent = nullptr);
-    // ~LocalStorage();
-    // Q_DISABLE_COPY(LocalStorage)
-
-    static LocalStorage *mOnly;
 
 private:
     LocalStorageData *d {nullptr};

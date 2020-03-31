@@ -29,11 +29,9 @@ HEADERS += \
     #${THIRD_PARTY_HEADERS} \
     $${CXBASE_HEADERS}
 
-CXLIB_LIST += qrcode sqlite3 botan-2
+CX_STATICLIB_LIST += qrcode sqlite3 botan-2
 
 include($$PWD/../../utils/library.pri)
-
- message($$LIBS)
 
 cxbase.files += $${CXBASE_HEADERS}
 cxbase.path = $$CX_PROD_DIR/include/cxbase

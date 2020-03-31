@@ -7,6 +7,7 @@
 # 变量：
 # CX_TARGET_NAME =
 # CXLIB_LIST +=
+# CX_STATICLIB_LIST +=
 # QT +=
 # DEFINES +=
 # QML_IMPORT_PATH =
@@ -59,6 +60,11 @@ CONFIG(release,debug|release) {
 unix: LIBS += -L$${DESTDIR}
 for(LIB,CXLIB_LIST) {
     win32:LIBS += $${DESTDIR}/$${LIB}.dll
+    unix:LIBS += -l$${LIB}
+}
+
+for (LIB,CX_STATICLIB_LIST) {
+    win32: LIBS += $${DESTDIR}/lib$${LIB}.a
     unix:LIBS += -l$${LIB}
 }
 
