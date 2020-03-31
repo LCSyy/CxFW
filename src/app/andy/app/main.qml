@@ -82,7 +82,7 @@ Window {
                 Text {
                     anchors.right: parent.right
                     anchors.bottom: parent.bottom
-                    anchors.margins: 12
+                    anchors.rightMargin: 12
                     text: model.modifyTime
                     color: "#666"
                     wrapMode: Text.NoWrap
