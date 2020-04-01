@@ -3,7 +3,6 @@
 
 #include <QAbstractListModel>
 
-class LocalStorage;
 class ListStorageModel : public QAbstractListModel
 {
     Q_OBJECT
@@ -43,7 +42,6 @@ private slots:
 private:
     QList<Row> mContents;
     QString mPassword;
-    LocalStorage *storage;
 };
 
 #endif // LISTSTORAGEMODEL_H

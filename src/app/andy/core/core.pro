@@ -5,12 +5,16 @@ DEFINES += CORE_LIBRARY
 
 SOURCES += \
     core.cpp \
-    localstorage.cpp
+    localstorage.cpp \
+    storagemanager.cpp \
+    usermanager.cpp
 
 HEADERS += \
     core_global.h \
     core.h \
-    localstorage.h
+    localstorage.h \
+    storagemanager.h \
+    usermanager.h
 
 include($$PWD/../../../utils/library.pri)
 

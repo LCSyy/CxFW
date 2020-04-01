@@ -4,14 +4,18 @@
 #include "core_global.h"
 #include <QObject>
 #include <QVariant>
+#include <QVector>
 
 struct LocalStorageData;
 class CORE_EXPORT LocalStorage : public QObject
 {
     Q_OBJECT
 public:
-    explicit LocalStorage(QObject *parent = nullptr);
     ~LocalStorage();
+
+    static LocalStorage *instance();
+    static LocalStorage &self();
+    static void drop();
 
     QString localStorageFilePath() const;
 
@@ -33,10 +37,15 @@ signals:
     void alterData(const QString &, const QString &, const QVariant&);
     void dataAltered();
 
+protected:
+    explicit LocalStorage(QObject *parent = nullptr);
+    Q_DISABLE_COPY(LocalStorage)
+
+    static LocalStorage *only;
+
 private:
     LocalStorageData *d {nullptr};
 };
-
 
 class DatabaseWorker: public QObject
 {

@@ -10,8 +10,8 @@
 
 ListStorageModel::ListStorageModel(QObject *parent)
     : QAbstractListModel(parent)
-    , storage(new LocalStorage(this))
 {
+    LocalStorage *storage = LocalStorage::instance();
     QObject::connect(storage, SIGNAL(dataHasLoad(const QVariantList&)), this, SLOT(onDataLoaded(const QVariantList&)));
     QObject::connect(storage,SIGNAL(dataCreated()),this,SLOT(refresh()));
     QObject::connect(storage,SIGNAL(dataRemoved()),this,SLOT(refresh()));
@@ -62,7 +62,7 @@ QVariant ListStorageModel::data(const QModelIndex &index, int role) const
 
 void ListStorageModel::refresh()
 {
-    emit storage->loadData();
+    emit LocalStorage::self().loadData();
 }
 
 void ListStorageModel::appendRow(const QVariantMap &row)
@@ -70,13 +70,13 @@ void ListStorageModel::appendRow(const QVariantMap &row)
     const QString content = row.value("content").toString();
     QVariantMap data = row;
     data.insert("content",cx::CxBase::encryptText(content,mPassword));
-    emit storage->createData(data);
+    emit LocalStorage::self().createData(data);
     refresh();
 }
 
 void ListStorageModel::removeRow(const QString &uid)
 {
-    emit storage->removeData(uid);
+    emit LocalStorage::self().removeData(uid);
 }
 
 void ListStorageModel::setProperty(const QString &uid, const QString &key, const QVariant &val)
@@ -85,7 +85,7 @@ void ListStorageModel::setProperty(const QString &uid, const QString &key, const
     if (key == "content") {
         d = cx::CxBase::encryptText(d.toString(),mPassword);
     }
-    emit storage->alterData(uid,key,d);
+    emit LocalStorage::self().alterData(uid,key,d);
 }
 
 void ListStorageModel::setPassword(const QString &ps)

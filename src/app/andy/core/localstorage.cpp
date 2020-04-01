@@ -8,6 +8,8 @@
 
 #include <QDebug>
 
+LocalStorage *LocalStorage::only{nullptr};
+
 constexpr int CURRENT_VERSION_NUM = 1;
 constexpr char CURRENT_VERSION_NAME[] = "0.0.1";
 
@@ -87,6 +89,27 @@ LocalStorage::~LocalStorage()
     qDebug() << "[Drop] LocalStorage";
 }
 
+LocalStorage *LocalStorage::instance()
+{
+    if (!only) {
+        only = new LocalStorage;
+    }
+    return only;
+}
+
+LocalStorage &LocalStorage::self()
+{
+    return *instance();
+}
+
+void LocalStorage::drop()
+{
+    if (only) {
+        delete only;
+        only = nullptr;
+    }
+}
+
 QString LocalStorage::localStorageFilePath() const
 {
     if (d && !d->localStorageDir.isEmpty()) {
@@ -133,13 +156,6 @@ void DatabaseWorker::initDatabase(const QString &dbPath)
         if (maxVerNum == -1) {
             query.exec(writeVersionInfoSql);
         }
-
-        // if (maxVerNum != -1 && maxVerNum < CURRENT_VERSION_NUM) { // 没有升级到当前版本，需要升级
-        //     query.exec(QString("BEGIN;"
-        //                "ALTER TABLE andy_app ADD COLUMN content_blob BLOB;"
-        //                "ALTER TABLE andy_app ADD COLUMN modify_time TEXT;%1"
-        //                "COMMIT;").arg(writeVersionInfoSql));
-        // }
     }
 }
 

@@ -19,6 +19,8 @@ Window {
     minimumWidth: 320
     maximumWidth: 500
     height: 580
+    minimumHeight: 400
+    maximumHeight: 800
     title: "Snippet Manager"
     color: "#F1F1F1"
 
