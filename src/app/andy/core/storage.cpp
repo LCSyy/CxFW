@@ -1,114 +1,16 @@
-#include "localstorage.h"
-#include <QCoreApplication>
-#include <QThread>
-#include <QSqlDatabase>
-#include <QSqlQuery>
-#include <QSqlRecord>
-#include <QDir>
+#include "storage.h"
 
-#include <QDebug>
-
-LocalStorage *LocalStorage::only{nullptr};
-
-constexpr int CURRENT_VERSION_NUM = 1;
-constexpr char CURRENT_VERSION_NAME[] = "0.0.1";
-
-struct LocalStorageData {
-    QThread *dbThread;
-    DatabaseWorker *dbWorker;
-    QDir localStorageDir;
-
-    LocalStorageData(LocalStorage *self)
-        : dbThread(new QThread(self))
-        , dbWorker(new DatabaseWorker)
-        , localStorageDir(qApp->applicationDirPath())
-    {
-        localStorageDir.cdUp();
-        if (!localStorageDir.cd("common")) {
-            localStorageDir.mkdir("common");
-            localStorageDir.cd("common");
-        }
-        if (!localStorageDir.cd("localdb")) {
-            localStorageDir.mkdir("localdb");
-            localStorageDir.cd("localdb");
-        }
-
-        QObject::connect(dbThread, SIGNAL(finished()),
-                         dbWorker, SLOT(deleteLater()));
-
-        dbWorker->moveToThread(dbThread);
-        dbThread->start();
-    }
-
-    ~LocalStorageData() {
-        dbThread->exit();
-        dbThread->wait();
-    }
-};
-
-LocalStorage::LocalStorage(QObject *parent)
-    : QObject(parent)
-    , d(new LocalStorageData(this))
+Storage::Storage(QObject *parent) : QObject(parent)
 {
-    qDebug() << "[Construct] LocalStorage";
+
 }
 
-LocalStorage::~LocalStorage()
+Storage::~Storage()
 {
-    if (d) {
-        delete d;
-        d = nullptr;
-    }
 
-    qDebug() << "[Drop] LocalStorage";
 }
 
-LocalStorage *LocalStorage::instance()
-{
-    if (!only) {
-        only = new LocalStorage;
-    }
-    return only;
-}
-
-LocalStorage &LocalStorage::self()
-{
-    return *instance();
-}
-
-void LocalStorage::drop()
-{
-    if (only) {
-        delete only;
-        only = nullptr;
-    }
-}
-
-QString LocalStorage::localStorageFilePath() const
-{
-    if (d && !d->localStorageDir.isEmpty()) {
-        return d->localStorageDir.absoluteFilePath("andy-app.db");
-    }
-    return QString("");
-}
-
-DatabaseWorker *LocalStorage::storage() const
-{
-    return d->dbWorker;
-}
-
-DatabaseWorker::DatabaseWorker(QObject *parent)
-    : QObject(parent)
-{
-    qDebug() << "[Construct] DatabaseWorker";
-}
-
-DatabaseWorker::~DatabaseWorker()
-{
-    qDebug() << "[Drop] DatabaseWorker";
-}
-
-void DatabaseWorker::initDatabase(const QString &dbPath)
+void Storage::initDatabase(const QString &dbPath)
 {
     qDebug() << "[Init] database";
 
@@ -141,7 +43,7 @@ void DatabaseWorker::initDatabase(const QString &dbPath)
     }
 }
 
-void DatabaseWorker::dropDatabase()
+void Storage::dropDatabase()
 {
     qDebug() << "[Drop] database";
 
@@ -154,7 +56,7 @@ void DatabaseWorker::dropDatabase()
     QSqlDatabase::removeDatabase(connectionName);
 }
 
-void DatabaseWorker::loadDataList()
+void Storage::loadDataList()
 {
     qDebug() << "[Load] datalist";
     QSqlDatabase db = QSqlDatabase::database();
@@ -175,10 +77,10 @@ void DatabaseWorker::loadDataList()
         dataMap.insert("modifyTime",query.value(modifyTimeIdx));
         dataLst.append(dataMap);
     }
-    emit dataLoaded(dataLst,QPrivateSignal{});
+    emit dataLoaded(dataLst);
 }
 
-void DatabaseWorker::createData(const QVariantMap &row)
+void Storage::createData(const QVariantMap &row)
 {
     qDebug() << "[CREATE]";
     QSqlDatabase db = QSqlDatabase::database();
@@ -187,10 +89,10 @@ void DatabaseWorker::createData(const QVariantMap &row)
     query.addBindValue(row.value("content"));
     query.exec();
 
-    emit dataCreated(QPrivateSignal{});
+    emit dataCreated();
 }
 
-void DatabaseWorker::removeData(const QString &id)
+void Storage::removeData(const QString &id)
 {
     qDebug() << "[REMOVE]";
 
@@ -200,10 +102,10 @@ void DatabaseWorker::removeData(const QString &id)
     query.addBindValue(id);
     query.exec();
 
-    emit dataRemoved(QPrivateSignal{});
+    emit dataRemoved();
 }
 
-void DatabaseWorker::alterData(const QString &id, const QString &key, const QVariant &val)
+void Storage::alterData(const QString &id, const QString &key, const QVariant &val)
 {
     qDebug() << "[ALTER]";
 
@@ -214,5 +116,5 @@ void DatabaseWorker::alterData(const QString &id, const QString &key, const QVar
     query.addBindValue(id);
     query.exec();
 
-    emit dataAltered(QPrivateSignal{});
+    emit dataAltered();
 }

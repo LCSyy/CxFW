@@ -6,6 +6,8 @@
 #include <QVariant>
 #include <QVector>
 
+class DatabaseWorker;
+
 struct LocalStorageData;
 class CORE_EXPORT LocalStorage : public QObject
 {
@@ -19,23 +21,7 @@ public:
 
     QString localStorageFilePath() const;
 
-signals:
-    void initStorage(const QString &path);
-    void storageInitialed();
-
-    void dropStorage(QPrivateSignal);
-
-    void loadData();
-    void dataHasLoad(QVariantList);
-
-    void createData(const QVariantMap&);
-    void dataCreated();
-
-    void removeData(const QString &);
-    void dataRemoved();
-
-    void alterData(const QString &, const QString &, const QVariant&);
-    void dataAltered();
+    DatabaseWorker *storage() const;
 
 protected:
     explicit LocalStorage(QObject *parent = nullptr);
@@ -47,7 +33,7 @@ private:
     LocalStorageData *d {nullptr};
 };
 
-class DatabaseWorker: public QObject
+class CORE_EXPORT DatabaseWorker: public QObject
 {
     Q_OBJECT
 public:
@@ -55,11 +41,11 @@ public:
     ~DatabaseWorker();
 
 signals:
-    void storageInitialed();
-    void dataLoaded(const QVariantList&);
-    void dataCreated();
-    void dataRemoved();
-    void dataAltered();
+    void storageInitialed(QPrivateSignal);
+    void dataLoaded(const QVariantList&,QPrivateSignal);
+    void dataCreated(QPrivateSignal);
+    void dataRemoved(QPrivateSignal);
+    void dataAltered(QPrivateSignal);
 
 public slots:
     void initDatabase(const QString &dbPath);

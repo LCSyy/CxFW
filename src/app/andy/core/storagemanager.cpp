@@ -32,3 +32,8 @@ void StorageManager::drop()
         only = nullptr;
     }
 }
+
+
+Storage *StorageManager::storage() const
+{
+}

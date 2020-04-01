@@ -3,6 +3,7 @@
 
 #include <QObject>
 
+class Storage;
 class StorageManager : public QObject
 {
     Q_OBJECT
@@ -12,7 +13,7 @@ public:
     static StorageManager &self();
     static void drop();
 
-signals:
+    Storage *storage() const;
 
 protected:
     explicit StorageManager(QObject *parent = nullptr);

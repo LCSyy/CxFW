@@ -7,14 +7,16 @@ SOURCES += \
     core.cpp \
     localstorage.cpp \
     storagemanager.cpp \
-    usermanager.cpp
+    usermanager.cpp \
+    # storage.cpp
 
 HEADERS += \
     core_global.h \
     core.h \
     localstorage.h \
     storagemanager.h \
-    usermanager.h
+    usermanager.h \
+    # storage.h
 
 include($$PWD/../../../utils/library.pri)
 

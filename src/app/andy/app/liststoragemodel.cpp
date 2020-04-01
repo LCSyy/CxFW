@@ -12,12 +12,14 @@ ListStorageModel::ListStorageModel(QObject *parent)
     : QAbstractListModel(parent)
 {
     LocalStorage *storage = LocalStorage::instance();
-    QObject::connect(storage, SIGNAL(dataHasLoad(const QVariantList&)), this, SLOT(onDataLoaded(const QVariantList&)));
-    QObject::connect(storage,SIGNAL(dataCreated()),this,SLOT(refresh()));
-    QObject::connect(storage,SIGNAL(dataRemoved()),this,SLOT(refresh()));
-    QObject::connect(storage,SIGNAL(dataAltered()),this,SLOT(refresh()));
+    QObject::connect(storage->storage(), SIGNAL(dataLoaded(const QVariantList&)), this, SLOT(onDataLoaded(const QVariantList&)));
+    QObject::connect(storage->storage(),SIGNAL(dataCreated()),this,SLOT(refresh()));
+    QObject::connect(storage->storage(),SIGNAL(dataRemoved()),this,SLOT(refresh()));
+    QObject::connect(storage->storage(),SIGNAL(dataAltered()),this,SLOT(refresh()));
 
-    emit storage->initStorage(storage->localStorageFilePath());
+    QMetaObject::invokeMethod(storage->storage(),
+                              "initDatabase",
+                              Q_ARG(const QString&,storage->localStorageFilePath()));
 }
 
 ListStorageModel::~ListStorageModel()
@@ -62,7 +64,10 @@ QVariant ListStorageModel::data(const QModelIndex &index, int role) const
 
 void ListStorageModel::refresh()
 {
-    emit LocalStorage::self().loadData();
+    // emit LocalStorage::self().loadData();
+    QMetaObject::invokeMethod(LocalStorage::self().storage(),
+                              "loadDataList",
+                              Qt::QueuedConnection);
 }
 
 void ListStorageModel::appendRow(const QVariantMap &row)
@@ -70,13 +75,19 @@ void ListStorageModel::appendRow(const QVariantMap &row)
     const QString content = row.value("content").toString();
     QVariantMap data = row;
     data.insert("content",cx::CxBase::encryptText(content,mPassword));
-    emit LocalStorage::self().createData(data);
+    // emit LocalStorage::self().createData(data);
+    QMetaObject::invokeMethod(LocalStorage::self().storage(),
+                              "createData",
+                              Q_ARG(const QVariantMap&,data));
     refresh();
 }
 
 void ListStorageModel::removeRow(const QString &uid)
 {
-    emit LocalStorage::self().removeData(uid);
+    // emit LocalStorage::self().removeData(uid);
+    QMetaObject::invokeMethod(LocalStorage::self().storage(),
+                              "removeData",
+                              Q_ARG(const QString&,uid));
 }
 
 void ListStorageModel::setProperty(const QString &uid, const QString &key, const QVariant &val)
@@ -85,7 +96,10 @@ void ListStorageModel::setProperty(const QString &uid, const QString &key, const
     if (key == "content") {
         d = cx::CxBase::encryptText(d.toString(),mPassword);
     }
-    emit LocalStorage::self().alterData(uid,key,d);
+    // emit LocalStorage::self().alterData(uid,key,d);
+    QMetaObject::invokeMethod(LocalStorage::self().storage(),
+                              "alterData",
+                              Q_ARG(const QString&,uid),Q_ARG(const QString&,key),Q_ARG(const QVariant&,d));
 }
 
 void ListStorageModel::setPassword(const QString &ps)
