@@ -11,15 +11,10 @@
 ListStorageModel::ListStorageModel(QObject *parent)
     : QAbstractListModel(parent)
 {
-    LocalStorage *storage = LocalStorage::instance();
-    QObject::connect(storage->storage(), SIGNAL(dataLoaded(const QVariantList&)), this, SLOT(onDataLoaded(const QVariantList&)));
-    QObject::connect(storage->storage(),SIGNAL(dataCreated()),this,SLOT(refresh()));
-    QObject::connect(storage->storage(),SIGNAL(dataRemoved()),this,SLOT(refresh()));
-    QObject::connect(storage->storage(),SIGNAL(dataAltered()),this,SLOT(refresh()));
+    connect(LocalStorage::instance(), SIGNAL(dataLoaded(const QVariantList&)),
+            this, SLOT(onDataLoaded(const QVariantList&)));
 
-    QMetaObject::invokeMethod(storage->storage(),
-                              "initDatabase",
-                              Q_ARG(const QString&,storage->localStorageFilePath()));
+    LocalStorage::self().initDatabase();
 }
 
 ListStorageModel::~ListStorageModel()
@@ -64,10 +59,7 @@ QVariant ListStorageModel::data(const QModelIndex &index, int role) const
 
 void ListStorageModel::refresh()
 {
-    // emit LocalStorage::self().loadData();
-    QMetaObject::invokeMethod(LocalStorage::self().storage(),
-                              "loadDataList",
-                              Qt::QueuedConnection);
+    LocalStorage::self().loadData();
 }
 
 void ListStorageModel::appendRow(const QVariantMap &row)
@@ -75,19 +67,13 @@ void ListStorageModel::appendRow(const QVariantMap &row)
     const QString content = row.value("content").toString();
     QVariantMap data = row;
     data.insert("content",cx::CxBase::encryptText(content,mPassword));
-    // emit LocalStorage::self().createData(data);
-    QMetaObject::invokeMethod(LocalStorage::self().storage(),
-                              "createData",
-                              Q_ARG(const QVariantMap&,data));
+    LocalStorage::self().createData(data);
     refresh();
 }
 
 void ListStorageModel::removeRow(const QString &uid)
 {
-    // emit LocalStorage::self().removeData(uid);
-    QMetaObject::invokeMethod(LocalStorage::self().storage(),
-                              "removeData",
-                              Q_ARG(const QString&,uid));
+    LocalStorage::self().removeData(uid);
 }
 
 void ListStorageModel::setProperty(const QString &uid, const QString &key, const QVariant &val)
@@ -96,10 +82,7 @@ void ListStorageModel::setProperty(const QString &uid, const QString &key, const
     if (key == "content") {
         d = cx::CxBase::encryptText(d.toString(),mPassword);
     }
-    // emit LocalStorage::self().alterData(uid,key,d);
-    QMetaObject::invokeMethod(LocalStorage::self().storage(),
-                              "alterData",
-                              Q_ARG(const QString&,uid),Q_ARG(const QString&,key),Q_ARG(const QVariant&,d));
+    LocalStorage::self().alterData(uid,key,d);
 }
 
 void ListStorageModel::setPassword(const QString &ps)
@@ -119,7 +102,7 @@ void ListStorageModel::onDataLoaded(const QVariantList &dataLst)
     for (const QVariant &row: dataLst) {
         const QVariantMap rowMap = row.toMap();
         Row r;
-        r.uid = rowMap.value("uid").toString();
+        r.uid = rowMap.value("id").toString();
         r.content = cx::CxBase::decryptText(rowMap.value("content").toString(),mPassword);
         r.createTime = rowMap.value("createTime").toString();
         r.modifyTime = rowMap.value("modifyTime").toString();

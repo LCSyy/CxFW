@@ -3,6 +3,7 @@ import QtQuick.Window 2.12
 import QtQuick.Controls 2.12
 import QtQuick.Layouts 1.12
 
+import Andy 1.0
 import Andy.Model 1.0
 import "./qml" as AndyQuick
 
@@ -142,13 +143,17 @@ Window {
                             dataModel.setProperty(editItem.uid,"content",contentEdit.text);
                         }
                         editItem.hideItem();
+                        dataModel.refresh();
                     }
                 }
                 Button {
                     Layout.fillHeight: true
                     Layout.fillWidth: true
                     text: "Cancel"
-                    onClicked: editItem.hideItem();
+                    onClicked: {
+                        editItem.hideItem();
+                        dataModel.refresh();
+                    }
                 }
             }
 
@@ -185,6 +190,7 @@ Window {
                         dataModel.removeRow(editItem.uid);
                     }
                     editItem.hideItem();
+                    dataModel.refresh();
                 }
             }
         }
@@ -194,7 +200,7 @@ Window {
         id: loginPage
         anchors.fill: parent
         onLogin: {
-            if (account === 'andy' && passwd === 'okandy') {
+            if (Backend.signIn(account,passwd)) {
                 visible = false;
                 centralItem.visible = true;
                 dataModel.setPassword(passwd + 'af7fFDAf548dFd87');

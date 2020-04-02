@@ -1,9 +1,11 @@
 #ifndef USERMANAGER_H
 #define USERMANAGER_H
 
+#include "core_global.h"
 #include <QObject>
 
-class UserManager : public QObject
+struct UserManagerData;
+class CORE_EXPORT UserManager : public QObject
 {
     Q_OBJECT
 public:
@@ -22,6 +24,9 @@ protected:
     Q_DISABLE_COPY(UserManager)
 
     static UserManager *only;
+
+private:
+    UserManagerData *d {nullptr};
 };
 
 #endif // USERMANAGER_H

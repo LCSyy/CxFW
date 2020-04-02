@@ -20,8 +20,15 @@ public:
     static void drop();
 
     QString localStorageFilePath() const;
+    void initDatabase();
+    void dropDatabase();
+    void loadData();
+    void createData(const QVariantMap &row);
+    void removeData(const QString &id);
+    void alterData(const QString &id, const QString &key, const QVariant &val);
 
-    DatabaseWorker *storage() const;
+signals:
+    void dataLoaded(const QVariantList&,QPrivateSignal);
 
 protected:
     explicit LocalStorage(QObject *parent = nullptr);
@@ -33,7 +40,7 @@ private:
     LocalStorageData *d {nullptr};
 };
 
-class CORE_EXPORT DatabaseWorker: public QObject
+class DatabaseWorker: public QObject
 {
     Q_OBJECT
 public:
@@ -41,16 +48,12 @@ public:
     ~DatabaseWorker();
 
 signals:
-    void storageInitialed(QPrivateSignal);
-    void dataLoaded(const QVariantList&,QPrivateSignal);
-    void dataCreated(QPrivateSignal);
-    void dataRemoved(QPrivateSignal);
-    void dataAltered(QPrivateSignal);
+    void dataLoaded(const QVariantList &,QPrivateSignal);
 
 public slots:
     void initDatabase(const QString &dbPath);
     void dropDatabase();
-    void loadDataList();
+    void loadData(const QString &sql,const QStringList &fields);
     void createData(const QVariantMap &row);
     void removeData(const QString &id);
     void alterData(const QString &id, const QString &key, const QVariant &val);

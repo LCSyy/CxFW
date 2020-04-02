@@ -1,10 +1,11 @@
 #ifndef STORAGEMANAGER_H
 #define STORAGEMANAGER_H
 
+#include "core_global.h"
 #include <QObject>
 
 class Storage;
-class StorageManager : public QObject
+class CORE_EXPORT StorageManager: public QObject
 {
     Q_OBJECT
 public:

@@ -1,7 +1,11 @@
 #include "usermanager.h"
-#include "storagemanager.h"
+#include "localstorage.h"
 
 UserManager *UserManager::only {nullptr};
+
+struct UserManagerData {
+    QString currentAccount;
+};
 
 /*! 用户管理
  * SignIn(account,password) {
@@ -30,14 +34,19 @@ UserManager *UserManager::only {nullptr};
  * \brief UserManager::UserManager
  * \param parent
  */
-UserManager::UserManager(QObject *parent) : QObject(parent)
+UserManager::UserManager(QObject *parent)
+    : QObject(parent)
+    , d(new UserManagerData)
 {
 
 }
 
 UserManager::~UserManager()
 {
-
+    if (d) {
+        delete d;
+        d = nullptr;
+    }
 }
 
 UserManager *UserManager::instance()
@@ -63,7 +72,7 @@ void UserManager::drop()
 
 bool UserManager::signIn(const QString &account, const QString &password)
 {
-    return false;
+    return true;
 }
 
 bool UserManager::signUp(const QString &account, const QString &password)

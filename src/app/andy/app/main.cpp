@@ -2,6 +2,13 @@
 #include <QQmlApplicationEngine>
 #include <andy-core/localstorage.h>
 #include "liststoragemodel.h"
+#include "backend.h"
+
+QJSValue registerBackend(QQmlEngine *qmlEngine, QJSEngine *jsEngine)
+{
+    Q_UNUSED(qmlEngine)
+    return jsEngine->newQObject(new Backend);
+}
 
 int main(int argc, char *argv[])
 {
@@ -13,6 +20,7 @@ int main(int argc, char *argv[])
     });
 
     qmlRegisterType<ListStorageModel>("Andy.Model",1,0,"ListStorageModel");
+    qmlRegisterSingletonType("Andy",1,0,"Backend",registerBackend);
 
     QQmlApplicationEngine engine;
     const QUrl url(QStringLiteral("qrc:/main.qml"));

@@ -38,7 +38,6 @@ public slots:
 
 private slots:
     void onDataLoaded(const QVariantList &dataLst);
-
 private:
     QList<Row> mContents;
     QString mPassword;
