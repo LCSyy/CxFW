@@ -18,9 +18,11 @@ public:
     bool signUp(const QString &account, const QString &password);
     void signOut(const QString &account);
 
+    bool event(QEvent *ev) override;
+
 protected:
     explicit UserManager(QObject *parent = nullptr);
-    ~UserManager();
+    ~UserManager() override;
     Q_DISABLE_COPY(UserManager)
 
     static UserManager *only;

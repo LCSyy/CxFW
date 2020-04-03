@@ -7,6 +7,7 @@
 #include <cxbase/cxbase.h>
 #include <andy-core/localstorage.h>
 #include <QDebug>
+#include <iostream>
 
 ListStorageModel::ListStorageModel(QObject *parent)
     : QAbstractListModel(parent)
@@ -103,6 +104,10 @@ void ListStorageModel::onDataLoaded(const QVariantList &dataLst)
         const QVariantMap rowMap = row.toMap();
         Row r;
         r.uid = rowMap.value("id").toString();
+
+        std::cout << rowMap.value("content").toString().toStdString();
+        std::cout << mPassword.toStdString();
+
         r.content = cx::CxBase::decryptText(rowMap.value("content").toString(),mPassword);
         r.createTime = rowMap.value("createTime").toString();
         r.modifyTime = rowMap.value("modifyTime").toString();

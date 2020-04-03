@@ -1,5 +1,6 @@
 #include "usermanager.h"
 #include "localstorage.h"
+#include <QEvent>
 
 UserManager *UserManager::only {nullptr};
 
@@ -72,15 +73,30 @@ void UserManager::drop()
 
 bool UserManager::signIn(const QString &account, const QString &password)
 {
+    // select user = account;
+    // if is_empty
+    //   alert no user
+    //   return;
+    // return auth password
     return true;
 }
 
 bool UserManager::signUp(const QString &account, const QString &password)
 {
+    // auth has account
+    // save
     return false;
 }
 
 void UserManager::signOut(const QString &account)
 {
 
+}
+
+bool UserManager::event(QEvent *ev)
+{
+    if (ev->type() == QEvent::User + 1) {
+        return true;
+    }
+    return QObject::event(ev);
 }

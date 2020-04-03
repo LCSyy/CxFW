@@ -11,8 +11,8 @@
 
 LocalStorage *LocalStorage::only{nullptr};
 
-constexpr int CURRENT_VERSION_NUM = 1;
-constexpr char CURRENT_VERSION_NAME[] = "0.0.1";
+constexpr int CURRENT_VERSION_NUM = 2;
+constexpr char CURRENT_VERSION_NAME[] = "0.0.2";
 
 struct LocalStorageData {
     QThread *dbThread;
@@ -167,30 +167,59 @@ void DatabaseWorker::initDatabase(const QString &dbPath)
     if (!db.open()) {
         qDebug() << "[ERROR] local database connection error";
     } else {
-        QSqlQuery query(db);
-        query.exec("CREATE TABLE IF NOT EXISTS sys_info(id INTEGER PRIMARY KEY AUTOINCREMENT, ver_num INTEGER, ver_text TEXT, update_log TEXT, create_time TEXT);");
-        query.exec("CREATE TABLE IF NOT EXISTS sys_users(id INTEGER PRIMARY KEY AUTOINCREMENT, account TEXT);");
-        query.exec("CREATE TABLE IF NOT EXISTS user_info(id INTEGER PRIMARY KEY AUTOINCREMENT, uuid TEXT, account TEXT, password BLOB, info BLOB, create_time TEXT);");
-        query.exec("CREATE TABLE IF NOT EXISTS user_data(id INTEGER PRIMARY KEY AUTOINCREMENT, user_uuid TEXT, content BLOB, create_time TEXT, modify_time TEXT);");
-        query.exec("CREATE TABLE IF NOT EXISTS andy_app(id INTEGER PRIMARY KEY AUTOINCREMENT, content BLOB, create_time TEXT, modify_time TEXT);");
+        // init logic
+        try {
+            db.transaction();
+            QSqlQuery query(db);
+            query.exec("CREATE TABLE IF NOT EXISTS sys_info(id INTEGER PRIMARY KEY AUTOINCREMENT, ver_num INTEGER, ver_text TEXT, update_log TEXT, create_time TEXT);");
+            if (query.lastError().isValid()) {
+                throw query.lastError();
+            }
+            query.exec("CREATE TABLE IF NOT EXISTS sys_users(id INTEGER PRIMARY KEY AUTOINCREMENT, account TEXT);");
+            if (query.lastError().isValid()) {
+                throw query.lastError();
+            }
+            query.exec("CREATE TABLE IF NOT EXISTS user_info(id INTEGER PRIMARY KEY AUTOINCREMENT, uuid TEXT, account TEXT, password BLOB, info BLOB, create_time TEXT);");
+            if (query.lastError().isValid()) {
+                throw query.lastError();
+            }
+            query.exec("CREATE TABLE IF NOT EXISTS user_data(id INTEGER PRIMARY KEY AUTOINCREMENT, user_uuid TEXT, content BLOB, create_time TEXT, modify_time TEXT);");
+            if (query.lastError().isValid()) {
+                throw query.lastError();
+            }
+            query.exec("CREATE TABLE IF NOT EXISTS andy_app(id INTEGER PRIMARY KEY AUTOINCREMENT, content BLOB, seq INTEGER, create_time TEXT, modify_time TEXT);");
+            if (query.lastError().isValid()) {
+                throw query.lastError();
+            }
 
-        if (query.lastError().isValid()) {
-            qDebug() << "ERROR" << query.lastError().text();
-        }
+            query.exec("SELECT max(ver_num) AS ver_num FROM sys_info;");
+            QSqlRecord record = query.record();
+            const int verNumIdx = record.indexOf("ver_num");
+            int maxVerNum = -1;
+            while (query.next()) {
+                maxVerNum = query.value(verNumIdx).toInt();
+            }
 
-        query.exec("SELECT max(ver_num) AS ver_num FROM sys_info;");
-        QSqlRecord record = query.record();
-        const int verNumIdx = record.indexOf("ver_num");
-        int maxVerNum = -1;
-        while (query.next()) {
-            maxVerNum = query.value(verNumIdx).toInt();
-        }
+            const QString writeVersionInfoSql = QString("INSERT INTO sys_info(ver_num,ver_text,create_time) "
+                                                        "VALUES(%1,'%2',datetime('now','localtime'));")
+                                                        .arg(CURRENT_VERSION_NUM).arg(CURRENT_VERSION_NAME);
+            if (maxVerNum < CURRENT_VERSION_NUM) {
+                query.exec(writeVersionInfoSql);
+                if (query.lastError().isValid()) {
+                    throw query.lastError();
+                }
 
-        const QString writeVersionInfoSql = QString("INSERT INTO sys_info(ver_num,ver_text,create_time) "
-                                                    "VALUES(%1,'%2',datetime('now','localtime'));").arg(CURRENT_VERSION_NUM).arg(CURRENT_VERSION_NAME);
+                // upgrade logic
+                query.exec("ALTER TABLE andy_app ADD COLUMN seq INTEGER");
+                if (query.lastError().isValid()) {
+                    throw query.lastError();
+                }
+            }
 
-        if (maxVerNum == -1) {
-            query.exec(writeVersionInfoSql);
+            db.commit();
+        } catch (const QSqlError &err) {
+            qDebug() << "[ERROR] Init Database error: " << err.text();
+            db.rollback();
         }
     }
 }
@@ -234,6 +263,7 @@ void DatabaseWorker::loadData(const QString &sql, const QStringList &fields)
         dataLst.append(dataMap);
     }
 
+    qDebug() << "[Load] Load Finished";
     emit dataLoaded(dataLst, QPrivateSignal{});
 }
 
