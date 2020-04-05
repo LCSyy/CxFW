@@ -1,6 +1,7 @@
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
 #include <andy-core/localstorage.h>
+#include <andy-core/usermanager.h>
 #include "liststoragemodel.h"
 #include "backend.h"
 
@@ -16,6 +17,7 @@ int main(int argc, char *argv[])
 
     QGuiApplication app(argc, argv);
     QObject::connect(&app,&QGuiApplication::aboutToQuit,[](){
+        UserManager::drop();
         LocalStorage::drop();
     });
 

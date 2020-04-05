@@ -1,6 +1,7 @@
 #include "usermanager.h"
 #include "localstorage.h"
 #include <QEvent>
+#include <QDebug>
 
 UserManager *UserManager::only {nullptr};
 
@@ -73,12 +74,13 @@ void UserManager::drop()
 
 bool UserManager::signIn(const QString &account, const QString &password)
 {
-    // select user = account;
-    // if is_empty
-    //   alert no user
-    //   return;
-    // return auth password
-    return true;
+    Q_UNUSED(account)
+    Q_UNUSED(password)
+
+    const QString sql{"SELECT * FROM sys_users"};
+    const QVariantMap row = LocalStorage::self().getResultImmediately(sql,QStringList{}).value(0).toMap();
+    const QString dbAccount = row.value("account").toString();
+    return account == dbAccount;
 }
 
 bool UserManager::signUp(const QString &account, const QString &password)
