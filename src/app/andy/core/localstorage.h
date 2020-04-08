@@ -3,7 +3,7 @@
 
 #include "core_global.h"
 #include <QObject>
-#include <QVariant>
+#include <QVariantList>
 #include <QVector>
 
 struct LocalStorageData;
@@ -21,15 +21,10 @@ public:
     void initDatabase();
     void dropDatabase();
 
-    void loadData(const QString& sql, const QStringList &fields);
+    QVariantList loadData(const QString& sql, const QStringList &fields);
     void createData(const QVariantMap &row);
     void removeData(const QString &id);
     void alterData(const QString &id, const QString &key, const QVariant &val);
-
-    QVariantList getResultImmediately(const QString& sql, const QStringList &fields);
-
-signals:
-    void dataLoaded(const QVariantList&,QPrivateSignal);
 
 protected:
     explicit LocalStorage(QObject *parent = nullptr);

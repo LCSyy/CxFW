@@ -2,6 +2,7 @@
 #define LOCALSTORAGEWORKER_H
 
 #include <QObject>
+#include <QVariant>
 
 class LocalStorageWorker: public QObject
 {

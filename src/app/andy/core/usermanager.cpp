@@ -77,10 +77,13 @@ bool UserManager::signIn(const QString &account, const QString &password)
     Q_UNUSED(account)
     Q_UNUSED(password)
 
-    const QString sql{"SELECT * FROM sys_users"};
-    const QVariantMap row = LocalStorage::self().getResultImmediately(sql,QStringList{}).value(0).toMap();
-    const QString dbAccount = row.value("account").toString();
-    return account == dbAccount;
+    const QString sql = QString("SELECT COUNT(1) as count FROM sys_users WHERE account = '%1'").arg(account);
+    const QVariantMap row = LocalStorage::self().loadData(sql,QStringList{}).value(0).toMap();
+    if (row.value("count").toInt() != 1) {
+        return false;
+    }
+
+    return true;
 }
 
 bool UserManager::signUp(const QString &account, const QString &password)

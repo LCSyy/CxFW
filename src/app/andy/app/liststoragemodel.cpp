@@ -12,9 +12,6 @@
 ListStorageModel::ListStorageModel(QObject *parent)
     : QAbstractListModel(parent)
 {
-    connect(LocalStorage::instance(), SIGNAL(dataLoaded(const QVariantList&)),
-            this, SLOT(onDataLoaded(const QVariantList&)));
-
     LocalStorage::self().initDatabase();
 }
 
@@ -60,7 +57,24 @@ QVariant ListStorageModel::data(const QModelIndex &index, int role) const
 
 void ListStorageModel::refresh()
 {
-    LocalStorage::self().loadData();
+    const QVariantList dataLst = LocalStorage::self().loadData("SELECT * FROM andy_app",QStringList{});
+
+    beginResetModel();
+    mContents.clear();
+    endResetModel();
+
+    if (dataLst.size() == 0) { return; }
+    beginInsertRows(QModelIndex(),0,dataLst.size()-1);
+    for (const QVariant &row: dataLst) {
+        const QVariantMap rowMap = row.toMap();
+        Row r;
+        r.uid = rowMap.value("id").toString();
+        r.content = cx::CxBase::decryptText(rowMap.value("content").toString(),mPassword);
+        r.createTime = rowMap.value("create_time").toString();
+        r.modifyTime = rowMap.value("modify_time").toString();
+        mContents.append(r);
+    }
+    endInsertRows();
 }
 
 void ListStorageModel::appendRow(const QVariantMap &row)
@@ -89,29 +103,4 @@ void ListStorageModel::setProperty(const QString &uid, const QString &key, const
 void ListStorageModel::setPassword(const QString &ps)
 {
     mPassword = ps;
-}
-
-void ListStorageModel::onDataLoaded(const QVariantList &dataLst)
-{
-    beginResetModel();
-    mContents.clear();
-    endResetModel();
-
-    // const QVariantList dataLst = db_selectData();
-    if (dataLst.size() == 0) { return; }
-    beginInsertRows(QModelIndex(),0,dataLst.size()-1);
-    for (const QVariant &row: dataLst) {
-        const QVariantMap rowMap = row.toMap();
-        Row r;
-        r.uid = rowMap.value("id").toString();
-
-        std::cout << rowMap.value("content").toString().toStdString();
-        std::cout << mPassword.toStdString();
-
-        r.content = cx::CxBase::decryptText(rowMap.value("content").toString(),mPassword);
-        r.createTime = rowMap.value("createTime").toString();
-        r.modifyTime = rowMap.value("modifyTime").toString();
-        mContents.append(r);
-    }
-    endInsertRows();
 }
