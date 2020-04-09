@@ -196,7 +196,7 @@ Window {
         }
     }
 
-    AndyQuick.LoginPage {
+    AndyQuick.SignInPage {
         id: loginPage
         anchors.fill: parent
         onLogin: {

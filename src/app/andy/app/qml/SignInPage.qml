@@ -32,4 +32,13 @@ Rectangle {
             onClicked: loginPage.login(account.text,password.text)
         }
     }
+
+    Button {
+        anchors.right: parent.right
+        anchors.bottom: parent.bottom
+        anchors.margins: 12
+        width: 100
+        height: 30
+        text: "Sign Up"
+    }
 }
