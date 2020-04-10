@@ -196,15 +196,36 @@ Window {
         }
     }
 
-    AndyQuick.SignInPage {
-        id: loginPage
+    Loader {
+        id: loader
         anchors.fill: parent
-        onLogin: {
-            if (Backend.signIn(account,passwd)) {
-                visible = false;
-                centralItem.visible = true;
-                dataModel.setPassword(passwd + 'af7fFDAf548dFd87');
-                dataModel.refresh();
+        sourceComponent: signInComp
+    }
+
+    Component {
+        id: signInComp
+
+        AndyQuick.SignInPage {
+            onLogin: {
+                if (Backend.signIn(account,passwd)) {
+                    centralItem.visible = true;
+                    dataModel.setPassword(passwd + 'af7fFDAf548dFd87');
+                    dataModel.refresh();
+                    loader.sourceComponent = undefined;
+                }
+            }
+
+            onSignUp: loader.sourceComponent = signUpComp
+        }
+    }
+
+    Component {
+        id: signUpComp
+        AndyQuick.SignUpPage {
+            onSignUp: {
+                if(Backend.signUp(account,passwd)) {
+                    loader.sourceComponent = signInComp
+                }
             }
         }
     }

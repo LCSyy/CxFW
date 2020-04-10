@@ -6,7 +6,8 @@ Rectangle {
     anchors.fill: parent
     color: "#698474"
 
-    signal login(string account, string passwd);
+    signal login(string account, string passwd)
+    signal signUp()
 
     function clearPassword() {
         password.text = "";
@@ -40,5 +41,6 @@ Rectangle {
         width: 100
         height: 30
         text: "Sign Up"
+        onClicked: loginPage.signUp()
     }
 }

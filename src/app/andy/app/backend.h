@@ -10,6 +10,7 @@ public:
     explicit Backend(QObject *parent = nullptr);
 
     Q_INVOKABLE bool signIn(const QString &account, const QString &passwd);
+    Q_INVOKABLE bool signUp(const QString &account, const QString &passwd);
 
 signals:
 

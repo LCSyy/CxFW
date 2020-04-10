@@ -10,3 +10,8 @@ bool Backend::signIn(const QString &account, const QString &passwd)
 {
     return UserManager::self().signIn(account,passwd);
 }
+
+bool Backend::signUp(const QString &account, const QString &passwd)
+{
+    return UserManager::self().signUp(account,passwd);
+}
