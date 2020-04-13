@@ -1,5 +1,8 @@
 <RCC>
     <qresource prefix="/">
         <file>main.qml</file>
+        <file>2048/ChessBoard.qml</file>
+        <file>2048/Game.qml</file>
+        <file>Sprouts/Game.qml</file>
     </qresource>
 </RCC>
