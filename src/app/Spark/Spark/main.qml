@@ -1,77 +1,45 @@
-﻿import QtQuick 2.13
-import QtQuick.Window 2.13
-import QtQuick.Controls 2.13
-import QtQuick.Layouts 1.13
+import QtQuick 2.12
+import QtQuick.Window 2.12
+import QtQuick.Controls 2.12
+import QtQuick.Layouts 1.12
 
-import "./qml" as SparkQuick
-import "./qml/spark" as SparkItem
-import CxQuick 1.0 as CxQuick
+// 2048
+// Dots and Boxes
 
-/*!
-Spark Theme:
-  background:
-    color: "#447999"
-    active_color: "#669BBB"
-  margins: 10
-  spacing:
-    relate item: 5
-    sibling item: 10
-*/
-
-ApplicationWindow {
+Window {
     id: app
     visible: true
-    width: 300
-    height: 650
-    title: qsTr("Hello World")
+    width: 640
+    height: 480
+    title: qsTr("Spark")
 
     QtObject {
-        id: canvasMode
-        property alias shapeType: canvas.shapeType
-        property alias penColor: canvas.penColor
+        id: config
+
+        property int canvasSize: app.width <= app.height ? app.width : app.height
+        property color canvasColor: "#B7AAA1"
+        property int blockSize: canvasSize / 4
     }
 
-/*
-                    canvas.grabToImage(function(result){
-                        var date = new Date();
-                        const fileName = date.toLocaleString(Qt.locale(),"yyyyMMddHHmmss") + ".png";
-                        if(result.saveToFile(fileName)) {
-                            console.log("--- save png ---",fileName);
-                        }
-                    });
-*/
-
-    Rectangle {
-        width: Math.floor(app.width / scale)
-        height: Math.floor(app.height / scale)
-        scale: 5
+    Item {
         anchors.centerIn: parent
-        color: "grey"
+        width: config.canvasSize
+        height: config.canvasSize
 
-        CxQuick.Canvas {
-            id: canvas
+        Rectangle {
             anchors.fill: parent
-            smooth: false
+            color: config.canvasColor
 
-            penColor: canvasMode.penColor
-            shapeType: "polyline"
-
-            MouseArea {
-                anchors.fill: parent
-
-                onPressed: {
-                    canvas.startPaint(Qt.point(mouse.x,mouse.y));
-                }
-
-                onPositionChanged: {
-                    canvas.draw(Qt.point(mouse.x,mouse.y));
-                }
-
-                onReleased: {
-                    canvas.stopPaint();
+            Repeater {
+                model: 16
+                delegate: Rectangle {
+                    x: 0
+                    y: 0
+                    width: config.blockSize
+                    height: config.blockSize
+                    color: model.color
                 }
             }
         }
     }
-
 }
