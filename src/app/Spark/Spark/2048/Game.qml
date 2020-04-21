@@ -5,15 +5,14 @@ Item {
     id: game
 
     property list<Item> blocks
+    // 0:Left, 1:Right, 2: Up, 3: Down
+    readonly property var direction: Object({left:0,right:1,up:2,down:3})
 
     function randomIndex(exceptIndex) {
         const row = Math.floor(Math.random() * 3.9);
         const col = Math.floor(Math.random() * 3.9);
         return {"row":row,"column":col};
     }
-
-    // 0:Left, 1:Right, 2: Up, 3: Down
-    readonly property var direction: Object({left:0,right:1,up:2,down:3})
 
     function moveDirection(dx,dy) {
        var direct = undefined;
@@ -43,6 +42,19 @@ Item {
         }
     }
 
+    Button {
+        text: "Start New Game"
+        anchors.left: chessBoard.left
+        anchors.bottom: chessBoard.top
+        anchors.bottomMargin: 24
+        onClicked: {
+            const m = game.randomIndex(-1);
+            const pos = chessBoard.posAt(m.row,m.column);
+            var item = block.createObject(chessBoard,{"x":pos.x,"y":pos.y,"row":m.row,"column":m.column});
+            game.blocks.push(item)
+        }
+    }
+
     ChessBoard {
         id: chessBoard
         anchors.centerIn: parent
@@ -64,16 +76,6 @@ Item {
                     game.moveBlocks(direction);
                 }
             }
-        }
-    }
-
-    Button {
-        text: "Start New Game"
-        onClicked: {
-            const m = game.randomIndex(-1);
-            const pos = chessBoard.posAt(m.row,m.column);
-            var item = block.createObject(chessBoard,{"x":pos.x,"y":pos.y,"row":m.row,"column":m.column});
-            game.blocks.push(item)
         }
     }
 
