@@ -2,7 +2,7 @@ import QtQuick 2.12
 import QtQuick.Window 2.12
 import QtQuick.Controls 2.12
 import QtQuick.Layouts 1.12
-import CxQuick 1.0 as Cx
+import "qml" as P
 
 ApplicationWindow {
     visible: true
@@ -13,9 +13,11 @@ ApplicationWindow {
     header: MenuBar {
         Menu {
             title: qsTr("File")
-
             Action {
                 text: "New"
+                onTriggered: {
+                    new_popup.open()
+                }
             }
 
             Action {
@@ -33,35 +35,18 @@ ApplicationWindow {
             Action {
                 text: "Export Sprite"
             }
-
         }
     }
 
-    Rectangle {
+    Popup {
+        id: new_popup
         anchors.centerIn: parent
-        width: 64
-        height: 64
-        color: "#CDCDCD"
-        scale: 10
-        Cx.Canvas {
-            id: canvas
-            anchors.fill: parent
-            shapeType: "line"
-            penColor: "black"
-        }
+        width: 600
+        height: 300
+        padding: 0
 
-        MouseArea {
+        P.BasePane {
             anchors.fill: parent
-
-            onPressed: {
-                canvas.startPaint(Qt.point(mouse.x,mouse.y))
-            }
-            onReleased: {
-                canvas.stopPaint();
-            }
-            onPositionChanged: {
-                canvas.draw(Qt.point(mouse.x,mouse.y))
-            }
         }
     }
 }
