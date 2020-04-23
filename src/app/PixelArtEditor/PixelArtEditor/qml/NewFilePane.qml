@@ -3,6 +3,14 @@ import QtQuick.Controls 2.12
 
 BasePane {
     id: newFilePane
+
+    function getData() {
+        return {
+            "fileName": fileNameField.text,
+            "canvasSize": sizeField.text
+        };
+    }
+
     Grid {
         anchors.centerIn: parent
         padding: 6
@@ -16,6 +24,7 @@ BasePane {
         }
 
         TextField {
+            id: fileNameField
             width: 200
             height: 30
             placeholderText: "Untitled.png"
@@ -27,6 +36,7 @@ BasePane {
         }
 
         TextField {
+            id: sizeField
             width: 200
             height: 30
             text: "64x64"
