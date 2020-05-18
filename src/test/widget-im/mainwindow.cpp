@@ -4,11 +4,14 @@
 #include <QPushButton>
 #include <QVBoxLayout>
 #include <QHBoxLayout>
+#include <QToolBar>
 
 #include <QShortcut>
 
 #include <QByteArray>
 #include <QDataStream>
+#include <QPainter>
+#include <cxbase/cxbase.h>
 
 #include "messenger.h"
 
@@ -34,6 +37,12 @@ MainWindow::MainWindow(QWidget *parent)
     , mTextBrowser(new QTextBrowser(this))
     , mInputField(new QLineEdit(this))
 {
+    QRWidget *qr = new QRWidget(this);
+    QToolBar *toolBar = addToolBar("test");
+    toolBar->addAction(tr("QR"),[qr](){
+        qr->show();
+    });
+
     QWidget *wgt = new QWidget(this);
     setCentralWidget(wgt);
 
@@ -83,4 +92,47 @@ void MainWindow::onSendMessage()
     free(m.data);
 
     Messenger::instance()->sendRawMessage(ba.data(),ba.size());
+}
+
+struct QRWidgetPrivate {
+    cx::QRCode code{40};
+};
+
+QRWidget::QRWidget(QWidget *parent)
+    : QWidget(parent,Qt::Dialog)
+    , d(new QRWidgetPrivate)
+{
+    d->code = cx::CxBase::genQRcode(20,2,"SS...");
+}
+
+QRWidget::~QRWidget()
+{
+    if (d) { delete d; }
+}
+
+void QRWidget::paintEvent(QPaintEvent *event)
+{
+    Q_UNUSED(event)
+
+    QPainter painter(this);
+    int x = 10;
+    int y = 10;
+    for (int i = 0; i < 20; ++i) {
+        for (int j = 0; j < 20; ++j) {
+            if (d->code.modules.at(i*20+j)) {
+                painter.fillRect(QRect(x*(i+1),y*(j+1),10,10),Qt::black);
+            }
+        }
+    }
+
+//    for (uint8_t y = 0; y < code.size; y++) {
+//        for (uint8_t x = 0; x < code.size; x++) {
+//            if (qrcode_getModule(&code, x, y)) {
+//                cxCode.modules.setBit(x+code.size*y,true);
+//            } else {
+//                cxCode.modules.setBit(x+code.size*y,false);
+//            }
+//        }
+//    }
+
 }

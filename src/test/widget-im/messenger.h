@@ -43,7 +43,7 @@ public slots:
     void sendRawMessage(const char *msg, qint64 size);
 
 protected:
-    Q_DISABLE_COPY_MOVE(Messenger)
+    Q_DISABLE_COPY(Messenger)
     explicit Messenger(QObject *parent = nullptr);
 
 private slots:

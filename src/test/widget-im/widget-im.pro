@@ -22,3 +22,6 @@ TRANSLATIONS += \
 
 RESOURCES += \
     res.qrc
+
+CXLIB_LIST += cxbase
+include($$PWD/../../utils/app.pri)

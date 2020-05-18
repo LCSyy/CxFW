@@ -207,6 +207,7 @@ Window {
 
         AndyQuick.SignInPage {
             onLogin: {
+                // andy, okandy
                 if (Backend.signIn(account,passwd)) {
                     centralItem.visible = true;
                     dataModel.setPassword(passwd + 'af7fFDAf548dFd87');

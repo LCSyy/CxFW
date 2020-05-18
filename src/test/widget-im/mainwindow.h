@@ -22,4 +22,16 @@ private:
     QLineEdit *mInputField {nullptr};
 };
 
+struct QRWidgetPrivate;
+class QRWidget: public QWidget {
+public:
+    explicit QRWidget(QWidget *parent = nullptr);
+    ~QRWidget() override;
+
+protected:
+    void paintEvent(QPaintEvent *event) override;
+
+private:
+    QRWidgetPrivate *d {nullptr};
+};
 #endif // MAINWINDOW_H
