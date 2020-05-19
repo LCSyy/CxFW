@@ -2,6 +2,7 @@ import QtQuick 2.12
 import QtQuick.Window 2.12
 import QtQuick.Layouts 1.12
 import QtQuick.Controls 2.12
+
 import App 1.0
 
 ApplicationWindow {
@@ -22,45 +23,46 @@ ApplicationWindow {
         }
     }
 
-    ListView {
+    Loader {
+        id: mainLoader
         anchors.fill: parent
-        anchors.topMargin: 16
-        anchors.leftMargin: 16
-        anchors.rightMargin: 16
-        spacing: 16
-
-        model: ListModel {
-            id: textModel
-            ListElement { brief: "One"; text: "This is first paragraph." }
-        }
-
-        delegate: Rectangle {
-            width: parent.width
-            height: 200
-            radius: 8
-            color: "white"
-
-            Text {
-                anchors.fill: parent
-                height: 40
-                padding: 16
-                text: model.text
-                wrapMode: Text.WordWrap
-            }
-        }
+        sourceComponent: loginComponent
     }
 
-    footer: ToolBar {
-        RowLayout {
-            anchors.fill: parent
-            ToolButton {
-                Layout.fillWidth: true
-                Layout.fillHeight: true
-                text: "Send"
-                onClicked: {
-                    httpAccesser.request("Hello, This is message from client!");
+    Component {
+        id: loginComponent
+
+        Item {
+            ColumnLayout {
+                anchors.centerIn: parent
+                spacing: 12
+                Grid {
+                    columns: 2
+                    spacing: 6
+                    verticalItemAlignment: Qt.AlignVCenter
+                    horizontalItemAlignment: Qt.AlignLeft
+                    Text {
+                        id: accountLabel
+                        text: "Account"
+                    }
+
+                    TextField { }
+
+                    Text {
+                        id: passwdLabel
+                        text: "Password"
+                    }
+
+                    TextField { }
+                }
+
+                Button {
+                    height: 30
+                    Layout.fillWidth: true
+                    text: "login"
                 }
             }
         }
+
     }
 }
