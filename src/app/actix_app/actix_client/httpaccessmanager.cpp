@@ -3,6 +3,8 @@
 #include <QNetworkRequest>
 #include <QNetworkReply>
 
+#include "jsonconverter.h"
+
 #include <QDebug>
 
 #define dbg(x) qDebug().noquote() << QString{"[line:%1, func:%2]\t"}.arg(__LINE__).arg(__FUNCTION__) << x;
@@ -29,8 +31,5 @@ void HttpAccessManager::request(const QString &msg)
 void HttpAccessManager::onReplyFinished(QNetworkReply *reply)
 {
     dbg("reply")
-    emit dataLoaded(QVariantMap{
-                        {"method", "app_register"},
-                        {"msg", QString{reply->readAll()}}
-                    },QPrivateSignal{});
+    emit dataLoaded(JsonConverter::bytesToJsonMap(reply->readAll()),QPrivateSignal{});
 }

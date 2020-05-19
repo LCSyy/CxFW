@@ -16,8 +16,8 @@ ApplicationWindow {
         id: httpAccesser
         onDataLoaded: {
             console.log(JSON.stringify(data))
-            if (data.method === "app_register") {
-                textModel.append({"name":"about","title":"About","text":data.msg})
+            if (data.brief !== "error") {
+                textModel.append(data)
             }
         }
     }
@@ -31,7 +31,7 @@ ApplicationWindow {
 
         model: ListModel {
             id: textModel
-            ListElement { name: "one"; title: "One"; text: "This is first paragraph." }
+            ListElement { brief: "One"; text: "This is first paragraph." }
         }
 
         delegate: Rectangle {
@@ -45,6 +45,7 @@ ApplicationWindow {
                 height: 40
                 padding: 16
                 text: model.text
+                wrapMode: Text.WordWrap
             }
         }
     }
