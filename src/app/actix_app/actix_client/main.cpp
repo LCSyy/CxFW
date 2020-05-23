@@ -1,30 +1,7 @@
-#include <QGuiApplication>
-#include <QQmlApplicationEngine>
-
-#include "httpaccessmanager.h"
-
-void registerQuickTypes();
+#include "application.h"
 
 int main(int argc, char *argv[])
 {
-    QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
-
-    QGuiApplication app(argc, argv);
-
-    registerQuickTypes();
-
-    QQmlApplicationEngine engine;
-    const QUrl url(QStringLiteral("qrc:/main.qml"));
-    QObject::connect(&engine, &QQmlApplicationEngine::objectCreated,
-                     &app, [url](QObject *obj, const QUrl &objUrl) {
-        if (!obj && url == objUrl)
-            QCoreApplication::exit(-1);
-    }, Qt::QueuedConnection);
-    engine.load(url);
-
+    Application app(argc,argv);
     return app.exec();
-}
-
-void registerQuickTypes() {
-    qmlRegisterType<HttpAccessManager>("App",1,0,"HttpAccessManager");
 }
