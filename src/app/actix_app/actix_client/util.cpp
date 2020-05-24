@@ -1,6 +1,8 @@
 #include "util.h"
 #include <QFontMetricsF>
 
+#include <QDebug>
+
 Util::Util(QObject *parent) : QObject(parent)
 {
 
@@ -21,5 +23,5 @@ Util::Util(QObject *parent) : QObject(parent)
 QRect Util::textBoundingRect(const QRect &rect, int flags, const QString &text, const QFont &font) const
 {
     QFontMetrics metrics(font);
-    return metrics.boundingRect(rect,flags,text);
+    return metrics.boundingRect(rect,flags | Qt::TextWordWrap,text);
 }
