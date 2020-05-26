@@ -77,14 +77,15 @@ ApplicationWindow {
 
     ListModel {
         id: contentModel
-        ListElement { title: "Today I do nothing."; text: ""; date: "2020-05-24 12:56:01" }
-        ListElement { title: "About hope"; text: ""; date: "2020-05-27 22:12:45" }
+        ListElement { uid: 1; title: "Today I do nothing."; text: ""; date: "2020-05-24 12:56:01" }
+        ListElement { uid: 2; title: "About hope"; text: ""; date: "2020-05-27 22:12:45" }
     }
 
     Loader {
         id: mainLoader
         anchors.fill: parent
-        sourceComponent: loginComponent
+        // sourceComponent: loginComponent
+        sourceComponent: mainPageComponent
         function login(account,passwd) {
             if (account === 'admin' && passwd === 'admin') {
                 mainLoader.sourceComponent = mainPageComponent
@@ -117,34 +118,16 @@ ApplicationWindow {
                 }
             }
 
-            ListView {
-                id: contentView
+            AppQml.ListView {
                 anchors.top: mainPageHeader.bottom
                 anchors.bottom: parent.bottom
                 width: parent.width
                 spacing: 8
+                clip: true
                 model: contentModel
 
-                delegate: Rectangle {
-                    width: parent.width
-                    height: 80
-                    radius: 4
-
-                    ColumnLayout {
-                        anchors.fill: parent
-                        anchors.margins: 16
-                        spacing: 4
-                        Text {
-                            text: model.title
-                            font.bold: true
-                        }
-                        Text {
-                            text: model.text
-                        }
-                        Text {
-                            text: model.date
-                        }
-                    }
+                onItemDoubleClicked:{
+                    console.log("item clicked:",uid)
                 }
             }
         }
@@ -154,12 +137,19 @@ ApplicationWindow {
         id: editComponent
 
         Rectangle {
+            TextField {
+                id: titleField
+                width: parent.width
+                placeholderText: "title"
+            }
+
             TextArea {
                 id: editor
                 width: parent.width
-                anchors.top: parent.top
+                anchors.top: titleField.bottom
                 anchors.bottom: editBtnsRow.top
                 wrapMode: TextArea.WordWrap
+                font.pointSize: app.font.pointSize + 2
 
                 background: Rectangle {
                     color: "white"
@@ -177,7 +167,11 @@ ApplicationWindow {
                     text:"Save"
                     width: parent.width / 2 - 4
                     onClicked: {
-                        contentModel.append({"title":"Everything is ok","text": editor.text.trim(), "date": Qt.formatDateTime(new Date(),"yyyy-MM-dd hh:mm:ss")})
+                        contentModel.append({
+                                                "title":titleField.text.trim(),
+                                                "text": editor.text.trim(),
+                                                "date": Qt.formatDateTime(new Date(),"yyyy-MM-dd hh:mm:ss")
+                                            })
                         mainLoader.sourceComponent = mainPageComponent
                     }
                 }

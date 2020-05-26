@@ -1,10 +1,11 @@
-﻿#include "cxbase.h"
+#include "cxbase.h"
 #include <QByteArray>
 #include <third_party/botan/system_rng.h>
 #include <third_party/botan/cryptobox.h>
 #include <third_party/qrcode/qrcode.h>
 
 #include <iostream>
+#include <cstring>
 #include <QDebug>
 
 namespace cx {
