@@ -2,9 +2,22 @@
 
 CxFW是基于Qt的应用开发框架。
 
-## App
+## 结构
 
-## PixelArtEditor
-
-- 实现弹框基本样式
-
+- cxfw/
+  - res/
+  - lib/
+    - base
+    - core
+    - quick
+  - plugin/
+    - quick
+  - tool/
+  - utils/
+    - framework.pri
+    - library.pri
+    - static_library.pri
+    - plugin.pri
+    - app.pri
+  - thirdparty/
+  - test/

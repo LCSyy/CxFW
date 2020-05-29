@@ -14,12 +14,14 @@ QMAKE_LFLAGS_SHLIB += -fstack-protector -fPIC
 
 CXBASE_SOURCES += \
     cxbase.cpp \
-    storage.cpp
+    storage.cpp \
+    cxhelper.cpp
 
 CXBASE_HEADERS += \
     cxbase_global.h \
     cxbase.h \
-    storage.h
+    storage.h \
+    cxhelper.h
 
 SOURCES += \
     #$${THIRD_PARTY_SOURCES} \

@@ -28,6 +28,26 @@ ApplicationWindow {
         }
     }
 
+    ListModel {
+        id: contentModel
+        ListElement { uid: 1; title: "Today I do nothing."; text: ""; date: "2020-05-24 12:56:01" }
+        ListElement { uid: 2; title: "About hope"; text: ""; date: "2020-05-27 22:12:45" }
+    }
+
+    Loader {
+        id: mainLoader
+        anchors.fill: parent
+        // sourceComponent: loginComponent
+        sourceComponent: mainPageComponent
+        function login(account,passwd) {
+            if (account === 'admin' && passwd === 'admin') {
+                mainLoader.sourceComponent = mainPageComponent
+            } else {
+                appTip.showTip("Login error! Haha! You made a big mistake! So how you want do to fix this problem? ",5000)
+            }
+        }
+    }
+
     // App Info Banner
     Rectangle {
         id: appTip
@@ -75,26 +95,6 @@ ApplicationWindow {
         }
     }
 
-    ListModel {
-        id: contentModel
-        ListElement { uid: 1; title: "Today I do nothing."; text: ""; date: "2020-05-24 12:56:01" }
-        ListElement { uid: 2; title: "About hope"; text: ""; date: "2020-05-27 22:12:45" }
-    }
-
-    Loader {
-        id: mainLoader
-        anchors.fill: parent
-        // sourceComponent: loginComponent
-        sourceComponent: mainPageComponent
-        function login(account,passwd) {
-            if (account === 'admin' && passwd === 'admin') {
-                mainLoader.sourceComponent = mainPageComponent
-            } else {
-                appTip.showTip("Login error! Haha! You made a big mistake! So how you want do to fix this problem? ",5000)
-            }
-        }
-    }
-
     Component {
         id: loginComponent
         AppQml.LoginPage {
@@ -127,7 +127,8 @@ ApplicationWindow {
                 model: contentModel
 
                 onItemDoubleClicked:{
-                    console.log("item clicked:",uid)
+                    console.log("clicked item uid:",uid,",index:",idx)
+
                 }
             }
         }
@@ -137,6 +138,11 @@ ApplicationWindow {
         id: editComponent
 
         Rectangle {
+
+            function loadContent(uid) {
+
+            }
+
             TextField {
                 id: titleField
                 width: parent.width
@@ -165,20 +171,32 @@ ApplicationWindow {
                 Button {
                     id: editSaveBtn
                     text:"Save"
-                    width: parent.width / 2 - 4
+                    width: parent.width / 3 - 2
                     onClicked: {
-                        contentModel.append({
-                                                "title":titleField.text.trim(),
-                                                "text": editor.text.trim(),
-                                                "date": Qt.formatDateTime(new Date(),"yyyy-MM-dd hh:mm:ss")
-                                            })
+                        const title = titleField.text.trim()
+                        const content = editor.text.trim()
+                        if (title !== '' || content !== '') {
+                            contentModel.append({
+                                                    "title": title,
+                                                    "text": content,
+                                                    "date": Qt.formatDateTime(new Date(),"yyyy-MM-dd hh:mm:ss")
+                                                })
+                        }
                         mainLoader.sourceComponent = mainPageComponent
                     }
                 }
 
                 Button {
+                    text: "Remove"
+                    width: parent.width / 3 - 4
+                    onClicked: {
+                        contentModel.remove()
+                    }
+                }
+
+                Button {
                     text: "Cancel"
-                    width: parent.width / 2 - 4
+                    width: parent.width / 3 - 2
                     onClicked: mainLoader.sourceComponent = mainPageComponent
                 }
             }

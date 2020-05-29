@@ -7,15 +7,17 @@ ListView {
     topMargin: 8
     leftMargin: 8
     rightMargin: 8
-    signal itemDoubleClicked(int uid)
+    signal itemDoubleClicked(int uid, int idx)
 
     MouseArea {
         anchors.fill: parent
         onDoubleClicked: {
             const itemPos = mapToItem(contentView,mouse.x,mouse.y)
-            const item = contentView.itemAt(itemPos.x + contentView.contentX,
-                                            itemPos.y + contentView.contentY)
-            contentView.itemDoubleClicked(item === null ? 0 : item.uid)
+            const viewX = itemPos.x + contentView.contentX
+            const viewY = itemPos.y + contentView.contentY
+            const item = contentView.itemAt(viewX,viewY)
+            const idx = contentView.indexAt(viewX,viewY)
+            contentView.itemDoubleClicked(item === null ? 0 : item.uid, idx)
         }
     }
 
@@ -31,7 +33,7 @@ ListView {
 
             ColumnLayout {
                 anchors.fill: parent
-                anchors.margins: 16
+                anchors.margins: 12
                 spacing: 4
                 Text {
                     Layout.fillWidth: true
@@ -42,6 +44,7 @@ ListView {
                 Text {
                     Layout.fillWidth: true
                     Layout.fillHeight: true
+                    Layout.topMargin: 16
                     text: model.text
                     wrapMode: Text.WrapAtWordBoundaryOrAnywhere
                     elide: Text.ElideRight
