@@ -6,12 +6,14 @@ DEFINES += ITCORE_LIBRARY
 
 SOURCES += \
     itcore.cpp \
-    localstorage.cpp
+    localstorage.cpp \
+    pagemodel.cpp
 
 HEADERS += \
     itcore_global.h \
     itcore.h \
-    localstorage.h
+    localstorage.h \
+    pagemodel.h
 
 include ($$PWD/../../../utils/library.pri)
 
