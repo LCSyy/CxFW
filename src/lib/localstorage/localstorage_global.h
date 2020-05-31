@@ -1,0 +1,12 @@
+#ifndef LOCALSTORAGE_GLOBAL_H
+#define LOCALSTORAGE_GLOBAL_H
+
+#include <QtCore/qglobal.h>
+
+#if defined(LOCALSTORAGE_LIBRARY)
+#  define LOCALSTORAGE_EXPORT Q_DECL_EXPORT
+#else
+#  define LOCALSTORAGE_EXPORT Q_DECL_IMPORT
+#endif
+
+#endif // LOCALSTORAGE_GLOBAL_H

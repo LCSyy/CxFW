@@ -2,4 +2,5 @@ TEMPLATE = subdirs
 
 SUBDIRS += \
     creator \
-    creator-desk
+    creator-desk \
+    itcore

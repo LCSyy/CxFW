@@ -7,4 +7,5 @@ SOURCES += \
 
 RESOURCES += qml.qrc
 
+CXLIB_LIST += ITcore
 include ($$PWD/../../../utils/app.pri)
