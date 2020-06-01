@@ -3,6 +3,8 @@ import QtQuick.Window 2.15
 import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.15
 
+import IT 1.0
+
 ApplicationWindow {
     id: app
     visible: true
@@ -13,30 +15,9 @@ ApplicationWindow {
     title: qsTr("Hello World")
     color: "#ACBDCF"
 
-    ListModel {
-        id: boardModel
-
-        ListElement {
-            uid: 1; name: "news-2432"; title: "新发布"; brief: "有作者发布了新的作品。快去看看吧！"
-        }
-        ListElement {
-            uid: 2; name: "user-343-update"; title: "日常更新 - 落日余晖"; brief: "终于又更新了。。。"
-        }
-        ListElement {
-            uid: 3; name: "alert-335"; title: "公告"; brief: "关于作者行为守则，请阅读。"
-        }
-        ListElement {
-            uid: 4; name: "new-journey"; title: "落日余晖 - 第三章"; brief: "夫志，心笃行之术。\n长没长于博谋，安没安于忍辱，先没先于修德，乐没乐于好善，\n神没神于至诚，明没明于体物，吉没吉于知足，苦没苦于多愿，\n悲没悲于精散，病没病于无常，短没短于苟得，幽没幽于贪鄙，\n孤没孤于自恃，危没危于任疑，败没败于多私。"
-        }
-        ListElement {
-            uid: 5; name: "new-story-up"; title: "新的故事接龙"; brief: "创作者【易秋水】开启了新的故事接龙《游船》。前往查看吧。"
-        }
-        ListElement {
-            uid: 5; name: "edit-story-up"; title: "新的接龙1"; brief: "【不夜】接受了《游船》的接龙挑战。"
-        }
-        ListElement {
-            uid: 5; name: "edit-story-up-2"; title: "新的接龙2"; brief: "【易秋水】续写了《游船》。快去阅读新章节吧。"
-        }
+    TrendsBoardModel {
+        id: trendsBoardModel
+        objectName: "trendsBoardModel"
     }
 
     ListModel {
@@ -112,7 +93,7 @@ ApplicationWindow {
             id: boardView
             spacing: 8
             boundsBehavior: ListView.StopAtBounds
-            model: boardModel
+            model: trendsBoardModel
 
             delegate: Rectangle {
                 width: boardView.width

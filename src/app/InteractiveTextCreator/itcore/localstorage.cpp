@@ -10,6 +10,7 @@
 
 namespace  {
 static LocalStorage *instance {nullptr};
+constexpr char DEFAULT_LOCAL_DB_DIR[] = "../common/localdb/";
 }
 
 LocalStorage &LocalStorage::self()
@@ -28,27 +29,31 @@ void LocalStorage::drop()
     }
 }
 
-void LocalStorage::loadData(const QString &sql)
+QVariantList LocalStorage::loadData(const QString &sql)
 {
+    QVariantList dataLst;
     QSqlQuery query(QSqlDatabase::database());
     if (!query.exec(sql)) {
         qDebug() << query.lastError().text();
-        return;
+        return dataLst;
     }
 
     while (query.next()) {
+        QVariantMap rowMap;
         QSqlRecord record = query.record();
         for (int i = 0; i < record.count(); ++i) {
             QSqlField field = record.field(i);
-            qDebug() << field.name() << ":" << field.value();
+            rowMap.insert(field.name(),field.value());
         }
-        qDebug() << "---------";
+        dataLst.append(rowMap);
     }
+
+    return dataLst;
 }
 
 LocalStorage::LocalStorage()
 {
-    QDir dir("../common/localdb/");
+    QDir dir(DEFAULT_LOCAL_DB_DIR);
     QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE");
     db.setDatabaseName(dir.absoluteFilePath("story.db"));
     db.open();

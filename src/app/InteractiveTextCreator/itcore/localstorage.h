@@ -3,6 +3,8 @@
 
 #include "itcore_global.h"
 
+#include <QVariantList>
+
 struct StoryRow {
 };
 
@@ -12,7 +14,7 @@ public:
     static LocalStorage &self();
     static void drop();
 
-    void loadData(const QString &sql);
+    QVariantList loadData(const QString &sql);
 
 private:
     LocalStorage();
