@@ -4,6 +4,7 @@ import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.15
 
 import IT 1.0
+import "qml" as App
 
 ApplicationWindow {
     id: app
@@ -73,28 +74,16 @@ ApplicationWindow {
         }
     }
 
-    ListModel {
-        id: userInfoModel
-        ListElement {
-            color: "#903785"
-        }
-
-        ListElement {
-            color: "#ACDBFF"
-        }
-    }
-
     SwipeView {
         anchors.fill: parent
         interactive: false
         currentIndex: tabBar.currentIndex
 
-        ListView {
+        App.ListView {
             id: boardView
             spacing: 8
             boundsBehavior: ListView.StopAtBounds
             model: trendsBoardModel
-
             delegate: Rectangle {
                 width: boardView.width
                 height: 100
@@ -122,9 +111,13 @@ ApplicationWindow {
                     }
                 }
             }
+
+            onItemClicked: {
+                console.log(idx)
+            }
         }
 
-        ListView  {
+        App.ListView  {
             id: storeView
             boundsBehavior: ListView.StopAtBounds
             model: complicatedModel
@@ -143,17 +136,23 @@ ApplicationWindow {
                     }
                 }
             }
+            onItemClicked: {
+                var incubator = detailPage.incubateObject(app)
+                if (incubator.status !== Component.Ready) {
+                     incubator.onStatusChanged = function(status) {
+                         if (status === Component.Ready) {
+                             incubator.object.text = idx
+                         }
+                     }
+                 } else {
+                    incubator.object.text = idx
+                 }
+            }
         }
 
-        ListView {
-            id: userInfoView
-            boundsBehavior: ListView.StopAtBounds
-            spacing: 8
-            model: userInfoModel
-            delegate: Rectangle {
-                width: userInfoView.width
-                height: 50
-                color: "white"
+        App.UserCenter {
+            onItemClicked: {
+                console.log(idx)
             }
         }
     }
@@ -162,10 +161,10 @@ ApplicationWindow {
         id: tabBar
         width: parent.width
         TabButton {
-            text: "Books"
+            text: "Trends"
         }
         TabButton {
-            text:"Store"
+            text:"Center"
         }
         TabButton {
             text: "Me"
@@ -212,6 +211,43 @@ ApplicationWindow {
         id: three
         Rectangle {
             color: "#346675"
+        }
+    }
+
+    Component {
+        id: detailPage
+
+        Page {
+            id: page
+            property alias text: content.text
+
+            header: ToolBar {
+                RowLayout {
+                    ToolButton {
+                        Layout.fillHeight: true
+                        Layout.alignment: Qt.AlignLeft
+                        width: 50
+                        text: "Back"
+                        onClicked: {
+                            page.destroy()
+                        }
+                    }
+                }
+            }
+
+            background: Rectangle {
+                color: "white"
+                implicitWidth: page.parent.width
+                implicitHeight: page.parent.height
+            }
+
+            contentItem: Text {
+                id: content
+                horizontalAlignment: Qt.AlignHCenter
+                verticalAlignment: Qt.AlignVCenter
+                font.pointSize: app.font.pointSize + 5
+                font.bold: true
+            }
         }
     }
 }

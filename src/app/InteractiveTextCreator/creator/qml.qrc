@@ -1,5 +1,7 @@
 <RCC>
     <qresource prefix="/">
         <file>main.qml</file>
+        <file>qml/UserCenter.qml</file>
+        <file>qml/ListView.qml</file>
     </qresource>
 </RCC>
