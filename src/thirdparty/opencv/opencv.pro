@@ -1,7 +1,5 @@
-CX_TARGET_NAME = opencv-no-use
-CONFIG -= qt
-
-include ($$PWD/../../utils/static_library.pri)
+TEMPLATE = aux
+include ($$PWD/../../utils/frameworks.pri)
 
 # header.files = $$PWD/include/opencv2/*.h
 # header.path = $$CX_PROD_DIR/include/third_party/opencv2
