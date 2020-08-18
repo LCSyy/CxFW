@@ -5,3 +5,7 @@
 # ignore path
 build-*/
 dist/
+*/dist/
+*/build/
+
+
