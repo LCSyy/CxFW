@@ -5,7 +5,9 @@
 # ignore path
 build-*/
 dist/
-*/dist/
-*/build/
+build/
+
+# cmake generated
+CMakeFiles/
 
 
