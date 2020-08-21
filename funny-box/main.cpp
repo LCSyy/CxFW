@@ -1,14 +1,8 @@
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
-#include "qrgenerator.h"
 
-static QJSValue qrcodeGeneratorProvider(QQmlEngine *engine, QJSEngine *scriptEngine)
-{
-    Q_UNUSED(scriptEngine)
-
-    QrGenerator *qrcode = new QrGenerator(engine);
-    return engine->newQObject(qrcode);
-}
+#include <bqrcode.h>
+#include <iostream>
 
 int main(int argc, char *argv[])
 {
@@ -16,7 +10,16 @@ int main(int argc, char *argv[])
 
     QGuiApplication app(argc, argv);
 
-    qmlRegisterSingletonType("App",1,0,"QRGenerator",qrcodeGeneratorProvider);
+    BQRCode qrcode;
+    for (const uint8_t code: qrcode.genQRCode("This is a test.",1)) {
+        if (code == 1) {
+            std::cout << "*";
+        } else if (code == 0) {
+            std::cout << " ";
+        } else {
+            std::cout << std::endl;
+        }
+    }
 
     QQmlApplicationEngine engine;
     const QUrl url(QStringLiteral("qrc:/main.qml"));

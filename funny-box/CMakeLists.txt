@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.5)
 
-project(qrcode LANGUAGES CXX C)
+project(funny-box LANGUAGES CXX C)
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
@@ -24,25 +24,34 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 #    endif()
 #endif()
 
-find_package(Qt5 COMPONENTS Core Quick REQUIRED)
+find_package(Qt5 COMPONENTS Core Quick LinguistTools REQUIRED)
+
+set(TS_FILES funny-box_zh_CN.ts)
+
+add_subdirectory(qrcode)
 
 if(ANDROID)
-    add_library(qrcode SHARED
+    add_library(funny-box SHARED
       main.cpp
-      qrcode.c
-      qrgenerator.cpp
       qml.qrc
+      ${TS_FILES}
     )
 else()
-    add_executable(qrcode
+    add_executable(funny-box
       main.cpp
-      qrcode.c
-      qrgenerator.cpp
       qml.qrc
+      ${TS_FILES}
     )
 endif()
 
-target_compile_definitions(qrcode
+
+target_compile_definitions(funny-box
   PRIVATE $<$<OR:$<CONFIG:Debug>,$<CONFIG:RelWithDebInfo>>:QT_QML_DEBUG>)
-target_link_libraries(qrcode
+target_link_libraries(funny-box
   PRIVATE Qt5::Core Qt5::Quick)
+
+target_link_libraries(funny-box PUBLIC qrcode)
+
+qt5_create_translation(QM_FILES ${CMAKE_SOURCE_DIR} ${TS_FILES})
+
+
