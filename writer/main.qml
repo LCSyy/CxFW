@@ -3,6 +3,7 @@ import QtQuick.Window 2.15
 import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.15
 
+import "qml" as App
 
 Window {
     id: app
@@ -20,21 +21,22 @@ Window {
 
     ColumnLayout {
         anchors.fill: parent
+        anchors.topMargin: 4
 
         RowLayout {
             Layout.fillWidth: true
             Layout.leftMargin: 8
             Layout.rightMargin: 8
 
-            ToolButton {
+            App.Button {
                 text: qsTr('New')
             }
 
-            ToolButton {
+            App.Button {
                 text: qsTr('Stat')
             }
 
-            ToolButton {
+            App.Button {
                 text: qsTr('More')
             }
 
@@ -42,11 +44,11 @@ Window {
                 Layout.fillWidth: true
             }
 
-            TextField {
+            App.TextField {
                 placeholderText: qsTr('Search')
             }
 
-            ToolButton {
+            App.Button {
                 text: qsTr('Search')
             }
         }
@@ -57,14 +59,16 @@ Window {
             color: theme.bg_normal_color
         }
 
-        RowLayout {
+        SplitView {
             Layout.fillWidth: true
             Layout.fillHeight: true
 
+            orientation: Qt.Horizontal
+
             ListView {
 
-                Layout.fillWidth: true
-                Layout.fillHeight: true
+                SplitView.fillWidth: true
+                SplitView.fillHeight: true
 
                 clip: true
 
@@ -108,8 +112,10 @@ Window {
             }
 
             Column {
-                Layout.minimumWidth: 150
-                Layout.fillHeight: true
+                SplitView.preferredWidth: 150
+                SplitView.maximumWidth:  parent.width / 3
+                SplitView.minimumWidth: 100
+                SplitView.fillHeight: true
 
                 Rectangle {
                     width: parent.width
