@@ -4,34 +4,37 @@
 <context>
     <name>main</name>
     <message>
-        <location filename="main.qml" line="13"/>
+        <location filename="main.qml" line="15"/>
         <source>Hello World</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main.qml" line="32"/>
+        <location filename="main.qml" line="44"/>
         <source>New</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main.qml" line="48"/>
-        <location filename="main.qml" line="52"/>
+        <location filename="main.qml" line="59"/>
         <source>Search</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main.qml" line="36"/>
-        <source>Stat</source>
-        <oldsource>Stats</oldsource>
+        <location filename="main.qml" line="240"/>
+        <source>Save</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main.qml" line="40"/>
+        <location filename="main.qml" line="282"/>
+        <source>X</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main.qml" line="51"/>
         <source>More</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main.qml" line="128"/>
+        <location filename="main.qml" line="144"/>
         <source>Categories</source>
         <translation type="unfinished"></translation>
     </message>
