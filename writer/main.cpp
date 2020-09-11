@@ -1,11 +1,18 @@
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
+#include <QDebug>
+
+#include "listmodel.h"
+
+static void registerTypes();
 
 int main(int argc, char *argv[])
 {
     QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
 
     QGuiApplication app(argc, argv);
+
+    registerTypes();
 
     QQmlApplicationEngine engine;
     const QUrl url(QStringLiteral("qrc:/main.qml"));
@@ -17,4 +24,9 @@ int main(int argc, char *argv[])
     engine.load(url);
 
     return app.exec();
+}
+
+static void registerTypes() {
+    qmlRegisterType<ListModel>("App.Type",1,0,"ListModel");
+    // qmlRegisterType<ListElement>("App.Type",1,0, "ListElement");
 }

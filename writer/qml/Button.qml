@@ -11,6 +11,6 @@ Controls.Button {
 
     background: Rectangle {
         radius: 2
-        color: button.pressed ? '#aaa' : '#f8f8f8'
+        color: button.pressed ? '#aaa' : '#e2e2e2'
     }
 }

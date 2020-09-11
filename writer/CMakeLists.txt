@@ -34,12 +34,14 @@ if(ANDROID)
       main.cpp
       qml.qrc
       ${TS_FILES}
+      listmodel.cpp
     )
 else()
     add_executable(writer
       main.cpp
       qml.qrc
       ${TS_FILES}
+      listmodel.cpp
     )
 endif()
 
