@@ -43,6 +43,7 @@ function initDB() {
     var d = db();
     d.transaction(function(tx){
         tx.executeSql('CREATE TABLE IF NOT EXISTS blog (id INTEGER PRIMARY KEY ASC, uuid TEXT NOT NULL UNIQUE, title TEXT, content TEXT, tags TEXT, create_dt TEXT, update_dt TEXT);');
+        tx.executeSql('CREATE TABLE IF NOT EXISTS tags (id INTEGER PRIMARY KEY ASC, name TEXT NOT NULL UNIQUE, title TEXT);');
     });
 
     // d.changeVersion("0.0.5","0.0.6",function(tx){
@@ -50,55 +51,60 @@ function initDB() {
     // });
 }
 
-// saveData 保存数据
-// 如果有id, 则表示更新数据；没有，则表示新建数据
+// makeRow
 // params:
-//   row: {
-//     id: int8,
-//     uuid: string,
-//     title: string,
-//     content: string,
-//     tags: array<string>,
-//     create_dt: string,
-//     update_dt: string
-//   }
-function saveData(row) {
-    var d = db();
-    const id = row.id || 0;
-
-    var retId = row.id;
-    if (id === 0) {
-        d.transaction(function(tx){
-            const result = tx.executeSql('INSERT INTO blog(uuid,title,content,tags,create_dt,update_dt) VALUES (?,?,?,?,?,?)',
-                [row.uuid, row.title, row.content, row.tags || null, row.create_dt, row.create_dt]
-            );
-
-            retId = result.insertId;
-        });
-    } else {
-        d.transaction(function(tx){
-            tx.executeSql('UPDATE blog SET title = ?, content = ?, tags = ?, update_dt = ? WHERE id = ?;',
-                [row.title, row.content, row.tags || null, row.update_dt, row.id]
-            );
-        });
+//   row: map
+// return:
+//   array<any>
+function makeRow(keys, row) {
+    var vals = [];
+    for (var i in keys) {
+        const key = keys[i];
+        const val = row[key];
+        vals.push(val || null);
     }
+    return vals;
+}
+
+// insertRow
+function insertRow(sql, keys, row) {
+    console.log("[SQL] " + sql);
+    var d = db();
+    var retId = 0;
+    d.transaction(function(tx){
+        const result = tx.executeSql(sql,makeRow(keys,row));
+        retId = result.insertId;
+    });
     return retId;
 }
 
+// updateRow
+function updateRow(sql, keys, row) {
+    console.log("[SQL] " + sql);
+    var d = db();
+    if ((row.id || 0) === 0) { throw "[SQL ERROR] UPDATE sql has no id."; }
+
+    d.transaction(function(tx){
+        tx.executeSql(sql,makeRow(keys, row));
+    });
+}
+
 // removeData 删除数据
-function removeData(uuid) {
+function removeData(sql, id) {
+    console.log("[SQL] " + sql);
     var d = db();
     d.transaction(function(tx){
-        tx.executeSql("DELETE FROM blog WHERE uuid = ?", [uuid]);
+        tx.executeSql(sql, [id]);
     });
 }
 
 // getData 获取所有数据
-function getData() {
+function getData(sql) {
+    console.log("[SQL] " + sql);
     var d = db();
     var datas = [];
     d.readTransaction(function(tx){
-        const result = tx.executeSql("SELECT * FROM blog ORDER BY update_dt DESC;");
+        const result = tx.executeSql(sql);
         for (var i = 0; i < result.rows.length; ++i) {
             datas.push(result.rows.item(i));
         }

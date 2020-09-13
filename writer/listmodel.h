@@ -4,42 +4,16 @@
 #include <QObject>
 #include <QAbstractListModel>
 
-class ListElement {
-    Q_GADGET
-public:
-    ~ListElement();
-
-    enum Roles {
-        IdRole = Qt::UserRole + 1,
-        UuidRole,
-        TitleRole,
-        ContentRole,
-        TagsRole,
-        CreateRole,
-        UpdateRole,
-    };
-
-    long long m_id;
-    QString m_uuid;
-    QString m_title;
-    QString m_content;
-    QStringList m_tags;
-    QString m_create_dt;
-    QString m_update_dt;
-
-    QVariantMap toMap() const;
-
-    static QHash<int,QByteArray> roleNames();
-    static ListElement fromMap(const QVariantMap &map);
-};
-
 class ListModel : public QAbstractListModel
 {
     Q_OBJECT
+    Q_PROPERTY(QStringList roleNames WRITE setRoleNames)
 public:
     explicit ListModel(QObject *parent = nullptr);
 
+    void setRoleNames(const QStringList &rs);
     QHash<int,QByteArray> roleNames() const override;
+
     int rowCount(const QModelIndex &parent=QModelIndex{}) const override;
     QVariant data(const QModelIndex &index, int role=Qt::DisplayRole) const override;
 
@@ -51,8 +25,12 @@ public:
     Q_INVOKABLE void move(int from, int to);
     Q_INVOKABLE void clear();
 
+protected:
+    int roleFromName(const QString &name) const;
+
 private:
-    QList<ListElement> m_datas;
+    QList<QHash<int,QVariant>> m_datas;
+    QHash<int,QByteArray> m_roleNames;
 };
 
 #endif // LISTMODEL_H
