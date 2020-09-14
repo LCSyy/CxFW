@@ -34,14 +34,16 @@ if(ANDROID)
       main.cpp
       qml.qrc
       ${TS_FILES}
-      listmodel.cpp
+      listmodel.cpp listmodel.h
+      theme.cpp theme.h
     )
 else()
     add_executable(writer
       main.cpp
       qml.qrc
       ${TS_FILES}
-      listmodel.cpp
+      listmodel.cpp listmodel.h
+      theme.cpp theme.h
     )
 endif()
 

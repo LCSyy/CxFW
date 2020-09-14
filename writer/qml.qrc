@@ -4,5 +4,6 @@
         <file>qml/Button.qml</file>
         <file>qml/TextField.qml</file>
         <file>js/app.js</file>
+        <file>qml/Popup.qml</file>
     </qresource>
 </RCC>

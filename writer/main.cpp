@@ -2,9 +2,12 @@
 #include <QQmlApplicationEngine>
 #include <QDebug>
 
+#include "theme.h"
 #include "listmodel.h"
 
+static void registerSingletonType();
 static void registerTypes();
+static QJSValue themeSingleton(QQmlEngine *e, QJSEngine *s);
 
 int main(int argc, char *argv[])
 {
@@ -13,10 +16,10 @@ int main(int argc, char *argv[])
 
     QGuiApplication app(argc, argv);
 
+    registerSingletonType();
     registerTypes();
 
     QQmlApplicationEngine engine;
-    qDebug() << engine.offlineStoragePath();
     const QUrl url(QStringLiteral("qrc:/main.qml"));
     QObject::connect(&engine, &QQmlApplicationEngine::objectCreated,
                      &app, [url](QObject *obj, const QUrl &objUrl) {
@@ -28,7 +31,16 @@ int main(int argc, char *argv[])
     return app.exec();
 }
 
+static void registerSingletonType() {
+    qmlRegisterSingletonType("App.Type",1,0,"Theme",themeSingleton);
+}
+
 static void registerTypes() {
     qmlRegisterType<ListModel>("App.Type",1,0,"ListModel");
-    // qmlRegisterType<ListElement>("App.Type",1,0, "ListElement");
+}
+
+static QJSValue themeSingleton(QQmlEngine *e, QJSEngine *s)
+{
+    Q_UNUSED(e)
+    return s->newQObject(new Theme(s));
 }

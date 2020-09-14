@@ -27,6 +27,15 @@ function isEmptyRow(row) {
     // ...
 }
 
+// getFirstLine 获取输入文本中的第一行内容
+function getFirstLine(txt) {
+    if (txt.length === 0) { return ''; }
+    const lineEndIdx = txt.indexOf('\n');
+    if (lineEndIdx === -1) {
+        return txt;
+    }
+    return txt.substring(0,lineEndIdx);
+}
 
 // uuid 根据当前时间生成uuid
 function uuid(date) {

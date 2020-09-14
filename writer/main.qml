@@ -14,7 +14,6 @@ ApplicationWindow {
     height: 520
     visible: true
     title: qsTr("writer")
-    color: theme.bg_normal_color
 
     Component.onCompleted: {
         Js.initDB();
@@ -29,26 +28,16 @@ ApplicationWindow {
         return txt.substring(0,lineEndIdx);
     }
 
-    QtObject {
-        id: theme
-        readonly property int base_margin: 8
-        readonly property int content_row_height: 25
-        readonly property int toolbar_height: 40
-        readonly property string bg_depth_color: '#222'
-        readonly property string bg_normal_color: '#aaa'
-        readonly property string bg_light_color: '#E2E2E2'
-        readonly property string bg_lighter_color: '#F8F8F8'
-    }
-
     header: Rectangle {
         width: parent.width
-        height: theme.toolbar_height
+        height: AppType.Theme.toolBarHeight
+        color: AppType.Theme.bgNormalColor
 
         RowLayout {
             anchors.fill: parent
-            anchors.leftMargin: 8
-            anchors.rightMargin: 8
-            anchors.bottomMargin: 8
+            anchors.leftMargin: AppType.Theme.baseMargin
+            anchors.rightMargin: AppType.Theme.baseMargin
+            anchors.bottomMargin: 2
 
             App.Button {
                 text: qsTr('New')
@@ -77,8 +66,8 @@ ApplicationWindow {
         Rectangle {
             width: parent.width
             anchors.bottom: parent.bottom
-            height: 8
-            color: theme.bg_normal_color
+            height: 2
+            color: AppType.Theme.bgDeepColor
         }
     }
 
@@ -148,7 +137,7 @@ ApplicationWindow {
                     width: parent.width - 16
                     height: 1
                     x: 8
-                    color: theme.bg_normal_color
+                    color: AppType.Theme.bgNormalColor
                 }
             }
         }
@@ -162,7 +151,7 @@ ApplicationWindow {
             Rectangle {
                 width: parent.width
                 height: 25
-                color: theme.bg_normal_color
+                color: AppType.Theme.bgNormalColor
                 Text {
                     anchors.fill: parent
                     anchors.leftMargin: 8
@@ -219,7 +208,7 @@ ApplicationWindow {
         background: Rectangle {
             radius: 4
             border.width: 1
-            border.color: theme.bg_depth_color
+            border.color: AppType.Theme.bgDeepColor
         }
 
         function popup() {
@@ -257,11 +246,12 @@ ApplicationWindow {
         }
 
         Page {
+            id: contentPage
             anchors.fill: parent
             header: Rectangle {
                 width: parent.width
                 height: 40
-                color: theme.bg_lighter_color
+                color: AppType.Theme.bgNormalColor
 
                 RowLayout {
                     anchors.fill: parent
@@ -313,6 +303,14 @@ ApplicationWindow {
                     }
 
                     App.Button {
+                        text: qsTr("Edit tags")
+                        onClicked: {
+                            var tagEditor = tagEditorComponent.createObject(contentPage)
+                            tagEditor.visible = true
+                        }
+                    }
+
+                    App.Button {
                         text: qsTr("Remove")
                         onClicked: {
                             Js.removeData("DELETE FROM blog WHERE id=?",meta.id);
@@ -335,19 +333,23 @@ ApplicationWindow {
 
             ColumnLayout {
                 anchors.fill: parent
-                anchors.margins: theme.base_margin
-                GridLayout {
+                anchors.margins: AppType.Theme.baseMargin
+                Flow {
                     Layout.fillWidth: true
-                    columns: 10
-                    columnSpacing: theme.base_margin
-                    rowSpacing: theme.base_margin
+                    spacing: AppType.Theme.baseMargin
 
                     Repeater {
-                        model: ["rust","story","+"]
+                        model: 5
                         delegate: App.Button {
                             text: modelData
                         }
                     }
+                }
+
+                Rectangle {
+                    Layout.fillWidth: true
+                    height: 1
+                    color: AppType.Theme.bgDeepColor
                 }
 
                 ScrollView {
@@ -375,7 +377,7 @@ ApplicationWindow {
         background: Rectangle {
             radius: 4
             border.width: 1
-            border.color: theme.bg_depth_color
+            border.color: AppType.Theme.bgDeepColor
         }
 
         Page {
@@ -384,7 +386,7 @@ ApplicationWindow {
             header: Rectangle {
                 width: parent.width
                 height: 40
-                color: theme.bg_lighter_color
+                color: AppType.Theme.bgNormalColor
 
                 RowLayout {
                     anchors.fill: parent
@@ -442,7 +444,7 @@ ApplicationWindow {
                 }
 
                 delegate:  Item {
-                    width: parent.width
+                    width: parent === null ? 0 : parent.width
                     height: 25
 
                     Text {
@@ -472,7 +474,7 @@ ApplicationWindow {
                         width: parent.width - 16
                         height: 1
                         x: 8
-                        color: theme.bg_normal_color
+                        color: AppType.Theme.bgNormalColor
                     }
                 }
             }
@@ -492,7 +494,14 @@ ApplicationWindow {
             background: Rectangle {
                 radius: 4
                 border.width: 1
-                border.color: theme.bg_depth_color
+                border.color: AppType.Theme.bgDeepColor
+            }
+            onAccepted: {
+                ok(tagName.text,tagTitle.text);
+                tagEdit.destroy();
+            }
+            onRejected: {
+                tagEdit.destroy();
             }
 
             signal ok(string tagName, string tagTitle);
@@ -514,8 +523,8 @@ ApplicationWindow {
 
                 header: Rectangle {
                     width: parent.width
-                    height: 40
-                    color: theme.bg_lighter_color
+                    height: AppType.Theme.toolBarHeight
+                    color: AppType.Theme.bgLightColor
 
                     RowLayout {
                         anchors.fill: parent
@@ -530,7 +539,7 @@ ApplicationWindow {
                                 } else {
                                     Js.updateRow("UPDATE tags SET name=?,title=? WHERE id=?",["name","title","id"],{name:tagName.text, title:tagTitle.text,id:meta.id});
                                 }
-                                ok(tagName.text, tagTitle.text);
+                                ok(tagName.text,tagTitle.text);
                             }
                         }
 
@@ -559,13 +568,55 @@ ApplicationWindow {
                 Grid {
                     anchors.centerIn: parent
                     columns: 2
-                    columnSpacing: theme.base_margin
-                    rowSpacing: theme.base_margin
+                    columnSpacing: AppType.Theme.baseMargin
+                    rowSpacing: AppType.Theme.baseMargin
                     Label { text: qsTr("Name") }
                     TextField { id: tagName }
                     Label { text: qsTr("Text") }
                     TextField { id: tagTitle }
                 }
+            }
+        }
+    }
+
+    Component {
+        id: tagEditorComponent
+        App.Popup {
+            id: popup
+
+            onVisibleChanged: {
+                if (visible === false)
+                    popup.destroy();
+            }
+
+            header: Rectangle {
+                width: parent.width
+                height: AppType.Theme.toolBarHeight
+                color: AppType.Theme.bgNormalColor
+                RowLayout {
+                    anchors.fill: parent
+                    anchors.leftMargin: 8
+                    anchors.rightMargin: 8
+
+                    App.Button {
+                        text: qsTr("Ok")
+                    }
+
+                    Item {
+                        Layout.fillWidth: true
+                    }
+
+                    App.Button {
+                        text: qsTr("Close")
+                        onClicked: {
+                            popup.visible = false;
+                        }
+                    }
+                }
+            }
+
+            body: Text {
+                text: "Hello"
             }
         }
     }
