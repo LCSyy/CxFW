@@ -5,5 +5,6 @@
         <file>qml/TextField.qml</file>
         <file>js/app.js</file>
         <file>qml/Popup.qml</file>
+        <file>qml/ToolBar.qml</file>
     </qresource>
 </RCC>

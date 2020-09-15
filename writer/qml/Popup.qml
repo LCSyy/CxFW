@@ -14,10 +14,17 @@ Controls.Popup {
         border.color: AppType.Theme.bgLightColor
     }
 
+    property bool destroyOnHide: true
     property alias header: page.header
     property alias footer: page.footer
     property alias body: page.contentItem
 
+    onVisibleChanged: {
+        if (!visible && destroyOnHide) {
+            console.log("Destroy on hide!");
+            destroy();
+        }
+    }
     Controls.Page {
         id: page
         anchors.fill: parent

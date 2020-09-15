@@ -19,20 +19,7 @@ ApplicationWindow {
         Js.initDB();
     }
 
-    function getFirstLine(txt) {
-        if (txt.length === 0) { return ''; }
-        const lineEndIdx = txt.indexOf('\n');
-        if (lineEndIdx === -1) {
-            return txt;
-        }
-        return txt.substring(0,lineEndIdx);
-    }
-
-    header: Rectangle {
-        width: parent.width
-        height: AppType.Theme.toolBarHeight
-        color: AppType.Theme.bgNormalColor
-
+    header: App.ToolBar {
         RowLayout {
             anchors.fill: parent
             anchors.leftMargin: AppType.Theme.baseMargin
@@ -53,6 +40,17 @@ ApplicationWindow {
                 }
             }
 
+            App.Button {
+                text: qsTr("popup")
+                onClicked: {
+                    var component = Qt.createComponent("qrc:/qml/Popup.qml")
+                    if (component.status === Component.Ready) {
+                        var pp = component.createObject(app)
+                        pp.visible = true
+                    }
+                }
+            }
+
             Item {
                 Layout.fillWidth: true
             }
@@ -66,7 +64,7 @@ ApplicationWindow {
         Rectangle {
             width: parent.width
             anchors.bottom: parent.bottom
-            height: 2
+            height:1
             color: AppType.Theme.bgDeepColor
         }
     }
@@ -248,11 +246,7 @@ ApplicationWindow {
         Page {
             id: contentPage
             anchors.fill: parent
-            header: Rectangle {
-                width: parent.width
-                height: 40
-                color: AppType.Theme.bgNormalColor
-
+            header: App.ToolBar {
                 RowLayout {
                     anchors.fill: parent
                     anchors.leftMargin: 8
@@ -268,7 +262,7 @@ ApplicationWindow {
                             var obj = {
                                 "id": meta.id,
                                 "uuid": meta.uuid || '',
-                                "title": app.getFirstLine(textArea.text),
+                                "title": Js.getFirstLine(textArea.text),
                                 "content": textArea.text,
                                 "tags": null,
                                 "create_dt": null,
@@ -305,8 +299,14 @@ ApplicationWindow {
                     App.Button {
                         text: qsTr("Edit tags")
                         onClicked: {
-                            var tagEditor = tagEditorComponent.createObject(contentPage)
-                            tagEditor.visible = true
+                            var tagEditor = contentTagEditComponent.createObject(contentPage);
+                            var tags = [];
+                            for (var i = 0; i < tagRepeater.model.count(); ++i) {
+                                tags.push(tagRepeater.model.get(i));
+                            }
+                            contentTagEditorCon.target = tagEditor;
+                            tagEditor.visible = true;
+                            tagEditor.setChecked(tags);
                         }
                     }
 
@@ -331,6 +331,18 @@ ApplicationWindow {
                 }
             }
 
+            Connections {
+                id: contentTagEditorCon
+                target: null
+
+                function onOk(tags) {
+                    tagRepeater.model.clear();
+                    for(var i = 0; i < tags.length; ++i){
+                        tagRepeater.model.append(tags[i]);
+                    }
+                }
+
+            }
             ColumnLayout {
                 anchors.fill: parent
                 anchors.margins: AppType.Theme.baseMargin
@@ -339,9 +351,12 @@ ApplicationWindow {
                     spacing: AppType.Theme.baseMargin
 
                     Repeater {
-                        model: 5
+                        id: tagRepeater
+                        model: AppType.ListModel {
+                            roleNames: ["id","name","title"]
+                        }
                         delegate: App.Button {
-                            text: modelData
+                            text: model.title
                         }
                     }
                 }
@@ -383,11 +398,7 @@ ApplicationWindow {
         Page {
             id: tagsPage
             anchors.fill: parent
-            header: Rectangle {
-                width: parent.width
-                height: 40
-                color: AppType.Theme.bgNormalColor
-
+            header: App.ToolBar {
                 RowLayout {
                     anchors.fill: parent
                     anchors.leftMargin: 8
@@ -521,11 +532,7 @@ ApplicationWindow {
             Page {
                 anchors.fill: parent
 
-                header: Rectangle {
-                    width: parent.width
-                    height: AppType.Theme.toolBarHeight
-                    color: AppType.Theme.bgLightColor
-
+                header: App.ToolBar {
                     RowLayout {
                         anchors.fill: parent
                         anchors.leftMargin: 8
@@ -580,19 +587,31 @@ ApplicationWindow {
     }
 
     Component {
-        id: tagEditorComponent
+        id: contentTagEditComponent
         App.Popup {
             id: popup
 
-            onVisibleChanged: {
-                if (visible === false)
-                    popup.destroy();
+            signal ok(var tags)
+
+            function setChecked(tags) {
+                var existTags = tags.map((item)=>{return item.id; });
+                for (var i = 0; i < listView.model.count(); ++i) {
+                    const item = listView.model.get(i);
+                    if (item !== null) {
+                        const itemId = item.id;
+                        const idx = existTags.indexOf(itemId);
+                        if (idx !== -1) {
+                            var delegate = listView.itemAtIndex(i);
+                            if (delegate !== null) {
+                                delegate.checkState = Qt.Checked;
+                            }
+                            existTags.splice(idx,1);
+                        }
+                    }
+                }
             }
 
-            header: Rectangle {
-                width: parent.width
-                height: AppType.Theme.toolBarHeight
-                color: AppType.Theme.bgNormalColor
+            header: App.ToolBar {
                 RowLayout {
                     anchors.fill: parent
                     anchors.leftMargin: 8
@@ -600,6 +619,10 @@ ApplicationWindow {
 
                     App.Button {
                         text: qsTr("Ok")
+                        onClicked: {
+                            const checkedTags = listView.checkedTags();
+                            popup.ok(checkedTags);
+                        }
                     }
 
                     Item {
@@ -609,14 +632,45 @@ ApplicationWindow {
                     App.Button {
                         text: qsTr("Close")
                         onClicked: {
-                            popup.visible = false;
+                            popup.close();
                         }
                     }
                 }
             }
 
-            body: Text {
-                text: "Hello"
+            body: ListView {
+                id: listView
+                clip: true
+
+                function checkedTags() {
+                    var checked = [];
+                    for (var i = 0; i < count; ++i) {
+                        const item = itemAtIndex(i);
+                        if (item !== null && item.checkState === Qt.Checked) {
+                            const obj = model.get(i);
+                            if (obj !== null) {
+                                checked.push({id:obj.id, name: obj.name, title: obj.title });
+                            }
+                        }
+                    }
+                    return checked;
+                }
+
+                model: AppType.ListModel {
+                    roleNames: ["id","name","title","check"]
+                    Component.onCompleted: {
+                        const tags = Js.getData("SELECT * FROM tags;")
+                        for (var i = 0; i < tags.length; ++i) {
+                            var tag = tags[i];
+                            tag["check"] = false;
+                            append(tag);
+                        }
+                    }
+                }
+                delegate: CheckBox {
+                    checkState: model.check ? Qt.checked : Qt.Unchecked
+                    text: model.title
+                }
             }
         }
     }
