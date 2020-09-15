@@ -59,6 +59,14 @@ ApplicationWindow {
                 visible: false
                 placeholderText: qsTr('Search')
             }
+
+            App.Button {
+                text: qsTr("Refresh")
+                onClicked: {
+                    categoriesModel.update();
+                    listModel.update();
+                }
+            }
         }
 
         Rectangle {
@@ -88,9 +96,17 @@ ApplicationWindow {
                     update();
                 }
 
-                function update() {
+                function update(filters) {
                     clear();
-                    const datas = Js.getData("SELECT * FROM blog ORDER BY update_dt DESC;");
+                    var sql = "SELECT * FROM blog ORDER BY update_dt DESC;";
+                    var datas = [];
+                    if (filters === undefined || filters.length === 0) {
+                        datas = Js.getData(sql);
+                    } else {
+                        sql = "SELECT blog.id,uuid,title,content,create_dt,update_dt FROM blog, json_each(blog.tags) WHERE json_each.value IN (?)";
+                        datas = Js.getData(sql,filters.join(","));
+                    }
+
                     for (var i in datas) {
                         var row = datas[i];
                         this.append(row);
@@ -163,26 +179,39 @@ ApplicationWindow {
                 height: parent.height - 25
                 clip: true
 
-                model: [
-                    'notes',
-                    'resources',
-                    'timer',
-                    'works',
-                    'miscs'
-                ]
+                model: AppType.ListModel {
+                    id: categoriesModel
+                    roleNames: ["id","name","title"]
+
+                    Component.onCompleted: update()
+
+                    function update() {
+                        clear();
+                        this.append({id:0,name:"_all_",title:"All"});
+                        const datas = Js.getData("SELECT * FROM tags ORDER BY id ASC;");
+                        for (var i in datas) {
+                            this.append(datas[i]);
+                        }
+                    }
+                }
 
                 delegate: Item {
                     width: parent.width
-                    height: 15
+                    height: AppType.Theme.contentHeight
 
                     Text {
                         anchors.fill: parent
                         anchors.leftMargin: 8
                         verticalAlignment: Qt.AlignVCenter
-                        text: '<a href="/cate">' + modelData + '</a>'
+                        text: '<a href="?">'.replace("?",model.name) + model.title + '</a>'
 
                         onLinkActivated: {
                             console.log(link)
+                            if (link === "_all_") {
+                                listModel.update();
+                            } else {
+                                listModel.update([link]);
+                            }
                         }
                     }
                 }
@@ -211,12 +240,15 @@ ApplicationWindow {
 
         function popup() {
             meta.reset();
+            tagRepeater.model.clear();
+            textArea.text = '';
             this.open();
         }
 
         function hide() {
             this.close();
             meta.reset();
+            tagRepeater.model.clear();
             textArea.text = '';
         }
 
@@ -227,6 +259,11 @@ ApplicationWindow {
                 meta.uuid = data.uuid;
                 meta.id = data.id;
                 textArea.text = data.content;
+            }
+
+            const tags = Js.getData("select * from tags where name in (select value from blog, json_each(blog.tags) where blog.id = ?);", data.id);
+            for (var i = 0; i < tags.length; ++i) {
+                tagRepeater.model.append(tags[i]);
             }
         }
 
@@ -257,6 +294,12 @@ ApplicationWindow {
                         onClicked: {
                             if (textArea.text.trim() === '') { return; }
 
+                            var tags = [];
+                            for (var i = 0; i < tagRepeater.model.count(); ++i) {
+                                const tagName = tagRepeater.model.get(i).name;
+                                tags.push('"' + tagName + '"');
+                            }
+
                             var nowDate = new Date();
                             const dt = nowDate.format('yyyy-MM-dd hh:mm:ss');
                             var obj = {
@@ -264,7 +307,7 @@ ApplicationWindow {
                                 "uuid": meta.uuid || '',
                                 "title": Js.getFirstLine(textArea.text),
                                 "content": textArea.text,
-                                "tags": null,
+                                "tags": "[" + tags.join(",") + "]",
                                 "create_dt": null,
                                 "update_dt": dt
                             };
@@ -553,7 +596,6 @@ ApplicationWindow {
                         App.Button {
                             text: qsTr("Remove")
                             onClicked: {
-                                console.log(meta.id);
                                 Js.removeData("DELETE FROM tags WHERE id=?",meta.id);
                                 meta.id = 0;
                                 tagModel.update();
@@ -601,10 +643,7 @@ ApplicationWindow {
                         const itemId = item.id;
                         const idx = existTags.indexOf(itemId);
                         if (idx !== -1) {
-                            var delegate = listView.itemAtIndex(i);
-                            if (delegate !== null) {
-                                delegate.checkState = Qt.Checked;
-                            }
+                            listView.model.set(i,"check",true);
                             existTags.splice(idx,1);
                         }
                     }
@@ -668,7 +707,7 @@ ApplicationWindow {
                     }
                 }
                 delegate: CheckBox {
-                    checkState: model.check ? Qt.checked : Qt.Unchecked
+                    checkState: model.check ? Qt.Checked : Qt.Unchecked
                     text: model.title
                 }
             }

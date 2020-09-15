@@ -108,12 +108,17 @@ function removeData(sql, id) {
 }
 
 // getData 获取所有数据
-function getData(sql) {
+function getData(sql,params) {
     console.log("[SQL] " + sql);
     var d = db();
     var datas = [];
     d.readTransaction(function(tx){
-        const result = tx.executeSql(sql);
+        var result = null;
+        if (params === undefined) {
+            result = tx.executeSql(sql);
+        } else {
+            result = tx.executeSql(sql,params);
+        }
         for (var i = 0; i < result.rows.length; ++i) {
             datas.push(result.rows.item(i));
         }

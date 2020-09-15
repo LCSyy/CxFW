@@ -20,6 +20,7 @@ public:
     Q_INVOKABLE void append(const QVariantMap &ele);
     Q_INVOKABLE int count() const;
     Q_INVOKABLE QVariant get(int idx) const;
+    Q_INVOKABLE void set(int idx, const QString &prop, const QVariant &val);
     Q_INVOKABLE void insert(int idx, const QVariantMap &map);
     Q_INVOKABLE void move(int from, int to);
     Q_INVOKABLE void clear();

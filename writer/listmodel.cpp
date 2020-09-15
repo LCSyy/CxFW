@@ -69,6 +69,17 @@ QVariant ListModel::get(int idx) const
     return ele;
 }
 
+void ListModel::set(int idx, const QString &prop, const QVariant &val)
+{
+    QVariantMap ele;
+    if (idx < 0 || count() <= idx) { return; }
+
+    QHash<int,QVariant> &e = m_datas[idx];
+    const int role = roleFromName(prop);
+    if (role == 0) { return; }
+    e[role] = val;
+}
+
 void ListModel::insert(int idx, const QVariantMap &map)
 {
     beginInsertRows(QModelIndex(), idx, idx);
