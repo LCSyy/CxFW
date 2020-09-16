@@ -21,7 +21,6 @@ Controls.Popup {
 
     onVisibleChanged: {
         if (!visible && destroyOnHide) {
-            console.log("Destroy on hide!");
             destroy();
         }
     }

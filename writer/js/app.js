@@ -51,12 +51,19 @@ function db() {
 function initDB() {
     var d = db();
     d.transaction(function(tx){
-        tx.executeSql('CREATE TABLE IF NOT EXISTS blog (id INTEGER PRIMARY KEY ASC, uuid TEXT NOT NULL UNIQUE, title TEXT, content TEXT, tags TEXT, create_dt TEXT, update_dt TEXT);');
+        tx.executeSql('CREATE TABLE IF NOT EXISTS blog (' +
+                      'id INTEGER PRIMARY KEY ASC,'+
+                      'uuid TEXT NOT NULL UNIQUE,'+
+                      'title TEXT, content TEXT,'+
+                      'tags TEXT, '+
+                      'status TEXT,'+
+                      'create_dt TEXT,'+
+                      'update_dt TEXT)');
         tx.executeSql('CREATE TABLE IF NOT EXISTS tags (id INTEGER PRIMARY KEY ASC, name TEXT NOT NULL UNIQUE, title TEXT);');
     });
 
-    // d.changeVersion("0.0.5","0.0.6",function(tx){
-    //     tx.executeSql("ALTER TABLE blog RENAME udpate_dt TO update_dt;");
+    // d.changeVersion("0.0.6","0.0.5",function(tx){
+        // ...
     // });
 }
 

@@ -29,24 +29,28 @@ ApplicationWindow {
             App.Button {
                 text: qsTr('New')
                 onClicked: {
-                    writer.popup()
+                    var pp = contentComponent.createObject(app);
+                    pp.open();
                 }
             }
 
             App.Button {
                 text: qsTr("tags")
                 onClicked:  {
-                    tags.open()
+                    // tags.open()
+                    var pp = tagsComponent.createObject(app);
+                    tagNewConnection.target = pp;
+                    pp.open();
                 }
             }
 
             App.Button {
-                text: qsTr("popup")
+                text: qsTr("trash")
                 onClicked: {
-                    var component = Qt.createComponent("qrc:/qml/Popup.qml")
+                    var component = Qt.createComponent("qrc:/qml/Popup.qml");
                     if (component.status === Component.Ready) {
-                        var pp = component.createObject(app)
-                        pp.visible = true
+                        var pp = component.createObject(app);
+                        pp.visible = true;
                     }
                 }
             }
@@ -77,6 +81,15 @@ ApplicationWindow {
         }
     }
 
+    Connections {
+        id: tagNewConnection
+        target: null
+
+        function onOk(tagName, tagTitle) {
+            categoriesModel.update();
+        }
+    }
+
     SplitView {
         anchors.fill: parent
         orientation: Qt.Horizontal
@@ -103,7 +116,9 @@ ApplicationWindow {
                     if (filters === undefined || filters.length === 0) {
                         datas = Js.getData(sql);
                     } else {
-                        sql = "SELECT blog.id,uuid,title,content,create_dt,update_dt FROM blog, json_each(blog.tags) WHERE json_each.value IN (?)";
+                        sql = "SELECT blog.id,uuid,title,content,create_dt,update_dt "+
+                              "FROM blog, json_each(blog.tags) "+
+                              "WHERE json_each.value IN (?) order by blog.update_dt DESC";
                         datas = Js.getData(sql,filters.join(","));
                     }
 
@@ -142,15 +157,16 @@ ApplicationWindow {
                     }
 
                     onLinkActivated: {
-                        writer.edit(link);
+                        var pp = contentComponent.createObject(app);
+                        pp.edit(link);
                     }
                 }
 
                 Rectangle {
                     anchors.bottom: parent.bottom
-                    width: parent.width - 16
+                    width: parent.width - AppType.Theme.baseMargin
                     height: 1
-                    x: 8
+                    x: AppType.Theme.baseMargin
                     color: AppType.Theme.bgNormalColor
                 }
             }
@@ -196,7 +212,7 @@ ApplicationWindow {
                 }
 
                 delegate: Item {
-                    width: parent.width
+                    width: parent === null ? 0 : parent.width
                     height: AppType.Theme.contentHeight
 
                     Text {
@@ -206,7 +222,6 @@ ApplicationWindow {
                         text: '<a href="?">'.replace("?",model.name) + model.title + '</a>'
 
                         onLinkActivated: {
-                            console.log(link)
                             if (link === "_all_") {
                                 listModel.update();
                             } else {
@@ -215,74 +230,40 @@ ApplicationWindow {
                         }
                     }
                 }
+
+
             }
         }
     }
 
-    Popup {
-        id: writer
+    Component {
+        id: contentComponent
 
-        modal: true
-        anchors.centerIn: parent
-        padding: 8
-        implicitWidth: {
-            var dw = parent.width * 0.8;
-            if (dw > 640) { dw = 640; }
-            return dw;
-        }
-        implicitHeight: parent.height * 0.8
+        App.Popup {
+            id: popup
 
-        background: Rectangle {
-            radius: 4
-            border.width: 1
-            border.color: AppType.Theme.bgDeepColor
-        }
+            implicitWidth: {
+                var dw = parent.width * 0.8;
+                if (dw > 640) { dw = 640; }
+                return dw;
+            }
+            implicitHeight: parent.height * 0.8
 
-        function popup() {
-            meta.reset();
-            tagRepeater.model.clear();
-            textArea.text = '';
-            this.open();
-        }
+            function edit(uuid) {
+                const data = listModel.getData(uuid);
+                if (data !== null) {
+                    meta.uuid = data.uuid;
+                    meta.id = data.id;
+                    textArea.text = data.content;
+                }
 
-        function hide() {
-            this.close();
-            meta.reset();
-            tagRepeater.model.clear();
-            textArea.text = '';
-        }
-
-        function edit(uuid) {
-            popup();
-            const data = listModel.getData(uuid);
-            if (data !== null) {
-                meta.uuid = data.uuid;
-                meta.id = data.id;
-                textArea.text = data.content;
+                const tags = Js.getData("select * from tags where name in (select value from blog, json_each(blog.tags) where blog.id = ?);", data.id);
+                for (var i = 0; i < tags.length; ++i) {
+                    tagRepeater.model.append(tags[i]);
+                }
+                open();
             }
 
-            const tags = Js.getData("select * from tags where name in (select value from blog, json_each(blog.tags) where blog.id = ?);", data.id);
-            for (var i = 0; i < tags.length; ++i) {
-                tagRepeater.model.append(tags[i]);
-            }
-        }
-
-        QtObject {
-            id: meta
-            property int id: 0
-            property string uuid: ''
-            property bool changed: false
-
-            function reset() {
-                id = 0;
-                uuid = '';
-                changed = false;
-            }
-        }
-
-        Page {
-            id: contentPage
-            anchors.fill: parent
             header: App.ToolBar {
                 RowLayout {
                     anchors.fill: parent
@@ -342,7 +323,7 @@ ApplicationWindow {
                     App.Button {
                         text: qsTr("Edit tags")
                         onClicked: {
-                            var tagEditor = contentTagEditComponent.createObject(contentPage);
+                            var tagEditor = contentTagEditComponent.createObject(popup.contentItem);
                             var tags = [];
                             for (var i = 0; i < tagRepeater.model.count(); ++i) {
                                 tags.push(tagRepeater.model.get(i));
@@ -369,28 +350,15 @@ ApplicationWindow {
 
                     App.Button {
                         text: qsTr("Close")
-                        onClicked: writer.hide()
+                        onClicked: popup.close()
                     }
                 }
             }
 
-            Connections {
-                id: contentTagEditorCon
-                target: null
-
-                function onOk(tags) {
-                    tagRepeater.model.clear();
-                    for(var i = 0; i < tags.length; ++i){
-                        tagRepeater.model.append(tags[i]);
-                    }
-                }
-
-            }
-            ColumnLayout {
-                anchors.fill: parent
-                anchors.margins: AppType.Theme.baseMargin
+            body: ColumnLayout {
                 Flow {
                     Layout.fillWidth: true
+                    Layout.topMargin: AppType.Theme.baseMargin / 2
                     spacing: AppType.Theme.baseMargin
 
                     Repeater {
@@ -418,29 +386,48 @@ ApplicationWindow {
                     }
                 }
             }
+
+            QtObject {
+                id: meta
+                property int id: 0
+                property string uuid: ''
+                property bool changed: false
+
+                function reset() {
+                    id = 0;
+                    uuid = '';
+                    changed = false;
+                }
+            }
+
+            Connections {
+                id: contentTagEditorCon
+                target: null
+
+                function onOk(tags) {
+                    tagRepeater.model.clear();
+                    for(var i = 0; i < tags.length; ++i){
+                        tagRepeater.model.append(tags[i]);
+                    }
+                }
+            }
         }
     }
 
-    Popup {
-        id: tags
-        modal: true
-        anchors.centerIn: parent
-        padding: 8
-        implicitWidth: {
-            var dw = parent.width * 0.8;
-            if (dw > 640) { dw = 640; }
-            return dw;
-        }
-        implicitHeight: parent.height * 0.8
-        background: Rectangle {
-            radius: 4
-            border.width: 1
-            border.color: AppType.Theme.bgDeepColor
-        }
+    Component {
+        id: tagsComponent
 
-        Page {
-            id: tagsPage
-            anchors.fill: parent
+        App.Popup {
+            id: popup
+            implicitWidth: {
+                var dw = parent.width * 0.8;
+                if (dw > 640) { dw = 640; }
+                return dw;
+            }
+            implicitHeight: parent.height * 0.8
+
+            signal ok(string tagName, string tagTitle)
+
             header: App.ToolBar {
                 RowLayout {
                     anchors.fill: parent
@@ -450,9 +437,9 @@ ApplicationWindow {
                     App.Button {
                         text: qsTr("New")
                         onClicked: {
-                            var tag = tagEditor.createObject(tagsPage);
+                            var tag = tagEditComponent.createObject(popup.contentItem);
                             tagEditConn.target = tag;
-                            tag.visible = true;
+                            tag.open();
                         }
                     }
 
@@ -462,23 +449,14 @@ ApplicationWindow {
 
                     App.Button {
                         text: qsTr("Close")
-                        onClicked: tags.close()
+                        onClicked: popup.close()
                     }
                 }
             }
 
-            Connections {
-                id: tagEditConn
-                target: null
-
-                function onOk(tagName, tagTitle) {
-                    tagModel.update();
-                }
-            }
-
-            ListView {
+            body: ListView {
                 id: tagList
-                anchors.fill: parent
+                clip: true
 
                 model: AppType.ListModel {
                     id: tagModel
@@ -510,7 +488,7 @@ ApplicationWindow {
                         text: '<a href="%1">%2</a>'.replace("%1",model.name).replace("%2",model.title)
 
                         onLinkActivated: {
-                            var tag = tagEditor.createObject(tagsPage);
+                            var tag = tagEditComponent.createObject(popup.contentItem);
                             tagEditConn.target = tag;
                             var row = {};
                             for (var i = 0; i < tagModel.count(); ++i) {
@@ -532,11 +510,21 @@ ApplicationWindow {
                     }
                 }
             }
+
+            Connections {
+                id: tagEditConn
+                target: null
+
+                function onOk(tagName, tagTitle) {
+                    tagModel.update();
+                    popup.ok(tagName,tagTitle);
+                }
+            }
         }
     }
 
     Component {
-        id: tagEditor
+        id: tagEditComponent
 
         Dialog {
             id: tagEdit
@@ -598,7 +586,7 @@ ApplicationWindow {
                             onClicked: {
                                 Js.removeData("DELETE FROM tags WHERE id=?",meta.id);
                                 meta.id = 0;
-                                tagModel.update();
+                                ok("","")
                             }
                         }
 
@@ -630,6 +618,7 @@ ApplicationWindow {
 
     Component {
         id: contentTagEditComponent
+
         App.Popup {
             id: popup
 
@@ -713,4 +702,5 @@ ApplicationWindow {
             }
         }
     }
+
 }

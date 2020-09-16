@@ -20,6 +20,8 @@ int main(int argc, char *argv[])
     registerTypes();
 
     QQmlApplicationEngine engine;
+    engine.globalObject().setProperty("AppVersion","0.0.1");
+    engine.globalObject().setProperty("AppDbVersion","0.0.6");
     const QUrl url(QStringLiteral("qrc:/main.qml"));
     QObject::connect(&engine, &QQmlApplicationEngine::objectCreated,
                      &app, [url](QObject *obj, const QUrl &objUrl) {
