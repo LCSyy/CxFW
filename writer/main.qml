@@ -9,6 +9,13 @@ import App.Type 1.0 as AppType
 import "qml" as App
 import "js/app.js" as Js
 
+// status:
+//   trash
+//   traft
+//   release
+//   protect
+//   ...
+
 ApplicationWindow {
     id: app
     width: 800
@@ -104,7 +111,7 @@ ApplicationWindow {
 
             model: AppType.ListModel {
                 id: listModel
-                roleNames: ["id","uuid","title","content","create_dt","update_dt"]
+                roleNames: ["id","uuid","title","content","create_dt","update_dt","status"]
 
                 Component.onCompleted: {
                     update();
@@ -112,14 +119,14 @@ ApplicationWindow {
 
                 function update(filters) {
                     clear();
-                    var sql = "SELECT * FROM blog ORDER BY update_dt DESC;";
+                    var sql = "SELECT * FROM blog WHERE status = 'release' ORDER BY update_dt DESC;";
                     var datas = [];
                     if (filters === undefined || filters.length === 0) {
                         datas = Js.getData(sql);
                     } else {
-                        sql = "SELECT blog.id,uuid,title,content,create_dt,update_dt "+
+                        sql = "SELECT blog.id,uuid,title,content,create_dt,update_dt,status "+
                               "FROM blog, json_each(blog.tags) "+
-                              "WHERE json_each.value IN (?) order by blog.update_dt DESC";
+                              "WHERE blog.status = 'release' AND json_each.value IN (?) order by blog.update_dt DESC";
                         datas = Js.getData(sql,filters.join(","));
                     }
 
@@ -291,7 +298,8 @@ ApplicationWindow {
                                 "content": textArea.text,
                                 "tags": "[" + tags.join(",") + "]",
                                 "create_dt": null,
-                                "update_dt": dt
+                                "update_dt": dt,
+                                "status": "release"
                             };
 
                             if (meta.uuid !== '') {
@@ -312,9 +320,9 @@ ApplicationWindow {
                                 obj['uuid'] = meta.uuid;
                                 obj['create_dt'] = dt;
                                 obj["id"] = null;
-                                meta.id = Js.insertRow("INSERT INTO blog(uuid,title,content,tags,create_dt,update_dt) VALUES(?,?,?,?,?,?)",["uuid","title","content","tags","create_dt","update_dt"],obj);
+                                meta.id = Js.insertRow("INSERT INTO blog(uuid,title,content,tags,create_dt,update_dt,status) VALUES(?,?,?,?,?,?,?)",["uuid","title","content","tags","create_dt","update_dt","status"],obj);
                             } else {
-                                Js.updateRow("UPDATE blog SET title=?,content=?,tags=?,update_dt=? WHERE id=?;",["title","content","tags","update_dt","id"],obj);
+                                Js.updateRow("UPDATE blog SET title=?,content=?,tags=?,update_dt=?,status=? WHERE id=?;",["title","content","tags","update_dt","status","id"],obj);
                             }
 
                             listModel.update();
@@ -338,7 +346,7 @@ ApplicationWindow {
                     App.Button {
                         text: qsTr("Remove")
                         onClicked: {
-                            Js.removeData("DELETE FROM blog WHERE id=?",meta.id);
+                            Js.removeData("UPDATE blog SET status = 'trash' WHERE id = ?",meta.id);
                             meta.id = 0;
                             meta.uuid = "";
                             listModel.update();

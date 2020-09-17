@@ -43,7 +43,7 @@ function uuid(date) {
 
 // db 返回数据库对象
 function db() {
-    return LocalStorage.openDatabaseSync("writer.db","","storage",1000000);
+    return LocalStorage.openDatabaseSync("writer.db",DBVersion,"storage",1000000);
 }
 
 // initDB 应用启动时尝试初始化数据库
@@ -61,9 +61,18 @@ function initDB() {
         tx.executeSql('CREATE TABLE IF NOT EXISTS tags (id INTEGER PRIMARY KEY ASC, name TEXT NOT NULL UNIQUE, title TEXT);');
     });
 
-    // d.changeVersion("0.0.6","0.0.5",function(tx){
-        // ...
-    // });
+    const newVersion = "0.0.3";
+    if(newVersion !== DBVersion) {
+        d.changeVersion(DBVersion, newVersion,function(tx){
+            console.log("upgrade db ...");
+            if (DBVersion === "0.0.1") {
+                tx.executeSql("ALTER TABLE blog ADD COLUMN status TEXT NULL;");
+            } else if (DBVersion === "0.0.2") {
+                tx.executeSql("UPDATE blog SET status = 'release';");
+            }
+            DBVersion = newVersion;
+        });
+    }
 }
 
 // makeRow
