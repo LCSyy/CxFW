@@ -1,4 +1,3 @@
-.import QtQuick.LocalStorage 2.15 as DB
 
 // format 格式化时间
 Date.prototype.format = function(format) {
@@ -44,7 +43,7 @@ function uuid(date) {
 
 // db 返回数据库对象
 function db() {
-    return DB.LocalStorage.openDatabaseSync("writer.db","","storage",1000000);
+    return LocalStorage.openDatabaseSync("writer.db","","storage",1000000);
 }
 
 // initDB 应用启动时尝试初始化数据库

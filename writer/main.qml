@@ -3,6 +3,7 @@ import QtQuick 2.15
 import QtQuick.Window 2.15
 import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.15
+import QtQuick.LocalStorage 2.15
 
 import App.Type 1.0 as AppType
 import "qml" as App
@@ -164,7 +165,7 @@ ApplicationWindow {
 
                 Rectangle {
                     anchors.bottom: parent.bottom
-                    width: parent.width - AppType.Theme.baseMargin
+                    width: parent.width - AppType.Theme.baseMargin * 2
                     height: 1
                     x: AppType.Theme.baseMargin
                     color: AppType.Theme.bgNormalColor
