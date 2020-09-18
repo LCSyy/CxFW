@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Installer>
+    <Name>cxfw</Name>
+    <Version>0.0.1</Version>
+    <Title>cxfw</Title>
+    <Publisher>lcs</Publisher>
+    <StartMenuDir>Lcs App</StartMenuDir>
+    <TargetDir>@HomeDir@/lcsapp</TargetDir>
+</Installer>
+

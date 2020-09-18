@@ -14,6 +14,8 @@ static QJSValue themeSingleton(QQmlEngine *e, QJSEngine *s);
 int main(int argc, char *argv[])
 {
     QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
+    QCoreApplication::setOrganizationName("Lcs App");
+    QCoreApplication::setOrganizationDomain("cxfw.lcs");
     QCoreApplication::setApplicationName("writer");
 
     QGuiApplication app(argc, argv);

@@ -4,6 +4,7 @@ import QtQuick.Window 2.15
 import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.15
 import QtQuick.LocalStorage 2.15
+import Qt.labs.settings 1.1
 
 import App.Type 1.0 as AppType
 import "qml" as App
@@ -58,8 +59,16 @@ ApplicationWindow {
                     var component = Qt.createComponent("qrc:/qml/Popup.qml");
                     if (component.status === Component.Ready) {
                         var pp = component.createObject(app);
-                        pp.visible = true;
+                        pp.open();
                     }
+                }
+            }
+
+            App.Button {
+                text: qsTr("Settings")
+                onClicked: {
+                    var pp = settingsComponent.createObject(app)
+                    pp.open();
                 }
             }
 
@@ -87,6 +96,11 @@ ApplicationWindow {
             height:1
             color: AppType.Theme.bgDeepColor
         }
+    }
+
+    Settings {
+        id: appSettings
+        property bool contentLineWrap: true
     }
 
     Connections {
@@ -392,6 +406,7 @@ ApplicationWindow {
                     Layout.fillHeight: true
                     TextArea {
                         id: textArea
+                        wrapMode: appSettings.contentLineWrap === true ? TextArea.WrapAnywhere : TextArea.NoWrap
                     }
                 }
             }
@@ -712,4 +727,71 @@ ApplicationWindow {
         }
     }
 
+    Component {
+        id: settingsComponent
+
+        App.Popup {
+            id: popup
+            implicitWidth: {
+                var dw = parent.width * 0.8;
+                if (dw > 640) { dw = 640; }
+                return dw;
+            }
+            implicitHeight: parent.height * 0.8
+
+            header: App.ToolBar {
+                RowLayout {
+                    anchors.fill: parent
+                    anchors.leftMargin: AppType.Theme.baseMargin
+                    anchors.rightMargin: AppType.Theme.baseMargin
+
+                    App.Button {
+                        text: qsTr("Save")
+                        onClicked: {}
+                    }
+
+                    Item {
+                        Layout.fillWidth: true
+                    }
+
+                    App.Button {
+                        text: qsTr("Cancel")
+                        onClicked: popup.close()
+                    }
+                }
+            }
+
+            body: GridLayout {
+                columns: 2
+                columnSpacing: AppType.Theme.baseMargin
+                rowSpacing: AppType.Theme.baseMargin
+
+                Label {
+                    Layout.fillWidth: true
+                    Layout.margins: AppType.Theme.baseMargin
+                    Layout.columnSpan: 2
+                    horizontalAlignment: Qt.AlignHCenter
+                    text: qsTr("Content Editor")
+                    font.pointSize: app.font.pointSize + 4
+                    font.bold: true
+                }
+
+                CheckBox {
+                    Layout.columnSpan: 2
+                    text: qsTr("Line Wrap")
+                    onCheckStateChanged: {
+                        appSettings.contentLineWrap = (checkState === Qt.Checked);
+                    }
+                    Component.onCompleted: {
+                        checkState = appSettings.contentLineWrap === true ? Qt.Checked : Qt.Unchecked;
+                    }
+                }
+
+                Item {
+                    Layout.fillHeight: true
+                    Layout.columnSpan: 2
+                }
+            }
+        }
+    }
 }

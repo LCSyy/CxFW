@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Package>
-    <Name>lcs.writer.app</Name>
-    <DisplayName>writer</DisplayName>
-    <Description>The writer app</Description>
+    <DisplayName>base</DisplayName>
+    <Description>The cxfw base</Description>
     <Version>0.0.1</Version>
-    <ReleaseDate>2020-09-17</ReleaseDate>
+    <ReleaseDate>2020-09-18</ReleaseDate>
     <Default>true</Default>
     <ForcedInstallation>true</ForcedInstallation>
 </Package>
