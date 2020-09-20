@@ -1,5 +1,6 @@
 import QtQuick 2.15
 import QtQuick.Controls 2.15 as Controls
+import App.Type 1.0
 
 Controls.Button {
     id: button
@@ -11,6 +12,6 @@ Controls.Button {
 
     background: Rectangle {
         radius: 2
-        color: button.pressed ? '#aaa' : '#e2e2e2'
+        color: button.pressed ? Theme.bgNormalColor : Theme.bgLightColor
     }
 }

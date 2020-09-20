@@ -31,19 +31,21 @@ set(TS_FILES writer_zh_CN.ts)
 
 if(ANDROID)
     add_library(writer SHARED
-      main.cpp
-      qml.qrc
-      ${TS_FILES}
-      listmodel.cpp listmodel.h
-      theme.cpp theme.h
+        qml.qrc
+        logo.rc
+        ${TS_FILES}
+        main.cpp
+        listmodel.cpp listmodel.h
+        theme.cpp theme.h
     )
 else()
     add_executable(writer
-      main.cpp
-      qml.qrc
-      ${TS_FILES}
-      listmodel.cpp listmodel.h
-      theme.cpp theme.h
+        qml.qrc
+        logo.rc
+        ${TS_FILES}
+        main.cpp
+        listmodel.cpp listmodel.h
+        theme.cpp theme.h
     )
 endif()
 

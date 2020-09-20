@@ -39,6 +39,7 @@ ApplicationWindow {
                 text: qsTr('New')
                 onClicked: {
                     var pp = contentComponent.createObject(app);
+                    contentConnection.target = pp;
                     pp.open();
                 }
             }
@@ -56,11 +57,9 @@ ApplicationWindow {
             App.Button {
                 text: qsTr("trash")
                 onClicked: {
-                    var component = Qt.createComponent("qrc:/qml/Popup.qml");
-                    if (component.status === Component.Ready) {
-                        var pp = component.createObject(app);
-                        pp.open();
-                    }
+                    var pp = trashComponent.createObject(app);
+                    contentConnection.target = pp;
+                    pp.open();
                 }
             }
 
@@ -84,8 +83,8 @@ ApplicationWindow {
             App.Button {
                 text: qsTr("Refresh")
                 onClicked: {
-                    categoriesModel.update();
-                    listModel.update();
+                    tagsModel.update();
+                    contentsModel.update();
                 }
             }
         }
@@ -104,11 +103,75 @@ ApplicationWindow {
     }
 
     Connections {
+        id: contentConnection
+        target: null
+
+        function onOk(id) {
+            contentsModel.update();
+        }
+    }
+
+    Connections {
         id: tagNewConnection
         target: null
 
         function onOk(tagName, tagTitle) {
-            categoriesModel.update();
+            tagsModel.update();
+        }
+    }
+
+    AppType.ListModel {
+        id: contentsModel
+        roleNames: ["id","uuid","title","create_dt","update_dt"]
+
+        Component.onCompleted: {
+            update();
+        }
+
+        function update(filters) {
+            clear();
+            var sql = "SELECT id,uuid,title,create_dt,update_dt FROM blog WHERE status='release' ORDER BY update_dt DESC;";
+            var datas = [];
+            if (filters === undefined || filters.length === 0) {
+                datas = Js.getData(sql);
+            } else {
+                sql = "SELECT blog.id,uuid,title,create_dt,update_dt "+
+                      "FROM blog, json_each(blog.tags) "+
+                      "WHERE blog.status = 'release' AND json_each.value IN (?) order by blog.update_dt DESC";
+                datas = Js.getData(sql,filters.join(","));
+            }
+
+            for (var i in datas) {
+                this.append(datas[i]);
+            }
+        }
+
+        function getData(uuid) {
+            for (var i = 0; i < count(); ++i) {
+                const item = get(i);
+                if (item.uuid === uuid) {
+                    return item;
+                }
+            }
+            return null;
+        }
+    }
+
+    AppType.ListModel {
+        id: tagsModel
+        roleNames: ["id","name","title"]
+        Component.onCompleted: {
+            update();
+        }
+
+        function update() {
+            clear();
+            this.append({name:"_all_", title:"All"})
+            const datas = Js.getData("SELECT * FROM tags ORDER BY id ASC;");
+            for (var i in datas) {
+                var row = datas[i];
+                this.append(row);
+            }
         }
     }
 
@@ -123,43 +186,7 @@ ApplicationWindow {
 
             clip: true
 
-            model: AppType.ListModel {
-                id: listModel
-                roleNames: ["id","uuid","title","content","create_dt","update_dt","status"]
-
-                Component.onCompleted: {
-                    update();
-                }
-
-                function update(filters) {
-                    clear();
-                    var sql = "SELECT * FROM blog WHERE status = 'release' ORDER BY update_dt DESC;";
-                    var datas = [];
-                    if (filters === undefined || filters.length === 0) {
-                        datas = Js.getData(sql);
-                    } else {
-                        sql = "SELECT blog.id,uuid,title,content,create_dt,update_dt,status "+
-                              "FROM blog, json_each(blog.tags) "+
-                              "WHERE blog.status = 'release' AND json_each.value IN (?) order by blog.update_dt DESC";
-                        datas = Js.getData(sql,filters.join(","));
-                    }
-
-                    for (var i in datas) {
-                        var row = datas[i];
-                        this.append(row);
-                    }
-                }
-
-                function getData(uuid) {
-                    for (var i = 0; i < count(); ++i) {
-                        const item = get(i);
-                        if (item.uuid === uuid) {
-                            return item;
-                        }
-                    }
-                    return null;
-                }
-            }
+            model: contentsModel
 
             delegate: Item {
                 width: contentListView !== null ? contentListView.width : 0
@@ -180,6 +207,7 @@ ApplicationWindow {
 
                     onLinkActivated: {
                         var pp = contentComponent.createObject(app);
+                        contentConnection.target = pp;
                         pp.edit(link);
                     }
                 }
@@ -213,47 +241,38 @@ ApplicationWindow {
             }
 
             ListView {
+                id: tagsView
                 width: parent.width
                 height: parent.height - 25
                 clip: true
+                currentIndex: 0
 
-                model: AppType.ListModel {
-                    id: categoriesModel
-                    roleNames: ["id","name","title"]
+                model: tagsModel
 
-                    Component.onCompleted: update()
-
-                    function update() {
-                        clear();
-                        this.append({id:0,name:"_all_",title:"All"});
-                        const datas = Js.getData("SELECT * FROM tags ORDER BY id ASC;");
-                        for (var i in datas) {
-                            this.append(datas[i]);
-                        }
-                    }
-                }
-
-                delegate: Item {
+                delegate: Rectangle {
                     width: parent === null ? 0 : parent.width
                     height: AppType.Theme.contentHeight
-
+                    color: model.index === tagsView.currentIndex ? AppType.Theme.bgLightColor : "white"
                     Text {
                         anchors.fill: parent
                         anchors.leftMargin: 8
                         verticalAlignment: Qt.AlignVCenter
-                        text: '<a href="?">'.replace("?",model.name) + model.title + '</a>'
-
-                        onLinkActivated: {
-                            if (link === "_all_") {
-                                listModel.update();
-                            } else {
-                                listModel.update([link]);
-                            }
-                        }
+                        text: model.title
                     }
                 }
 
-
+                MouseArea {
+                    anchors.fill: parent
+                    onClicked: {
+                        const p = mapToItem(tagsView,mouse.x,mouse.y);
+                        tagsView.currentIndex = tagsView.indexAt(p.x+tagsView.contentX, p.y+tagsView.contentY);
+                        if (tagsView.currentIndex === 0) {
+                            contentsModel.update();
+                        } else if (tagsView.currentIndex !== -1) {
+                            contentsModel.update([tagsModel.get(tagsView.currentIndex).name]);
+                        }
+                    }
+                }
             }
         }
     }
@@ -271,18 +290,23 @@ ApplicationWindow {
             }
             implicitHeight: parent.height * 0.8
 
+            property bool editable: true
+            signal ok(int id)
+
             function edit(uuid) {
-                const data = listModel.getData(uuid);
-                if (data !== null) {
+                const datas = Js.getData("SELECT * FROM blog WHERE uuid = ?",[uuid]);
+                if (datas.length > 0) {
+                    const data = datas[0];
                     meta.uuid = data.uuid;
                     meta.id = data.id;
                     textArea.text = data.content;
+
+                    const tags = Js.getData("select * from tags where name in (select value from blog, json_each(blog.tags) where blog.id = ?);", data.id);
+                    for (var i = 0; i < tags.length; ++i) {
+                        tagRepeater.model.append(tags[i]);
+                    }
                 }
 
-                const tags = Js.getData("select * from tags where name in (select value from blog, json_each(blog.tags) where blog.id = ?);", data.id);
-                for (var i = 0; i < tags.length; ++i) {
-                    tagRepeater.model.append(tags[i]);
-                }
                 open();
             }
 
@@ -293,6 +317,7 @@ ApplicationWindow {
                     anchors.rightMargin: 8
 
                     App.Button {
+                        visible: popup.editable
                         text: qsTr("Save")
                         onClicked: {
                             if (textArea.text.trim() === '') { return; }
@@ -311,39 +336,24 @@ ApplicationWindow {
                                 "title": Js.getFirstLine(textArea.text),
                                 "content": textArea.text,
                                 "tags": "[" + tags.join(",") + "]",
-                                "create_dt": null,
-                                "update_dt": dt,
                                 "status": "release"
                             };
-
-                            if (meta.uuid !== '') {
-                                var idx = 0;
-                                for (; idx < listModel.count(); ++idx) {
-                                    if (listModel.get(idx).uuid === meta.uuid) {
-                                        break;
-                                    }
-                                }
-
-                                if (idx >= listModel.count()) {
-                                    meta.uuid = '';
-                                }
-                            }
 
                             if (meta.uuid === '') {
                                 meta.uuid = Js.uuid(nowDate);
                                 obj['uuid'] = meta.uuid;
-                                obj['create_dt'] = dt;
                                 obj["id"] = null;
-                                meta.id = Js.insertRow("INSERT INTO blog(uuid,title,content,tags,create_dt,update_dt,status) VALUES(?,?,?,?,?,?,?)",["uuid","title","content","tags","create_dt","update_dt","status"],obj);
+                                meta.id = Js.insertRow("INSERT INTO blog(uuid,title,content,tags,create_dt,update_dt,status) VALUES(?,?,?,?,datetime('now','localtime'),datetime('now','localtime'),?)",["uuid","title","content","tags","status"],obj);
                             } else {
-                                Js.updateRow("UPDATE blog SET title=?,content=?,tags=?,update_dt=?,status=? WHERE id=?;",["title","content","tags","update_dt","status","id"],obj);
+                                Js.updateRow("UPDATE blog SET title=?,content=?,tags=?,update_dt=datetime('now','localtime'),status=? WHERE uuid=?;",["title","content","tags","status","uuid"],obj);
                             }
 
-                            listModel.update();
+                            popup.ok(meta.id)
                         }
                     }
 
                     App.Button {
+                        visible: popup.editable
                         text: qsTr("Edit tags")
                         onClicked: {
                             var tagEditor = contentTagEditComponent.createObject(popup.contentItem);
@@ -358,12 +368,37 @@ ApplicationWindow {
                     }
 
                     App.Button {
+                        visible: popup.editable
                         text: qsTr("Remove")
                         onClicked: {
-                            Js.removeData("UPDATE blog SET status = 'trash' WHERE id = ?",meta.id);
+                            Js.updateRow("UPDATE blog SET status = 'trash' WHERE id = ?",["id"],{id:meta.id});
                             meta.id = 0;
                             meta.uuid = "";
-                            listModel.update();
+                            popup.ok(0);
+                        }
+                    }
+
+                    App.Button {
+                        visible: !popup.editable
+                        text: qsTr("Recovery")
+                        onClicked: {
+                            Js.updateRow("UPDATE blog SET status = 'release' WHERE id = ?", ["id"], {id: meta.id});
+                            meta.id = 0;
+                            meta.uuid = "";
+                            popup.ok(0);
+                            popup.close();
+                        }
+                    }
+
+                    App.Button {
+                        visible: !popup.editable
+                        text: qsTr("Delete")
+                        onClicked: {
+                            Js.removeData("DELETE FROM blog WHERE uuid = ?",meta.uuid);
+                            meta.id = 0;
+                            meta.uuid = "";
+                            popup.ok(0);
+                            popup.close();
                         }
                     }
 
@@ -406,6 +441,7 @@ ApplicationWindow {
                     Layout.fillHeight: true
                     TextArea {
                         id: textArea
+                        readOnly: !popup.editable
                         wrapMode: appSettings.contentLineWrap === true ? TextArea.WrapAnywhere : TextArea.NoWrap
                     }
                 }
@@ -542,6 +578,186 @@ ApplicationWindow {
                 function onOk(tagName, tagTitle) {
                     tagModel.update();
                     popup.ok(tagName,tagTitle);
+                }
+            }
+        }
+    }
+
+    Component {
+        id: trashComponent
+
+        App.Popup {
+            id: popup
+            implicitWidth: {
+                var dw = parent.width * 0.8;
+                if (dw > 640) { dw = 640; }
+                return dw;
+            }
+            implicitHeight: parent.height * 0.8
+
+            signal ok(string uuid)
+
+            header: App.ToolBar {
+                RowLayout {
+                    anchors.fill: parent
+                    anchors.leftMargin: 8
+                    anchors.rightMargin: 8
+
+                    Item {
+                        Layout.fillWidth: true
+                    }
+
+                    App.Button {
+                        text: qsTr("Close")
+                        onClicked: popup.close()
+                    }
+                }
+            }
+
+            body: ListView {
+                id: trashView
+                SplitView.fillWidth: true
+                SplitView.fillHeight: true
+
+                clip: true
+
+                model: AppType.ListModel {
+                    id: trashModel
+                    roleNames: ["id","uuid","title","create_dt","update_dt"]
+
+                    Component.onCompleted: {
+                        update();
+                    }
+
+                    function update(filters) {
+                        clear();
+                        var datas = Js.getData("SELECT id,uuid,title,create_dt,update_dt FROM blog WHERE status<>'release' ORDER BY update_dt DESC;");
+                        for (var i in datas) {
+                            this.append(datas[i]);
+                        }
+                    }
+
+                    function getData(uuid) {
+                        for (var i = 0; i < count(); ++i) {
+                            const item = get(i);
+                            if (item.uuid === uuid) {
+                                return item;
+                            }
+                        }
+                        return null;
+                    }
+                }
+
+                delegate: Item {
+                    width: trashView.contentItem !== null ? trashView.contentItem.width : 0
+                    height: 25
+
+                    Text {
+                        anchors.fill: parent
+                        anchors.leftMargin: 16
+                        anchors.bottomMargin: 1
+                        textFormat: Text.RichText
+                        verticalAlignment: Qt.AlignVCenter
+
+                        text: {
+                            var str = '<a href="%1">%2</a>'.replace('%1',model.uuid)
+                            str = str.replace('%2',model.title)
+                            return model.update_dt + ' - ' + str
+                        }
+
+                        onLinkActivated: {
+                            var pp = contentComponent.createObject(app);
+                            trashContentConnection.target = pp;
+                            pp.editable = false;
+                            pp.edit(link);
+                        }
+                    }
+
+                    Rectangle {
+                        anchors.bottom: parent.bottom
+                        width: parent.width - AppType.Theme.baseMargin * 2
+                        height: 1
+                        x: AppType.Theme.baseMargin
+                        color: AppType.Theme.bgNormalColor
+                    }
+                }
+            }
+
+            Connections {
+                id: trashContentConnection
+                target: null
+
+                function onOk(uuid) {
+                    popup.ok(uuid);
+                    trashModel.update();
+                }
+            }
+        }
+    }
+
+    Component {
+        id: settingsComponent
+
+        App.Popup {
+            id: popup
+            implicitWidth: {
+                var dw = parent.width * 0.8;
+                if (dw > 640) { dw = 640; }
+                return dw;
+            }
+            implicitHeight: parent.height * 0.8
+
+            header: App.ToolBar {
+                RowLayout {
+                    anchors.fill: parent
+                    anchors.leftMargin: AppType.Theme.baseMargin
+                    anchors.rightMargin: AppType.Theme.baseMargin
+
+                    App.Button {
+                        text: qsTr("Save")
+                        onClicked: {}
+                    }
+
+                    Item {
+                        Layout.fillWidth: true
+                    }
+
+                    App.Button {
+                        text: qsTr("Cancel")
+                        onClicked: popup.close()
+                    }
+                }
+            }
+
+            body: GridLayout {
+                columns: 2
+                columnSpacing: AppType.Theme.baseMargin
+                rowSpacing: AppType.Theme.baseMargin
+
+                Label {
+                    Layout.fillWidth: true
+                    Layout.margins: AppType.Theme.baseMargin
+                    Layout.columnSpan: 2
+                    // horizontalAlignment: Qt.AlignHCenter
+                    text: qsTr("Content Editor")
+                    font.pointSize: app.font.pointSize + 4
+                    font.bold: true
+                }
+
+                CheckBox {
+                    Layout.columnSpan: 2
+                    text: qsTr("Line Wrap")
+                    onCheckStateChanged: {
+                        appSettings.contentLineWrap = (checkState === Qt.Checked);
+                    }
+                    Component.onCompleted: {
+                        checkState = appSettings.contentLineWrap === true ? Qt.Checked : Qt.Unchecked;
+                    }
+                }
+
+                Item {
+                    Layout.fillHeight: true
+                    Layout.columnSpan: 2
                 }
             }
         }
@@ -727,71 +943,4 @@ ApplicationWindow {
         }
     }
 
-    Component {
-        id: settingsComponent
-
-        App.Popup {
-            id: popup
-            implicitWidth: {
-                var dw = parent.width * 0.8;
-                if (dw > 640) { dw = 640; }
-                return dw;
-            }
-            implicitHeight: parent.height * 0.8
-
-            header: App.ToolBar {
-                RowLayout {
-                    anchors.fill: parent
-                    anchors.leftMargin: AppType.Theme.baseMargin
-                    anchors.rightMargin: AppType.Theme.baseMargin
-
-                    App.Button {
-                        text: qsTr("Save")
-                        onClicked: {}
-                    }
-
-                    Item {
-                        Layout.fillWidth: true
-                    }
-
-                    App.Button {
-                        text: qsTr("Cancel")
-                        onClicked: popup.close()
-                    }
-                }
-            }
-
-            body: GridLayout {
-                columns: 2
-                columnSpacing: AppType.Theme.baseMargin
-                rowSpacing: AppType.Theme.baseMargin
-
-                Label {
-                    Layout.fillWidth: true
-                    Layout.margins: AppType.Theme.baseMargin
-                    Layout.columnSpan: 2
-                    horizontalAlignment: Qt.AlignHCenter
-                    text: qsTr("Content Editor")
-                    font.pointSize: app.font.pointSize + 4
-                    font.bold: true
-                }
-
-                CheckBox {
-                    Layout.columnSpan: 2
-                    text: qsTr("Line Wrap")
-                    onCheckStateChanged: {
-                        appSettings.contentLineWrap = (checkState === Qt.Checked);
-                    }
-                    Component.onCompleted: {
-                        checkState = appSettings.contentLineWrap === true ? Qt.Checked : Qt.Unchecked;
-                    }
-                }
-
-                Item {
-                    Layout.fillHeight: true
-                    Layout.columnSpan: 2
-                }
-            }
-        }
-    }
 }
