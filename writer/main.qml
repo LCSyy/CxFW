@@ -107,7 +107,10 @@ ApplicationWindow {
         target: null
 
         function onOk(id) {
-            contentsModel.update();
+            // contentsModel.update();
+            const oldIdx = tagsView.currentIndex;
+            tagsView.currentIndex = -1;
+            tagsView.currentIndex = oldIdx;
         }
     }
 
@@ -249,6 +252,14 @@ ApplicationWindow {
 
                 model: tagsModel
 
+                onCurrentIndexChanged: {
+                    if (tagsView.currentIndex === 0) {
+                        contentsModel.update();
+                    } else if (tagsView.currentIndex !== -1) {
+                        contentsModel.update([tagsModel.get(tagsView.currentIndex).name]);
+                    }
+                }
+
                 delegate: Rectangle {
                     width: parent === null ? 0 : parent.width
                     height: AppType.Theme.contentHeight
@@ -266,11 +277,6 @@ ApplicationWindow {
                     onClicked: {
                         const p = mapToItem(tagsView,mouse.x,mouse.y);
                         tagsView.currentIndex = tagsView.indexAt(p.x+tagsView.contentX, p.y+tagsView.contentY);
-                        if (tagsView.currentIndex === 0) {
-                            contentsModel.update();
-                        } else if (tagsView.currentIndex !== -1) {
-                            contentsModel.update([tagsModel.get(tagsView.currentIndex).name]);
-                        }
                     }
                 }
             }
