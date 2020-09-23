@@ -944,6 +944,9 @@ ApplicationWindow {
                 delegate: CheckBox {
                     checkState: model.check ? Qt.Checked : Qt.Unchecked
                     text: model.title
+                    onCheckStateChanged: {
+                        model.check = Qt.Checked ? true : false;
+                    }
                 }
             }
         }
