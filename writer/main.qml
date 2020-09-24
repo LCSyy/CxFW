@@ -449,6 +449,7 @@ ApplicationWindow {
                         id: textArea
                         readOnly: !popup.editable
                         wrapMode: appSettings.contentLineWrap === true ? TextArea.WrapAnywhere : TextArea.NoWrap
+                        selectByMouse: true
                     }
                 }
             }
