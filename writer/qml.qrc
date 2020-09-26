@@ -6,5 +6,6 @@
         <file>js/app.js</file>
         <file>qml/Popup.qml</file>
         <file>qml/ToolBar.qml</file>
+        <file>qml/StatusBar.qml</file>
     </qresource>
 </RCC>

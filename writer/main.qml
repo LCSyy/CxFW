@@ -97,6 +97,24 @@ ApplicationWindow {
         }
     }
 
+    footer: App.StatusBar {
+        visible: false
+        RowLayout {
+            anchors.fill: parent
+            anchors.margins: 0
+            anchors.rightMargin: AppType.Theme.baseMargin / 2
+            anchors.leftMargin: AppType.Theme.baseMargin / 2
+
+            Item {
+                Layout.fillWidth: true
+            }
+
+            App.Button {
+                text: qsTr("Already Sync")
+            }
+        }
+    }
+
     Settings {
         id: appSettings
         property bool contentLineWrap: true
@@ -873,15 +891,12 @@ ApplicationWindow {
 
             function setChecked(tags) {
                 var existTags = tags.map((item)=>{return item.id; });
-                for (var i = 0; i < listView.model.count(); ++i) {
-                    const item = listView.model.get(i);
-                    if (item !== null) {
-                        const itemId = item.id;
-                        const idx = existTags.indexOf(itemId);
-                        if (idx !== -1) {
-                            listView.model.set(i,"check",true);
-                            existTags.splice(idx,1);
-                        }
+                for (var i = 0; i < tagsModel.count(); ++i) {
+                    const item = tagsModel.get(i);
+                    const idx = existTags.indexOf(item.id);
+                    if (idx !== -1) {
+                        tagsModel.set(i,"check",true);
+                        existTags.splice(idx,1);
                     }
                 }
             }
@@ -922,6 +937,7 @@ ApplicationWindow {
                     for (var i = 0; i < count; ++i) {
                         const obj = tagsModel.get(i);
                         if (obj.check === true) {
+                            console.log(JSON.stringify(obj))
                             checked.push({id:obj.id, name: obj.name, title: obj.title });
                         }
                     }
@@ -944,7 +960,8 @@ ApplicationWindow {
                     checkState: model.check ? Qt.Checked : Qt.Unchecked
                     text: model.title
                     onCheckStateChanged: {
-                        tagsModel.set(model.index,"check", (Qt.Checked ? true : false))
+                        console.log(model.index,":",(checkState === Qt.Checked ? true : false))
+                        tagsModel.set(model.index,"check", (checkState === Qt.Checked ? true : false))
                     }
                 }
             }
