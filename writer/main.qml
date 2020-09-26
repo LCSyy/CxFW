@@ -920,18 +920,16 @@ ApplicationWindow {
                 function checkedTags() {
                     var checked = [];
                     for (var i = 0; i < count; ++i) {
-                        const item = itemAtIndex(i);
-                        if (item !== null && item.checkState === Qt.Checked) {
-                            const obj = model.get(i);
-                            if (obj !== null) {
-                                checked.push({id:obj.id, name: obj.name, title: obj.title });
-                            }
+                        const obj = tagsModel.get(i);
+                        if (obj.check === true) {
+                            checked.push({id:obj.id, name: obj.name, title: obj.title });
                         }
                     }
                     return checked;
                 }
 
                 model: AppType.ListModel {
+                    id: tagsModel
                     roleNames: ["id","name","title","check"]
                     Component.onCompleted: {
                         const tags = Js.getData("SELECT * FROM tags;")
@@ -946,7 +944,7 @@ ApplicationWindow {
                     checkState: model.check ? Qt.Checked : Qt.Unchecked
                     text: model.title
                     onCheckStateChanged: {
-                        model.check = Qt.Checked ? true : false;
+                        tagsModel.set(model.index,"check", (Qt.Checked ? true : false))
                     }
                 }
             }
