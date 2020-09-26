@@ -10,7 +10,7 @@
     </message>
     <message>
         <location filename="main.qml" line="39"/>
-        <location filename="main.qml" line="523"/>
+        <location filename="main.qml" line="525"/>
         <source>New</source>
         <translation type="unfinished"></translation>
     </message>
@@ -45,74 +45,79 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main.qml" line="260"/>
+        <location filename="main.qml" line="261"/>
         <source>Categories</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main.qml" line="345"/>
-        <location filename="main.qml" line="742"/>
-        <location filename="main.qml" line="838"/>
+        <location filename="main.qml" line="346"/>
+        <location filename="main.qml" line="744"/>
+        <location filename="main.qml" line="864"/>
         <source>Save</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main.qml" line="381"/>
+        <location filename="main.qml" line="382"/>
         <source>Edit tags</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main.qml" line="396"/>
-        <location filename="main.qml" line="850"/>
+        <location filename="main.qml" line="397"/>
+        <location filename="main.qml" line="876"/>
         <source>Remove</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main.qml" line="407"/>
+        <location filename="main.qml" line="408"/>
         <source>Recovery</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main.qml" line="419"/>
+        <location filename="main.qml" line="420"/>
         <source>Delete</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main.qml" line="434"/>
-        <location filename="main.qml" line="536"/>
-        <location filename="main.qml" line="636"/>
-        <location filename="main.qml" line="863"/>
-        <location filename="main.qml" line="923"/>
+        <location filename="main.qml" line="435"/>
+        <location filename="main.qml" line="538"/>
+        <location filename="main.qml" line="638"/>
+        <location filename="main.qml" line="889"/>
+        <location filename="main.qml" line="949"/>
         <source>Close</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main.qml" line="875"/>
+        <location filename="main.qml" line="786"/>
+        <source>Font Point Size</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main.qml" line="901"/>
         <source>Name</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main.qml" line="877"/>
+        <location filename="main.qml" line="903"/>
         <source>Text</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main.qml" line="911"/>
+        <location filename="main.qml" line="937"/>
         <source>Ok</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main.qml" line="751"/>
+        <location filename="main.qml" line="753"/>
         <source>Cancel</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main.qml" line="767"/>
+        <location filename="main.qml" line="769"/>
         <source>Content Editor</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main.qml" line="774"/>
+        <location filename="main.qml" line="776"/>
         <source>Line Wrap</source>
         <translation type="unfinished"></translation>
     </message>

@@ -118,6 +118,7 @@ ApplicationWindow {
     Settings {
         id: appSettings
         property bool contentLineWrap: true
+        property int contentFontPointSize: app.font.pointSize
     }
 
     Connections {
@@ -468,6 +469,7 @@ ApplicationWindow {
                         readOnly: !popup.editable
                         wrapMode: appSettings.contentLineWrap === true ? TextArea.WrapAnywhere : TextArea.NoWrap
                         selectByMouse: true
+                        font.pointSize: appSettings.contentFontPointSize
                     }
                 }
             }
@@ -777,6 +779,28 @@ ApplicationWindow {
                     }
                     Component.onCompleted: {
                         checkState = appSettings.contentLineWrap === true ? Qt.Checked : Qt.Unchecked;
+                    }
+                }
+
+                Label {
+                    text: qsTr("Font Point Size")
+                }
+
+                ComboBox {
+                    model: [9,10,11,12,13,14]
+                    currentIndex: 0
+                    onCurrentIndexChanged: {
+                        appSettings.contentFontPointSize = parseInt(textAt(currentIndex))
+                    }
+
+                    Component.onCompleted: {
+                        const curVal = appSettings.contentFontPointSize
+                        for (var i = 0; i < count; ++i) {
+                            if (textAt(i) === curVal.toString()) {
+                                currentIndex = i;
+                                break;
+                            }
+                        }
                     }
                 }
 
