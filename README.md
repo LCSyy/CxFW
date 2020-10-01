@@ -1,6 +1,9 @@
 # CxFW
 
-CxFW是基于Qt的应用开发框架。
-
-- writer
-- pixel-editor
+- cxfw frameworks
+  - cmdline
+  - doc - rust-like doc system
+  - ...
+- apps based on cxfw
+  - writer
+  - ...
