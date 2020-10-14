@@ -52,7 +52,7 @@
     <message>
         <location filename="main.qml" line="346"/>
         <location filename="main.qml" line="744"/>
-        <location filename="main.qml" line="864"/>
+        <location filename="main.qml" line="862"/>
         <source>Save</source>
         <translation type="unfinished"></translation>
     </message>
@@ -63,7 +63,7 @@
     </message>
     <message>
         <location filename="main.qml" line="397"/>
-        <location filename="main.qml" line="876"/>
+        <location filename="main.qml" line="874"/>
         <source>Remove</source>
         <translation type="unfinished"></translation>
     </message>
@@ -81,29 +81,9 @@
         <location filename="main.qml" line="435"/>
         <location filename="main.qml" line="538"/>
         <location filename="main.qml" line="638"/>
-        <location filename="main.qml" line="889"/>
-        <location filename="main.qml" line="949"/>
+        <location filename="main.qml" line="887"/>
+        <location filename="main.qml" line="947"/>
         <source>Close</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="main.qml" line="786"/>
-        <source>Font Point Size</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="main.qml" line="901"/>
-        <source>Name</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="main.qml" line="903"/>
-        <source>Text</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="main.qml" line="937"/>
-        <source>Ok</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -119,6 +99,26 @@
     <message>
         <location filename="main.qml" line="776"/>
         <source>Line Wrap</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main.qml" line="786"/>
+        <source>Font Point Size</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main.qml" line="899"/>
+        <source>Name</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main.qml" line="901"/>
+        <source>Text</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main.qml" line="935"/>
+        <source>Ok</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
