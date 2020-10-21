@@ -13,15 +13,22 @@ ApplicationWindow {
     minimumHeight: 360
     maximumHeight: 360
     visible: true
-    title: qsTr("Hello World")
+    title: qsTr("Tomato Clock")
     color: "#868686"
 
-    Component.onCompleted: {
-        clockStates.state = 'stop'
+    QtObject {
+        id: theme
+
+        readonly property int fontPointSize: 36
+        readonly property int itemMargin: 16
     }
 
     StateGroup {
         id: clockStates
+
+        Component.onCompleted: {
+            clockStates.state = 'stop'
+        }
 
         states: [
             State {
@@ -30,34 +37,12 @@ ApplicationWindow {
                     target: timer
                     restoreEntryValues: false
                     running: false
-                    times: 25 * 60
                 }
 
                 PropertyChanges {
                     target: btn
                     restoreEntryValues: false
                     text: qsTr("Start")
-                }
-
-                PropertyChanges {
-                    target: label
-                    restoreEntryValues: false
-                    text: qsTr('Tomato')
-                }
-            },
-            State {
-                name: 'idle'
-
-                PropertyChanges {
-                    target: timer
-                    restoreEntryValues: false
-                    running: false
-                }
-
-                PropertyChanges {
-                    target: btn
-                    restoreEntryValues: false
-                    text: qsTr('Start')
                 }
             },
             State {
@@ -71,12 +56,7 @@ ApplicationWindow {
                 PropertyChanges {
                     target: btn
                     restoreEntryValues: false
-                    text: qsTr('Idle')
-                }
-                PropertyChanges {
-                    target: label
-                    restoreEntryValues: false
-                    text: timer.timeToShow(timer.times)
+                    text: qsTr('Stop')
                 }
             }
         ]
@@ -87,67 +67,148 @@ ApplicationWindow {
         interval: 1000
         repeat: true
 
-        property int times: 0
-
-        function timeToShow(t) {
-            const dur = moment.duration(t,'seconds')
-            return _.padStart(dur.minutes(),2,'0') + ':' + _.padStart(dur.seconds(),2,'0')
-        }
-
         onTriggered: {
-            times -= 1
-            label.text = timeToShow(times)
-            if (times === 0) {
-                clockStates.state = 'stop'
+            if (clockSwitch.visualPosition === 0.0) {
+                 clockBoard.tickDown()
+            } else {
+                clockBoard.tickUp()
             }
         }
     }
 
-    Rectangle {
-        id: clock
-        anchors.centerIn: parent
-        width: 200
-        height: 200
-        radius: 100
-        color: "#A84653"
-
-        Text {
-            id: label
-            anchors.centerIn: parent
-            font.pointSize: 40
-            font.bold: true
-            color: "white"
-        }
+    Switch {
+        id: clockSwitch
+        anchors.left: parent.left
+        anchors.top: parent.top
+        anchors.rightMargin: theme.itemMargin
+        anchors.topMargin: theme.itemMargin
+        text: visualPosition === 0.0 ? qsTr('Down') : qsTr('Up')
     }
 
     Button {
         id: btn
 
-        anchors.horizontalCenter: clock.horizontalCenter
-        anchors.top:  clock.bottom
+        anchors.horizontalCenter: clockBoard.horizontalCenter
+        anchors.top:  clockBoard.bottom
         anchors.topMargin: 16
 
         onClicked: {
-            if (clockStates.state === 'stop' || clockStates.state === 'idle') {
+            if (clockStates.state === 'stop') {
                 clockStates.state = 'running'
             } else {
-                clockStates.state = 'idle'
+                clockStates.state = 'stop'
             }
         }
     }
 
-    RoundButton {
-        id: resetBtn
-        radius: 10
+    Grid {
+        id: clockBoard
+        anchors.centerIn: parent
+        columns: 5
+        verticalItemAlignment: Qt.AlignVCenter
+        horizontalItemAlignment: Qt.AlignHCenter
 
-        text: qsTr("R")
+        function times() {
+            return _.padStart(hours.currentIndex,2,'0') +
+                    ':' + _.padStart(minutes.currentIndex) +
+                    ':' + _.padStart(seconds.currentIndex,2,'0')
+        }
 
-        anchors.right: parent.right
-        anchors.rightMargin: 16
-        anchors.verticalCenter: btn.verticalCenter
+        function tickDown() {
+            if (seconds.currentIndex > 0) {
+                seconds.currentIndex -= 1
+            } else {
+                seconds.currentIndex = seconds.count - 1
 
-        onClicked: {
-            clockStates.state = 'stop'
+                if (minutes.currentIndex > 0) {
+                    minutes.currentIndex -= 1
+                } else {
+                    minutes.currentIndex = minutes.count - 1
+
+                    if (hours.currentIndex > 0) {
+                        hours.currentIndex -= 1
+                    } else {
+                        hours.currentIndex = hours.count - 1
+                    }
+                }
+            }
+        }
+
+        function tickUp() {
+            if (seconds.currentIndex < seconds.count - 1) {
+                seconds.currentIndex += 1
+            } else {
+                seconds.currentIndex = 0
+
+                if (minutes.currentIndex < minutes.count - 1) {
+                    minutes.currentIndex += 1
+                } else {
+                    minutes.currentIndex = 0
+
+                    if (hours.currentIndex < hours.count - 1) {
+                        hours.currentIndex += 1
+                    }
+                }
+            }
+        }
+
+        Tumbler {
+            id: hours
+            visibleItemCount: 3
+            model: 24
+            delegate: Text {
+                verticalAlignment: Qt.AlignVCenter
+                horizontalAlignment: Qt.AlignHCenter
+                text: _.padStart(index,2,'0')
+                font.pointSize: theme.fontPointSize
+                font.bold: true
+                color: 'white'
+                opacity:  1.0 - Math.abs(Tumbler.displacement) / (Tumbler.tumbler.visibleItemCount / 2)
+            }
+        }
+        Text {
+            verticalAlignment: Qt.AlignVCenter
+            horizontalAlignment: Qt.AlignHCenter
+            text: ":"
+            font.pointSize: theme.fontPointSize
+            font.bold: true
+            color: 'white'
+        }
+        Tumbler {
+            id: minutes
+            visibleItemCount: 3
+            model: 60
+            delegate: Text {
+                verticalAlignment: Qt.AlignVCenter
+                horizontalAlignment: Qt.AlignHCenter
+                text: _.padStart(index,2,'0')
+                font.pointSize: theme.fontPointSize
+                font.bold: true
+                color: 'white'
+                opacity:  1.0 - Math.abs(Tumbler.displacement) / (Tumbler.tumbler.visibleItemCount / 2)
+            }
+        }
+        Text {
+            verticalAlignment: Qt.AlignVCenter
+            horizontalAlignment: Qt.AlignHCenter
+            text: ":"
+            font.pointSize: theme.fontPointSize
+            font.bold: true
+            color: 'white'
+        }
+        Tumbler {
+            id: seconds
+            visibleItemCount: 3
+            model: 60
+            delegate: Text {
+                verticalAlignment: Qt.AlignVCenter
+                horizontalAlignment: Qt.AlignHCenter
+                text: _.padStart(index,2,'0')
+                font.pointSize: theme.fontPointSize
+                font.bold: true
+                color: 'white'
+                opacity:  1.0 - Math.abs(Tumbler.displacement) / (Tumbler.tumbler.visibleItemCount / 2)
+            }
         }
     }
 }

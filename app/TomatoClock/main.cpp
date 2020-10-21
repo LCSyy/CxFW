@@ -4,6 +4,8 @@
 int main(int argc, char *argv[])
 {
     QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
+    QCoreApplication::setApplicationName("Tomato Clock");
+
 
     QGuiApplication app(argc, argv);
 
