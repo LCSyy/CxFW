@@ -3,8 +3,9 @@ import QtQuick.Window 2.15
 import QtQuick.Controls 2.15
 
 import "js/moment.js" as Moment
+import "js/lodash.js" as Lodash
 
-Window {
+ApplicationWindow {
     width: 300
     height: 360
     minimumWidth: 300
@@ -15,23 +16,92 @@ Window {
     title: qsTr("Hello World")
     color: "#868686"
 
+    Component.onCompleted: {
+        clockStates.state = 'stop'
+    }
+
+    StateGroup {
+        id: clockStates
+
+        states: [
+            State {
+                name: 'stop'
+                PropertyChanges {
+                    target: timer
+                    restoreEntryValues: false
+                    running: false
+                    times: 25 * 60
+                }
+
+                PropertyChanges {
+                    target: btn
+                    restoreEntryValues: false
+                    text: qsTr("Start")
+                }
+
+                PropertyChanges {
+                    target: label
+                    restoreEntryValues: false
+                    text: qsTr('Tomato')
+                }
+            },
+            State {
+                name: 'idle'
+
+                PropertyChanges {
+                    target: timer
+                    restoreEntryValues: false
+                    running: false
+                }
+
+                PropertyChanges {
+                    target: btn
+                    restoreEntryValues: false
+                    text: qsTr('Start')
+                }
+            },
+            State {
+                name: 'running'
+
+                PropertyChanges {
+                    target: timer
+                    restoreEntryValues: false
+                    running: true
+                }
+                PropertyChanges {
+                    target: btn
+                    restoreEntryValues: false
+                    text: qsTr('Idle')
+                }
+                PropertyChanges {
+                    target: label
+                    restoreEntryValues: false
+                    text: timer.timeToShow(timer.times)
+                }
+            }
+        ]
+    }
+
     Timer {
         id: timer
         interval: 1000
         repeat: true
 
-        property int times: 25 * 60 * 1000 // default 25 min
+        property int times: 0
+
+        function timeToShow(t) {
+            const dur = moment.duration(t,'seconds')
+            return _.padStart(dur.minutes(),2,'0') + ':' + _.padStart(dur.seconds(),2,'0')
+        }
 
         onTriggered: {
-            label.text = moment(label.text,'mm:ss').subtract(1,'seconds').format('mm:ss')
-
             times -= 1
+            label.text = timeToShow(times)
             if (times === 0) {
-                stop()
+                clockStates.state = 'stop'
             }
         }
     }
-
 
     Rectangle {
         id: clock
@@ -43,7 +113,6 @@ Window {
 
         Text {
             id: label
-            text: '25:00'
             anchors.centerIn: parent
             font.pointSize: 40
             font.bold: true
@@ -52,13 +121,33 @@ Window {
     }
 
     Button {
+        id: btn
+
         anchors.horizontalCenter: clock.horizontalCenter
         anchors.top:  clock.bottom
         anchors.topMargin: 16
 
-        text: timer.running ? qsTr("Stop") : qsTr("Start")
         onClicked: {
-            timer.running = !timer.running
+            if (clockStates.state === 'stop' || clockStates.state === 'idle') {
+                clockStates.state = 'running'
+            } else {
+                clockStates.state = 'idle'
+            }
+        }
+    }
+
+    RoundButton {
+        id: resetBtn
+        radius: 10
+
+        text: qsTr("R")
+
+        anchors.right: parent.right
+        anchors.rightMargin: 16
+        anchors.verticalCenter: btn.verticalCenter
+
+        onClicked: {
+            clockStates.state = 'stop'
         }
     }
 }
