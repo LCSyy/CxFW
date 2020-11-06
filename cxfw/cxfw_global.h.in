@@ -1,6 +1,0 @@
-#define CXFW_VERSION_MAJOR ${cxfw_VERSION_MAJOR}
-#define CXFW_VERSION_NIMOR ${cxfw_VERSION_MINOR}
-#define CXFW_VERSION_PATCH ${cxfw_VERSION_PATCH}
-
-#cmakedefine USE_STATIC
-
