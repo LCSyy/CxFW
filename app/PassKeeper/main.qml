@@ -3,40 +3,31 @@ import QtQuick.Window 2.15
 import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.15
 
+import CxLogin 0.1
+
 Window {
     width: 640
     height: 480
     visible: true
-    title: qsTr("Hello World")
+    title: qsTr("Pass Keeper")
 
-    QtObject {
-        id: theme
-        readonly property int innerSpacing: 4
-    }
-
-    Grid {
+    ColumnLayout {
         anchors.centerIn: parent
-        columns: 2
-        columnSpacing: theme.innerSpacing
-        rowSpacing: theme.innerSpacing * 2
-        verticalItemAlignment: Qt.AlignVCenter
-        horizontalItemAlignment: Qt.AlignRight
 
         Label {
-            text: qsTr("User name")
+            Layout.fillWidth: true
+            Layout.fillHeight: true
+            Layout.bottomMargin: 30
+            text: "Pass Keeper"
+            font.pixelSize: 40
+            font.bold: true
+            color: "#009ad6"
         }
 
-        TextField {
-            placeholderText: qsTr("User name/Phone/Email")
-        }
-
-        Label {
-            text: qsTr("Password")
-        }
-
-        TextField {
-            placeholderText: qsTr("Password")
+        CxLogin {
+            onLogin: {
+                console.log(account,pass)
+            }
         }
     }
-
 }

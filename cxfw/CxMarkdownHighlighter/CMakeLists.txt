@@ -1,8 +1,8 @@
 cmake_minimum_required(VERSION 3.15)
 
-project(MarkdownHightlighter
+project(CxMarkdownHightlighter
     VERSION 0.0.1
-    DESCRIPTION "Markdown syntax highlighter."
+    DESCRIPTION "cxfw Markdown syntax highlighter."
     LANGUAGES CXX
 )
 
