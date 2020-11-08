@@ -15,10 +15,12 @@ find_package(QT NAMES Qt6 Qt5 COMPONENTS Widgets REQUIRED)
 find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Widgets REQUIRED)
 
 add_executable(CxWriter
+  mainwindow.ui
   main.cpp
   mainwindow.cpp
   mainwindow.h
-  mainwindow.ui
+  cxbufferlistmodel.cpp
+  cxbufferlistmodel.h
 )
 
 target_include_directories(CxWriter PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/../../../dist/include")
