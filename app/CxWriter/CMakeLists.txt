@@ -21,6 +21,8 @@ add_executable(CxWriter
   mainwindow.h
   cxbufferlistmodel.cpp
   cxbufferlistmodel.h
+  cxstatusbar.cpp
+  cxstatusbar.h
 )
 
 target_include_directories(CxWriter PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/../../../dist/include")

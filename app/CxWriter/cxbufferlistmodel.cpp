@@ -137,6 +137,8 @@ bool CxBufferListModel::removeRows(int row, int count, const QModelIndex &index)
 {
     Q_UNUSED(index)
 
+    if (row < 0 || rowCount() <= row) { return false; }
+
     const int last = row + (count - 1);
     if (last < row) { return false; }
 

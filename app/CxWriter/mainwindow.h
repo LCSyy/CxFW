@@ -11,6 +11,7 @@ class QListView;
 class QItemSelection;
 QT_END_NAMESPACE
 
+class CxStatusBar;
 class CxBufferListModel;
 
 class MainWindow : public QMainWindow
@@ -25,6 +26,7 @@ private slots:
     void openFile(const QString &fileName);
     void updateWindowTitle();
     void setCurrent(const QItemSelection &selected, const QItemSelection &deselected);
+    void switchNavi(bool expand = true);
 
     void onDocumentModificationChanged(bool changed);
 
@@ -34,17 +36,20 @@ private slots:
 
     void on_actionClose_triggered();
 
+    void on_actionSwitchNavi_triggered();
+
 protected:
     bool eventFilter(QObject *obj, QEvent *ev) override;
 
 private:
     void initUI();
-    void initStatusBar(QStatusBar *statusbar);
+    void initStatusBar(CxStatusBar *statusbar);
     void reflectScrollBar();
 
 private:
     Ui::MainWindow *ui;
     QToolButton *m_sideBarButton;
+    CxStatusBar *m_statusBar;
     CxBufferListModel *m_listModel;
 };
 

@@ -11,11 +11,14 @@
 #include <QModelIndex>
 #include <QItemSelection>
 #include <QItemSelectionModel>
+#include <QDebug>
+#include "cxstatusbar.h"
 #include "cxbufferlistmodel.h"
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
+    , m_statusBar(new CxStatusBar(this))
     , m_listModel(new CxBufferListModel(this))
 {
     initUI();
@@ -33,8 +36,9 @@ void MainWindow::initUI()
     ui->setupUi(this);
     ui->listView->setModel(m_listModel);
     ui->listView->setSelectionBehavior(QAbstractItemView::SelectRows);
+    ui->contentLayout->addWidget(m_statusBar);
     ui->splitter->setStretchFactor(1,1);
-    initStatusBar(ui->statusbar);
+    initStatusBar(m_statusBar);
 
     QLayout *layout = ui->contentWidget->layout();
     if (layout) {
@@ -56,12 +60,10 @@ void MainWindow::initUI()
             this, SLOT(setCurrent(const QItemSelection&, const QItemSelection&)));
 }
 
-void MainWindow::initStatusBar(QStatusBar *statusbar)
+void MainWindow::initStatusBar(CxStatusBar *statusbar)
 {
-    m_sideBarButton = new QToolButton(statusbar);
-    m_sideBarButton->setText("O");
-    m_sideBarButton->setToolTip(tr("Open/Hide side bar"));
-    statusbar->addWidget(m_sideBarButton);
+    Q_UNUSED(statusbar)
+    statusbar->addAction(ui->actionSwitchNavi);
 }
 
 void MainWindow::reflectScrollBar()
@@ -131,14 +133,23 @@ void MainWindow::setCurrent(const QItemSelection &selected, const QItemSelection
     Q_UNUSED(deselected)
 
     QModelIndex idx = selected.indexes().value(0);
-
     CxFileBuffer *ptr = reinterpret_cast<CxFileBuffer*>(idx.internalPointer());
     if (ptr) {
         ui->markdownEdit->setPlainText(ptr->text());
-
-        const QString filePath = idx.data(Qt::ToolTipRole).toString();
-        setWindowTitle(QString("%1[*] - CxWriter").arg(filePath));
+    } else {
+        ui->markdownEdit->setPlainText("");
     }
+    updateWindowTitle();
+}
+
+void MainWindow::switchNavi(bool expand)
+{
+    if (expand) {
+        ui->splitter->setSizes({300,ui->splitter->width() - 300});
+    } else {
+        ui->splitter->setSizes({0,ui->splitter->width()});
+    }
+    ui->actionSwitchNavi->setText(expand ? "<" : ">");
 }
 
 void MainWindow::onDocumentModificationChanged(bool changed)
@@ -154,13 +165,16 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *ev)
 
 void MainWindow::on_actionSave_triggered()
 {
-    const QModelIndex curIndex = ui->listView->currentIndex();
+    QModelIndex curIndex = ui->listView->currentIndex();
     QString filePath = curIndex.data(Qt::ToolTipRole).toString();
     if (!curIndex.isValid() && isWindowModified()) {
         filePath = QFileDialog::getSaveFileName(this,tr("Save file"),"","Markdown (*.md *.markdown)");
+        if (filePath.isEmpty()) { return; }
+
         m_listModel->appendRows({filePath});
+
         const QModelIndex idx = m_listModel->index(m_listModel->rowCount()-1);
-        ui->listView->setCurrentIndex(idx);
+        curIndex = idx;
     }
 
     if (filePath.isEmpty() || !isWindowModified()) {
@@ -173,23 +187,33 @@ void MainWindow::on_actionSave_triggered()
         buffer->save();
     }
 
+    ui->listView->setCurrentIndex(curIndex);
     ui->markdownEdit->document()->setModified(false);
 }
 
 void MainWindow::on_actionNewFile_triggered()
 {
-
+    ui->listView->setCurrentIndex(QModelIndex());
 }
 
 void MainWindow::on_actionClose_triggered()
 {
+    QModelIndex curIndex = ui->listView->currentIndex();
+    if (!curIndex.isValid() && !isWindowModified()) { return; }
+
     on_actionSave_triggered();
 
-    const QModelIndex curIndex = ui->listView->currentIndex();
+    curIndex = ui->listView->currentIndex();
     const int row = curIndex.row();
-    m_listModel->removeRows(row,1);
     ui->markdownEdit->clear();
+    m_listModel->removeRows(row,1);
 
     const QModelIndex idx = m_listModel->index(row);
     ui->listView->setCurrentIndex(idx);
+}
+
+void MainWindow::on_actionSwitchNavi_triggered()
+{
+    const int s = ui->splitter->sizes().value(0);
+    switchNavi(s == 0);
 }
