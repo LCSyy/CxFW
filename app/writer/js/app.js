@@ -53,8 +53,9 @@ function initDB() {
         tx.executeSql('CREATE TABLE IF NOT EXISTS blog (' +
                       'id INTEGER PRIMARY KEY ASC,'+
                       'uuid TEXT NOT NULL UNIQUE,'+
-                      'title TEXT, content TEXT,'+
-                      'tags TEXT, '+
+                      'title TEXT,'+
+                      'content TEXT,'+
+                      'tags TEXT,'+
                       'status TEXT,'+
                       'create_dt TEXT,'+
                       'update_dt TEXT)');

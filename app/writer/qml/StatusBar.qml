@@ -1,5 +1,5 @@
 import QtQuick 2.15
-import App.Type 1.0 as AppType
+import CxQuick 0.1 as AppType
 
 Rectangle {
     width: parent.width

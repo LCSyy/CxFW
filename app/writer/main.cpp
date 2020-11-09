@@ -6,10 +6,15 @@
 
 #include "theme.h"
 #include "listmodel.h"
+#include "cxquicksyntaxhighlighter.h"
 
 static void registerSingletonType();
 static void registerTypes();
 static QJSValue themeSingleton(QQmlEngine *e, QJSEngine *s);
+
+#define CXQUICK "CxQuick"
+#define CXQUICK_VERSION_MARJOR 0
+#define CXQUICK_VERSION_MINOR 1
 
 int main(int argc, char *argv[])
 {
@@ -43,11 +48,12 @@ int main(int argc, char *argv[])
 }
 
 static void registerSingletonType() {
-    qmlRegisterSingletonType("App.Type",1,0,"Theme",themeSingleton);
+    qmlRegisterSingletonType(CXQUICK,CXQUICK_VERSION_MARJOR,CXQUICK_VERSION_MINOR,"Theme",themeSingleton);
 }
 
 static void registerTypes() {
-    qmlRegisterType<ListModel>("App.Type",1,0,"ListModel");
+    qmlRegisterType<ListModel>(CXQUICK,CXQUICK_VERSION_MARJOR,CXQUICK_VERSION_MINOR,"ListModel");
+    qmlRegisterType<CxQuickSyntaxHighlighter>(CXQUICK,CXQUICK_VERSION_MARJOR,CXQUICK_VERSION_MINOR,"SyntaxHighlighter");
 }
 
 static QJSValue themeSingleton(QQmlEngine *e, QJSEngine *s)

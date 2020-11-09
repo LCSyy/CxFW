@@ -1,6 +1,6 @@
 import QtQuick 2.15
 import QtQuick.Controls 2.15 as Controls
-import App.Type 1.0
+import CxQuick 0.1
 
 Controls.Button {
     id: button

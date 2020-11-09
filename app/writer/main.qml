@@ -6,7 +6,7 @@ import QtQuick.Layouts 1.15
 import QtQuick.LocalStorage 2.15
 import Qt.labs.settings 1.1
 
-import App.Type 1.0 as AppType
+import CxQuick 0.1 as Cx
 import "qml" as App
 import "js/app.js" as Js
 
@@ -19,8 +19,8 @@ import "js/app.js" as Js
 
 ApplicationWindow {
     id: app
-    width: 800
-    height: 520
+    width: 1000
+    height: 720
     visible: true
     title: qsTr("writer")
 
@@ -31,79 +31,37 @@ ApplicationWindow {
     header: App.ToolBar {
         RowLayout {
             anchors.fill: parent
-            anchors.leftMargin: AppType.Theme.baseMargin
-            anchors.rightMargin: AppType.Theme.baseMargin
+            anchors.leftMargin: Cx.Theme.baseMargin
+            anchors.rightMargin: Cx.Theme.baseMargin
             anchors.bottomMargin: 2
 
-            App.Button {
-                text: qsTr('New')
-                onClicked: {
-                    var pp = contentComponent.createObject(app);
-                    contentConnection.target = pp;
-                    pp.open();
-                }
-            }
-
-            App.Button {
-                text: qsTr("tags")
-                onClicked:  {
-                    // tags.open()
-                    var pp = tagsComponent.createObject(app);
-                    tagNewConnection.target = pp;
-                    pp.open();
-                }
-            }
-
-            App.Button {
-                text: qsTr("trash")
-                onClicked: {
-                    var pp = trashComponent.createObject(app);
-                    contentConnection.target = pp;
-                    pp.open();
-                }
-            }
-
-            App.Button {
-                text: qsTr("Settings")
-                onClicked: {
-                    var pp = settingsComponent.createObject(app)
-                    pp.open();
-                }
-            }
-
-            Item {
-                Layout.fillWidth: true
-            }
-
+            App.Button { action: actionNew }
+            App.Button { action: actionTags }
+            App.Button { action: actionTrash }
+            App.Button { action: actionSettings }
+            Item { Layout.fillWidth: true }
             App.TextField {
                 visible: false
                 placeholderText: qsTr('Search')
             }
-
-            App.Button {
-                text: qsTr("Refresh")
-                onClicked: {
-                    tagsModel.update();
-                    contentsModel.update();
-                }
-            }
+            App.Button { action: actionRefresh }
         }
 
         Rectangle {
             width: parent.width
             anchors.bottom: parent.bottom
             height:1
-            color: AppType.Theme.bgDeepColor
+            color: Cx.Theme.bgDeepColor
         }
     }
 
     footer: App.StatusBar {
-        visible: false
+        // visible: false
         RowLayout {
             anchors.fill: parent
             anchors.margins: 0
-            anchors.rightMargin: AppType.Theme.baseMargin / 2
-            anchors.leftMargin: AppType.Theme.baseMargin / 2
+            anchors.rightMargin: Cx.Theme.baseMargin / 2
+            anchors.leftMargin: Cx.Theme.baseMargin / 2
 
             Item {
                 Layout.fillWidth: true
@@ -115,11 +73,67 @@ ApplicationWindow {
         }
     }
 
+
+    Action {
+        id: actionNew
+        text: qsTr('New')
+        shortcut: StandardKey.New
+        onTriggered: {
+            var pp = contentComponent.createObject(app);
+            contentConnection.target = pp;
+            const tag = tagsModel.get(tagsView.currentIndex);
+            if(tag.name !== "_all_") {
+                pp.setDefaultTag(tag);
+            }
+            pp.open();
+        }
+    }
+
+    Action {
+        id: actionTags
+        text: qsTr("Tags")
+        onTriggered: {
+            var pp = tagsComponent.createObject(app);
+            tagNewConnection.target = pp;
+            pp.open();
+        }
+    }
+
+    Action {
+        id: actionTrash
+        text: qsTr("Trash")
+        onTriggered: {
+            var pp = trashComponent.createObject(app);
+            contentConnection.target = pp;
+            pp.open();
+        }
+    }
+
+    Action {
+        id: actionSettings
+        text: qsTr("Settings")
+        onTriggered: {
+            var pp = settingsComponent.createObject(app)
+            pp.open();
+        }
+    }
+
+    Action {
+        id: actionRefresh
+        text: qsTr("Refresh")
+        onTriggered: {
+            tagsModel.update();
+            contentsModel.update();
+        }
+    }
+
+
     Settings {
         id: appSettings
         property bool contentLineWrap: true
         property int contentFontPointSize: app.font.pointSize
     }
+
 
     Connections {
         id: contentConnection
@@ -142,7 +156,8 @@ ApplicationWindow {
         }
     }
 
-    AppType.ListModel {
+
+    Cx.ListModel {
         id: contentsModel
         roleNames: ["id","uuid","title","create_dt","update_dt"]
 
@@ -179,7 +194,7 @@ ApplicationWindow {
         }
     }
 
-    AppType.ListModel {
+    Cx.ListModel {
         id: tagsModel
         roleNames: ["id","name","title"]
         Component.onCompleted: {
@@ -196,6 +211,7 @@ ApplicationWindow {
             }
         }
     }
+
 
     SplitView {
         anchors.fill: parent
@@ -236,10 +252,10 @@ ApplicationWindow {
 
                 Rectangle {
                     anchors.bottom: parent.bottom
-                    width: parent.width - AppType.Theme.baseMargin * 2
+                    width: parent.width - Cx.Theme.baseMargin * 2
                     height: 1
-                    x: AppType.Theme.baseMargin
-                    color: AppType.Theme.bgNormalColor
+                    x: Cx.Theme.baseMargin
+                    color: Cx.Theme.bgNormalColor
                 }
             }
         }
@@ -253,7 +269,7 @@ ApplicationWindow {
             Rectangle {
                 width: parent.width
                 height: 25
-                color: AppType.Theme.bgNormalColor
+                color: Cx.Theme.bgNormalColor
                 Text {
                     anchors.fill: parent
                     anchors.leftMargin: 8
@@ -281,8 +297,8 @@ ApplicationWindow {
 
                 delegate: Rectangle {
                     width: parent === null ? 0 : parent.width
-                    height: AppType.Theme.contentHeight
-                    color: model.index === tagsView.currentIndex ? AppType.Theme.bgLightColor : "white"
+                    height: Cx.Theme.contentHeight
+                    color: model.index === tagsView.currentIndex ? Cx.Theme.bgLightColor : "white"
                     Text {
                         anchors.fill: parent
                         anchors.leftMargin: 8
@@ -302,6 +318,7 @@ ApplicationWindow {
         }
     }
 
+
     Component {
         id: contentComponent
 
@@ -310,10 +327,10 @@ ApplicationWindow {
 
             implicitWidth: {
                 var dw = parent.width * 0.8;
-                if (dw > 640) { dw = 640; }
+                if (dw > 800) { dw = 800; }
                 return dw;
             }
-            implicitHeight: parent.height * 0.8
+            implicitHeight: parent.height * 0.95
 
             property bool editable: true
             signal ok(int id)
@@ -335,6 +352,10 @@ ApplicationWindow {
                 open();
             }
 
+            function setDefaultTag(tag) {
+                tagRepeater.model.append(tag)
+            }
+
             header: App.ToolBar {
                 RowLayout {
                     anchors.fill: parent
@@ -343,38 +364,7 @@ ApplicationWindow {
 
                     App.Button {
                         visible: popup.editable
-                        text: qsTr("Save")
-                        onClicked: {
-                            if (textArea.text.trim() === '') { return; }
-
-                            var tags = [];
-                            for (var i = 0; i < tagRepeater.model.count(); ++i) {
-                                const tagName = tagRepeater.model.get(i).name;
-                                tags.push('"' + tagName + '"');
-                            }
-
-                            var nowDate = new Date();
-                            const dt = nowDate.format('yyyy-MM-dd hh:mm:ss');
-                            var obj = {
-                                "id": meta.id,
-                                "uuid": meta.uuid || '',
-                                "title": Js.getFirstLine(textArea.text),
-                                "content": textArea.text,
-                                "tags": "[" + tags.join(",") + "]",
-                                "status": "release"
-                            };
-
-                            if (meta.uuid === '') {
-                                meta.uuid = Js.uuid(nowDate);
-                                obj['uuid'] = meta.uuid;
-                                obj["id"] = null;
-                                meta.id = Js.insertRow("INSERT INTO blog(uuid,title,content,tags,create_dt,update_dt,status) VALUES(?,?,?,?,datetime('now','localtime'),datetime('now','localtime'),?)",["uuid","title","content","tags","status"],obj);
-                            } else {
-                                Js.updateRow("UPDATE blog SET title=?,content=?,tags=?,update_dt=datetime('now','localtime'),status=? WHERE uuid=?;",["title","content","tags","status","uuid"],obj);
-                            }
-
-                            popup.ok(meta.id)
-                        }
+                        action: actionSave
                     }
 
                     App.Button {
@@ -441,12 +431,12 @@ ApplicationWindow {
             body: ColumnLayout {
                 Flow {
                     Layout.fillWidth: true
-                    Layout.topMargin: AppType.Theme.baseMargin / 2
-                    spacing: AppType.Theme.baseMargin
+                    Layout.topMargin: Cx.Theme.baseMargin / 2
+                    spacing: Cx.Theme.baseMargin
 
                     Repeater {
                         id: tagRepeater
-                        model: AppType.ListModel {
+                        model: Cx.ListModel {
                             roleNames: ["id","name","title"]
                         }
                         delegate: App.Button {
@@ -458,7 +448,7 @@ ApplicationWindow {
                 Rectangle {
                     Layout.fillWidth: true
                     height: 1
-                    color: AppType.Theme.bgDeepColor
+                    color: Cx.Theme.bgDeepColor
                 }
 
                 ScrollView {
@@ -470,7 +460,48 @@ ApplicationWindow {
                         wrapMode: appSettings.contentLineWrap === true ? TextArea.WrapAnywhere : TextArea.NoWrap
                         selectByMouse: true
                         font.pointSize: appSettings.contentFontPointSize
+
+                        Cx.SyntaxHighlighter {
+                            target: textArea.textDocument
+                        }
                     }
+                }
+            }
+
+            Action {
+                id: actionSave
+                text: qsTr("Save")
+                // shortcut: StandardKey.Save
+                onTriggered: {
+                    if (textArea.text.trim() === '') { return; }
+
+                    var tags = [];
+                    for (var i = 0; i < tagRepeater.model.count(); ++i) {
+                        const tagName = tagRepeater.model.get(i).name;
+                        tags.push('"' + tagName + '"');
+                    }
+
+                    var nowDate = new Date();
+                    const dt = nowDate.format('yyyy-MM-dd hh:mm:ss');
+                    var obj = {
+                        "id": meta.id,
+                        "uuid": meta.uuid || '',
+                        "title": Js.getFirstLine(textArea.text),
+                        "content": textArea.text,
+                        "tags": "[" + tags.join(",") + "]",
+                        "status": "release"
+                    };
+
+                    if (meta.uuid === '') {
+                        meta.uuid = Js.uuid(nowDate);
+                        obj['uuid'] = meta.uuid;
+                        obj["id"] = null;
+                        meta.id = Js.insertRow("INSERT INTO blog(uuid,title,content,tags,create_dt,update_dt,status) VALUES(?,?,?,?,datetime('now','localtime'),datetime('now','localtime'),?)",["uuid","title","content","tags","status"],obj);
+                    } else {
+                        Js.updateRow("UPDATE blog SET title=?,content=?,tags=?,update_dt=datetime('now','localtime'),status=? WHERE uuid=?;",["title","content","tags","status","uuid"],obj);
+                    }
+
+                    popup.ok(meta.id)
                 }
             }
 
@@ -545,7 +576,7 @@ ApplicationWindow {
                 id: tagList
                 clip: true
 
-                model: AppType.ListModel {
+                model: Cx.ListModel {
                     id: tagModel
                     roleNames: ["id","name","title"]
                     Component.onCompleted: {
@@ -593,7 +624,7 @@ ApplicationWindow {
                         width: parent.width - 16
                         height: 1
                         x: 8
-                        color: AppType.Theme.bgNormalColor
+                        color: Cx.Theme.bgNormalColor
                     }
                 }
             }
@@ -648,7 +679,7 @@ ApplicationWindow {
 
                 clip: true
 
-                model: AppType.ListModel {
+                model: Cx.ListModel {
                     id: trashModel
                     roleNames: ["id","uuid","title","create_dt","update_dt"]
 
@@ -702,10 +733,10 @@ ApplicationWindow {
 
                     Rectangle {
                         anchors.bottom: parent.bottom
-                        width: parent.width - AppType.Theme.baseMargin * 2
+                        width: parent.width - Cx.Theme.baseMargin * 2
                         height: 1
-                        x: AppType.Theme.baseMargin
-                        color: AppType.Theme.bgNormalColor
+                        x: Cx.Theme.baseMargin
+                        color: Cx.Theme.bgNormalColor
                     }
                 }
             }
@@ -737,8 +768,8 @@ ApplicationWindow {
             header: App.ToolBar {
                 RowLayout {
                     anchors.fill: parent
-                    anchors.leftMargin: AppType.Theme.baseMargin
-                    anchors.rightMargin: AppType.Theme.baseMargin
+                    anchors.leftMargin: Cx.Theme.baseMargin
+                    anchors.rightMargin: Cx.Theme.baseMargin
 
                     App.Button {
                         text: qsTr("Save")
@@ -758,12 +789,12 @@ ApplicationWindow {
 
             body: GridLayout {
                 columns: 2
-                columnSpacing: AppType.Theme.baseMargin
-                rowSpacing: AppType.Theme.baseMargin
+                columnSpacing: Cx.Theme.baseMargin
+                rowSpacing: Cx.Theme.baseMargin
 
                 Label {
                     Layout.fillWidth: true
-                    Layout.margins: AppType.Theme.baseMargin
+                    Layout.margins: Cx.Theme.baseMargin
                     Layout.columnSpan: 2
                     // horizontalAlignment: Qt.AlignHCenter
                     text: qsTr("Content Editor")
@@ -773,6 +804,7 @@ ApplicationWindow {
 
                 CheckBox {
                     Layout.columnSpan: 2
+                    Layout.margins: Cx.Theme.baseMargin
                     text: qsTr("Line Wrap")
                     onCheckStateChanged: {
                         appSettings.contentLineWrap = (checkState === Qt.Checked);
@@ -784,6 +816,7 @@ ApplicationWindow {
 
                 Label {
                     text: qsTr("Font Point Size")
+                    Layout.margins: Cx.Theme.baseMargin
                 }
 
                 ComboBox {
@@ -825,7 +858,7 @@ ApplicationWindow {
             background: Rectangle {
                 radius: 4
                 border.width: 1
-                border.color: AppType.Theme.bgDeepColor
+                border.color: Cx.Theme.bgDeepColor
             }
             onAccepted: {
                 ok(tagName.text,tagTitle.text);
@@ -894,8 +927,8 @@ ApplicationWindow {
                 Grid {
                     anchors.centerIn: parent
                     columns: 2
-                    columnSpacing: AppType.Theme.baseMargin
-                    rowSpacing: AppType.Theme.baseMargin
+                    columnSpacing: Cx.Theme.baseMargin
+                    rowSpacing: Cx.Theme.baseMargin
                     Label { text: qsTr("Name") }
                     TextField { id: tagName }
                     Label { text: qsTr("Text") }
@@ -968,7 +1001,7 @@ ApplicationWindow {
                     return checked;
                 }
 
-                model: AppType.ListModel {
+                model: Cx.ListModel {
                     id: tagsModel
                     roleNames: ["id","name","title","check"]
                     Component.onCompleted: {
