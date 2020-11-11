@@ -1,11 +1,31 @@
 #include "cxapplication.h"
-#include <QSystemTrayIcon>
+#include <QQmlApplicationEngine>
 #include <QMenu>
+
+#include <QGlobalShortcut/qglobalshortcut.h>
+#include "theme.h"
+#include "listmodel.h"
+#include "cxquicksyntaxhighlighter.h"
+
+#define CXQUICK "CxQuick"
+#define CXQUICK_VERSION_MARJOR 0
+#define CXQUICK_VERSION_MINOR 1
+
+namespace {
+    static QJSValue themeSingleton(QQmlEngine *e, QJSEngine *s)
+    {
+        Q_UNUSED(e)
+        return s->newQObject(new Theme(s));
+    }
+}
 
 CxApplication::CxApplication(int argc, char *argv[])
     : QApplication(argc,argv)
 {
     initTrayIcon();
+    registerSingletonTypes();
+    registerTypes();
+    registerSingletonInstance();
 }
 
 CxApplication::~CxApplication()
@@ -13,6 +33,18 @@ CxApplication::~CxApplication()
     if (m_trayMenu) {
         delete m_trayMenu;
     }
+}
+
+void CxApplication::onTrayActivated(QSystemTrayIcon::ActivationReason reason)
+{
+    switch(reason) {
+    case QSystemTrayIcon::DoubleClick:
+        break;
+    default:
+        ;
+    }
+
+    emit systemTrayIconActivated(reason, QPrivateSignal{});
 }
 
 void CxApplication::initTrayIcon()
@@ -24,7 +56,27 @@ void CxApplication::initTrayIcon()
     m_trayMenu->addAction(actionQuit);
     m_trayIcon->setContextMenu(m_trayMenu);
 
-    QObject::connect(actionQuit, SIGNAL(triggered()), this,SLOT(quit()), Qt::QueuedConnection);
+
+    connect(m_trayIcon,SIGNAL(activated(QSystemTrayIcon::ActivationReason)),
+            this, SLOT(onTrayActivated(QSystemTrayIcon::ActivationReason)));
+    connect(actionQuit, SIGNAL(triggered()), this,SLOT(quit()), Qt::QueuedConnection);
 
     m_trayIcon->show();
+}
+
+void CxApplication::registerSingletonInstance()
+{
+    qmlRegisterSingletonInstance(CXQUICK,CXQUICK_VERSION_MARJOR,CXQUICK_VERSION_MINOR,"App",this);
+}
+
+void CxApplication::registerSingletonTypes()
+{
+    qmlRegisterSingletonType(CXQUICK,CXQUICK_VERSION_MARJOR,CXQUICK_VERSION_MINOR,"Theme",themeSingleton);
+}
+
+void CxApplication::registerTypes()
+{
+    qmlRegisterType<ListModel>(CXQUICK,CXQUICK_VERSION_MARJOR,CXQUICK_VERSION_MINOR,"ListModel");
+    qmlRegisterType<CxQuickSyntaxHighlighter>(CXQUICK,CXQUICK_VERSION_MARJOR,CXQUICK_VERSION_MINOR,"SyntaxHighlighter");
+    qmlRegisterType<QGlobalShortcut>(CXQUICK,CXQUICK_VERSION_MARJOR,CXQUICK_VERSION_MINOR,"GlobalShortcut");
 }

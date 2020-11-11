@@ -1,23 +1,6 @@
 #include <QQmlApplicationEngine>
 #include <QSettings>
-#include <QSystemTrayIcon>
-#include <QMenu>
-
-#include <QDebug>
-
-#include <QGlobalShortcut/qglobalshortcut.h>
 #include "cxapplication.h"
-#include "theme.h"
-#include "listmodel.h"
-#include "cxquicksyntaxhighlighter.h"
-
-static void registerSingletonType();
-static void registerTypes();
-static QJSValue themeSingleton(QQmlEngine *e, QJSEngine *s);
-
-#define CXQUICK "CxQuick"
-#define CXQUICK_VERSION_MARJOR 0
-#define CXQUICK_VERSION_MINOR 1
 
 int main(int argc, char *argv[])
 {
@@ -28,9 +11,6 @@ int main(int argc, char *argv[])
 
     CxApplication app(argc, argv);
     app.setQuitOnLastWindowClosed(false);
-
-    registerSingletonType();
-    registerTypes();
 
     QQmlApplicationEngine engine;
     {
@@ -49,20 +29,4 @@ int main(int argc, char *argv[])
     engine.load(url);
 
     return app.exec();
-}
-
-static void registerSingletonType() {
-    qmlRegisterSingletonType(CXQUICK,CXQUICK_VERSION_MARJOR,CXQUICK_VERSION_MINOR,"Theme",themeSingleton);
-}
-
-static void registerTypes() {
-    qmlRegisterType<ListModel>(CXQUICK,CXQUICK_VERSION_MARJOR,CXQUICK_VERSION_MINOR,"ListModel");
-    qmlRegisterType<CxQuickSyntaxHighlighter>(CXQUICK,CXQUICK_VERSION_MARJOR,CXQUICK_VERSION_MINOR,"SyntaxHighlighter");
-    qmlRegisterType<QGlobalShortcut>(CXQUICK,CXQUICK_VERSION_MARJOR,CXQUICK_VERSION_MINOR,"GlobalShortcut");
-}
-
-static QJSValue themeSingleton(QQmlEngine *e, QJSEngine *s)
-{
-    Q_UNUSED(e)
-    return s->newQObject(new Theme(s));
 }

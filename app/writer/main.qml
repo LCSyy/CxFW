@@ -28,16 +28,26 @@ ApplicationWindow {
         Js.initDB();
     }
 
-    function showIt() {
-        app.show()
+    function showWindow() {
+        app.showNormal()
         app.raise()
         app.requestActivate()
+    }
+
+    Connections {
+        target: Cx.App
+
+        function onSystemTrayIconActivated(reason) {
+            if (reason === 2) { // double clicked
+                app.showWindow()
+            }
+        }
     }
 
     Cx.GlobalShortcut {
         sequence: "Shift+w"
         onActivated: {
-            app.showIt()
+            app.showWindow()
         }
     }
 
