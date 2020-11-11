@@ -14,6 +14,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 find_package(QT NAMES Qt6 Qt5 COMPONENTS Core Quick Widgets Sql QuickControls2 LinguistTools REQUIRED)
 find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Core Quick Widgets Sql QuickControls2 LinguistTools REQUIRED)
 
+add_subdirectory(MarkdownSyntaxHighlighter)
 add_subdirectory(QGlobalShortcut)
 
 set(TS_FILES writer_zh_CN.ts)
@@ -28,8 +29,6 @@ add_executable(writer
     cxapplication.cpp cxapplication.h
     listmodel.cpp listmodel.h
     theme.cpp theme.h
-    qownlanguagedata.cpp qownlanguagedata.h
-    markdownhighlighter.cpp markdownhighlighter.h
     cxquicksyntaxhighlighter.cpp cxquicksyntaxhighlighter.h
 )
 
@@ -43,6 +42,7 @@ target_link_libraries(writer
     Qt${QT_VERSION_MAJOR}::Widgets
     Qt${QT_VERSION_MAJOR}::Sql
     Qt${QT_VERSION_MAJOR}::QuickControls2
+    MarkdownSyntaxHighlighter
     QGlobalShortcut
 )
 
