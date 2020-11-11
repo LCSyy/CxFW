@@ -347,6 +347,7 @@ ApplicationWindow {
 
         App.Popup {
             id: popup
+            closePolicy: Popup.NoAutoClose
 
             implicitWidth: {
                 var dw = parent.width * 0.8;
@@ -494,7 +495,7 @@ ApplicationWindow {
             Action {
                 id: actionSave
                 text: qsTr("Save")
-                // shortcut: StandardKey.Save
+//                 shortcut: StandardKey.Save
                 onTriggered: {
                     if (textArea.text.trim() === '') { return; }
 
