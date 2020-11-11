@@ -28,6 +28,19 @@ ApplicationWindow {
         Js.initDB();
     }
 
+    function showIt() {
+        app.show()
+        app.raise()
+        app.requestActivate()
+    }
+
+    Cx.GlobalShortcut {
+        sequence: "Shift+w"
+        onActivated: {
+            app.showIt()
+        }
+    }
+
     header: App.ToolBar {
         RowLayout {
             anchors.fill: parent
@@ -56,7 +69,7 @@ ApplicationWindow {
     }
 
     footer: App.StatusBar {
-        // visible: false
+         visible: false
         RowLayout {
             anchors.fill: parent
             anchors.margins: 0

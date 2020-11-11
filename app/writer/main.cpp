@@ -1,9 +1,12 @@
-#include <QGuiApplication>
 #include <QQmlApplicationEngine>
 #include <QSettings>
+#include <QSystemTrayIcon>
+#include <QMenu>
 
 #include <QDebug>
 
+#include <QGlobalShortcut/qglobalshortcut.h>
+#include "cxapplication.h"
 #include "theme.h"
 #include "listmodel.h"
 #include "cxquicksyntaxhighlighter.h"
@@ -23,7 +26,8 @@ int main(int argc, char *argv[])
     QCoreApplication::setOrganizationDomain("cxfw.lcs");
     QCoreApplication::setApplicationName("writer");
 
-    QGuiApplication app(argc, argv);
+    CxApplication app(argc, argv);
+    app.setQuitOnLastWindowClosed(false);
 
     registerSingletonType();
     registerTypes();
@@ -54,6 +58,7 @@ static void registerSingletonType() {
 static void registerTypes() {
     qmlRegisterType<ListModel>(CXQUICK,CXQUICK_VERSION_MARJOR,CXQUICK_VERSION_MINOR,"ListModel");
     qmlRegisterType<CxQuickSyntaxHighlighter>(CXQUICK,CXQUICK_VERSION_MARJOR,CXQUICK_VERSION_MINOR,"SyntaxHighlighter");
+    qmlRegisterType<QGlobalShortcut>(CXQUICK,CXQUICK_VERSION_MARJOR,CXQUICK_VERSION_MINOR,"GlobalShortcut");
 }
 
 static QJSValue themeSingleton(QQmlEngine *e, QJSEngine *s)
