@@ -32,12 +32,16 @@ if(ANDROID)
     main.cpp
     mainwindow.cpp
     mainwindow.h
+    cameracontroller.cpp
+    cameracontroller.h
   )
 else()
   add_executable(CxVoxel
     main.cpp
     mainwindow.cpp
     mainwindow.h
+    cameracontroller.cpp
+    cameracontroller.h
   )
 endif()
 

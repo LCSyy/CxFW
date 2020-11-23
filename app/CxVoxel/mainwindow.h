@@ -20,7 +20,7 @@ public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
-    void addCube();
+    Qt3DCore::QEntity *addCube(Qt3DCore::QEntity *parent);
 
 private:
     void init3DScene();
