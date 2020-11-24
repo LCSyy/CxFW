@@ -7,6 +7,9 @@ QT_BEGIN_NAMESPACE
 namespace Qt3DCore {
     class QEntity;
 }
+namespace Qt3DRender {
+    class QPickEvent;
+};
 namespace Qt3DExtras {
     class Qt3DWindow;
 }
@@ -21,6 +24,9 @@ public:
     ~MainWindow();
 
     Qt3DCore::QEntity *addCube(Qt3DCore::QEntity *parent);
+
+private slots:
+    void onPick(Qt3DRender::QPickEvent *ev);
 
 private:
     void init3DScene();

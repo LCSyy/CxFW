@@ -13,6 +13,7 @@
 #include <Qt3DExtras/QForwardRenderer>
 #include <Qt3DExtras/QCuboidMesh>
 #include <Qt3DExtras/QPhongMaterial>
+#include <Qt3DExtras/QTorusMesh>
 
 #include "cameracontroller.h"
 
@@ -43,6 +44,12 @@ Qt3DCore::QEntity *MainWindow::addCube(Qt3DCore::QEntity *parent)
 {
     QEntity *cube = new QEntity(parent);
 
+    Qt3DExtras::QCuboidMesh *mesh = new Qt3DExtras::QCuboidMesh(cube);
+    mesh->setXExtent(10);
+    mesh->setYExtent(10);
+    mesh->setZExtent(10);
+
+    Qt3DRender::QMaterial *material = new Qt3DExtras::QPhongMaterial(cube);
     Qt3DCore::QTransform *trans = new Qt3DCore::QTransform(cube);
 
     auto rand = QRandomGenerator::system();
@@ -53,21 +60,26 @@ Qt3DCore::QEntity *MainWindow::addCube(Qt3DCore::QEntity *parent)
                               rand->generateDouble()*width)
                           );
 
+    QObjectPicker *picker = new QObjectPicker(cube);
+    picker->setHoverEnabled(false);
+    picker->setDragEnabled(false);
+    connect(picker,SIGNAL(pressed(Qt3DRender::QPickEvent*)),this,SLOT(onPick(Qt3DRender::QPickEvent*)));
 
-//    QObjectPicker *picker = new QObjectPicker(cube);
-//    picker->setHoverEnabled(false);
-//    picker->setEnabled(true);
-//    connect(picker,&QObjectPicker::pressed, [](QPickEvent *ev){
-//        qDebug() << "Hey";
-//        if (ev->entity()) {
-//            qDebug() << "entity:" << ev->entity()->id();
-//        }
-//    });
-
-//    cube->addComponent(picker);
+    cube->addComponent(picker);
     cube->addComponent(trans);
+    cube->addComponent(mesh);
+    cube->addComponent(material);
 
     return cube;
+}
+
+void MainWindow::onPick(Qt3DRender::QPickEvent *ev)
+{
+    QEntity *entity = ev->entity();
+    if (entity) {
+        QVector<QPhongMaterial*> coms = entity->componentsOfType<QPhongMaterial>();
+        // ...
+    }
 }
 
 void MainWindow::init3DScene()
@@ -82,7 +94,7 @@ void MainWindow::init3DScene()
 //    m_root->addComponent(mRenderSettings);
 
     Qt3DRender::QCamera *camera = m_view->camera();
-    camera->lens()->setPerspectiveProjection(45.0f, 16.0f/9.0f, 0.1f, 1000.0f);
+    camera->lens()->setPerspectiveProjection(45.0f, m_view->width()/m_view->height(), 0.1f, 1000.0f);
     camera->setPosition(QVector3D(0, 0, 0));
     camera->setViewCenter(QVector3D(1, 1, 1));
 
@@ -92,36 +104,30 @@ void MainWindow::init3DScene()
     camController->setDeceleration(50.0f);
     camController->setVelocity(50.0f,80.0f,50.0f);
 
-
-    Qt3DRender::QMaterial *material = new Qt3DExtras::QPhongMaterial(m_root);
-    Qt3DExtras::QCuboidMesh *mesh = new Qt3DExtras::QCuboidMesh(m_root);
-    mesh->setXExtent(1);
-    mesh->setYExtent(1);
-    mesh->setZExtent(1);
-
-    QGeometry *geo = mesh->geometry();
-    if (geo) {
-        qDebug() << "default:" << QAttribute::defaultPositionAttributeName();
-
-        QAttribute *bv = geo->boundingVolumePositionAttribute();
-        if (bv) {
-            qDebug() << "-->name:" << bv->name();
-            qDebug() << "-->count:" << bv->count();
-        }
-        for (auto attr: geo->attributes()) {
-            if (attr) {
-                qDebug() << "name:" << attr->name();
-                qDebug() << "count:" << attr->count();
-            }
-        }
-    }
-
     int counts = 100;
-    while (counts >= 0) {
-        --counts;
-        Qt3DCore::QEntity *cube = addCube(m_root);
-        cube->addComponent(material);
-        cube->addComponent(mesh);
+    while (counts-- >= 0) {
+        QEntity *cube = addCube(m_root);
     }
+
+    QEntity *torus = new QEntity(m_root);
+
+    QTorusMesh *torusMesh = new QTorusMesh(torus);
+    torusMesh->setRadius(50);
+    torusMesh->setMinorRadius(20);
+    torusMesh->setRings(10);
+    torusMesh->setSlices(20);
+
+    Qt3DRender::QMaterial *material = new Qt3DExtras::QPhongMaterial(torus);
+    Qt3DCore::QTransform *transform = new Qt3DCore::QTransform(torus);
+
+    QObjectPicker *picker2 = new QObjectPicker(torus);
+    picker2->setHoverEnabled(false);
+    picker2->setDragEnabled(false);
+    connect(picker2,SIGNAL(pressed(Qt3DRender::QPickEvent*)),this,SLOT(onPick(Qt3DRender::QPickEvent*)));
+
+    torus->addComponent(torusMesh);
+    torus->addComponent(transform);
+    torus->addComponent(material);
+    torus->addComponent(picker2);
 }
 
