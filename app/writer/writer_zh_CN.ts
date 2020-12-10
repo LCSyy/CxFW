@@ -4,7 +4,7 @@
 <context>
     <name>QObject</name>
     <message>
-        <location filename="cxapplication.cpp" line="55"/>
+        <location filename="cxapplication.cpp" line="60"/>
         <source>Quit</source>
         <translation type="unfinished"></translation>
     </message>
@@ -28,7 +28,7 @@
     </message>
     <message>
         <location filename="main.qml" line="102"/>
-        <location filename="main.qml" line="580"/>
+        <location filename="main.qml" line="581"/>
         <source>New</source>
         <translation type="unfinished"></translation>
     </message>
@@ -53,79 +53,79 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main.qml" line="300"/>
+        <location filename="main.qml" line="301"/>
         <source>Categories</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main.qml" line="396"/>
+        <location filename="main.qml" line="397"/>
         <source>Edit tags</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main.qml" line="411"/>
-        <location filename="main.qml" line="931"/>
+        <location filename="main.qml" line="412"/>
+        <location filename="main.qml" line="932"/>
         <source>Remove</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main.qml" line="422"/>
+        <location filename="main.qml" line="423"/>
         <source>Recovery</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main.qml" line="434"/>
+        <location filename="main.qml" line="435"/>
         <source>Delete</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main.qml" line="449"/>
-        <location filename="main.qml" line="593"/>
-        <location filename="main.qml" line="693"/>
-        <location filename="main.qml" line="944"/>
-        <location filename="main.qml" line="1004"/>
+        <location filename="main.qml" line="450"/>
+        <location filename="main.qml" line="594"/>
+        <location filename="main.qml" line="694"/>
+        <location filename="main.qml" line="945"/>
+        <location filename="main.qml" line="1005"/>
         <source>Close</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main.qml" line="497"/>
-        <location filename="main.qml" line="799"/>
-        <location filename="main.qml" line="919"/>
+        <location filename="main.qml" line="498"/>
+        <location filename="main.qml" line="800"/>
+        <location filename="main.qml" line="920"/>
         <source>Save</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main.qml" line="808"/>
+        <location filename="main.qml" line="809"/>
         <source>Cancel</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main.qml" line="824"/>
+        <location filename="main.qml" line="825"/>
         <source>Content Editor</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main.qml" line="832"/>
+        <location filename="main.qml" line="833"/>
         <source>Line Wrap</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main.qml" line="842"/>
+        <location filename="main.qml" line="843"/>
         <source>Font Point Size</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main.qml" line="956"/>
+        <location filename="main.qml" line="957"/>
         <source>Name</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main.qml" line="958"/>
+        <location filename="main.qml" line="959"/>
         <source>Text</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main.qml" line="992"/>
+        <location filename="main.qml" line="993"/>
         <source>Ok</source>
         <translation type="unfinished"></translation>
     </message>

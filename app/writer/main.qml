@@ -251,7 +251,7 @@ ApplicationWindow {
 
             delegate: Item {
                 width: contentListView !== null ? contentListView.width : 0
-                height: 25
+                height: 35
 
                 Text {
                     anchors.fill: parent
@@ -259,11 +259,12 @@ ApplicationWindow {
                     anchors.bottomMargin: 1
                     textFormat: Text.RichText
                     verticalAlignment: Qt.AlignVCenter
+                    font.pointSize: app.font.pointSize + 2
 
                     text: {
                         var str = '<a href="%1">%2</a>'.replace('%1',model.uuid)
                         str = str.replace('%2',model.title)
-                        return model.update_dt + ' - ' + str
+                        return '<small>%1 - </small>'.replace('%1',model.update_dt) + '<b>%1</b>'.replace('%1',str)
                     }
 
                     onLinkActivated: {
@@ -327,6 +328,7 @@ ApplicationWindow {
                         anchors.leftMargin: 8
                         verticalAlignment: Qt.AlignVCenter
                         text: model.title
+                        font.pointSize: app.font.pointSize + 2
                     }
                 }
 
@@ -340,7 +342,6 @@ ApplicationWindow {
             }
         }
     }
-
 
     Component {
         id: contentComponent

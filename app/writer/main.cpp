@@ -10,11 +10,9 @@ int main(int argc, char *argv[])
     QCoreApplication::setApplicationName("writer");
 
     CxApplication app(argc, argv);
-    app.setQuitOnLastWindowClosed(false);
 
     QQmlApplicationEngine engine;
     {
-
         QSettings s(engine.offlineStorageDatabaseFilePath("writer.db") + ".ini",QSettings::IniFormat);
         const QString v = s.value("Version","0.0.1").toString();
         engine.globalObject().setProperty("DBVersion",v);

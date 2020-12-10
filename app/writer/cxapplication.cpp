@@ -22,7 +22,12 @@ namespace {
 CxApplication::CxApplication(int argc, char *argv[])
     : QApplication(argc,argv)
 {
+
+#if !defined(QT_DEBUG)
+    setQuitOnLastWindowClosed(false);
     initTrayIcon();
+#endif
+
     registerSingletonTypes();
     registerTypes();
     registerSingletonInstance();

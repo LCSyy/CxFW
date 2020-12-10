@@ -30,8 +30,8 @@ private:
     void registerTypes();
 
 private:
-    QSystemTrayIcon *m_trayIcon;
-    QMenu *m_trayMenu;
+    QSystemTrayIcon *m_trayIcon {nullptr};
+    QMenu *m_trayMenu {nullptr};
 };
 
 #endif // CXAPPLICATION_H
