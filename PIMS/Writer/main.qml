@@ -12,7 +12,7 @@ import "js/app.js" as Js
 
 // status:
 //   trash
-//   traft
+//   draft
 //   release
 //   protect
 //   ...
@@ -96,7 +96,6 @@ ApplicationWindow {
         }
     }
 
-
     Action {
         id: actionNew
         text: qsTr('New')
@@ -150,13 +149,11 @@ ApplicationWindow {
         }
     }
 
-
     Settings {
         id: appSettings
         property bool contentLineWrap: true
         property int contentFontPointSize: app.font.pointSize
     }
-
 
     Connections {
         id: contentConnection
@@ -178,7 +175,6 @@ ApplicationWindow {
             tagsModel.update();
         }
     }
-
 
     Cx.ListModel {
         id: contentsModel
@@ -234,7 +230,6 @@ ApplicationWindow {
             }
         }
     }
-
 
     SplitView {
         anchors.fill: parent

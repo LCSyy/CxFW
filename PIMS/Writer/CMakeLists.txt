@@ -1,6 +1,6 @@
-cmake_minimum_required(VERSION 3.14)
+cmake_minimum_required(VERSION 3.15)
 
-project(writer VERSION 0.0.1 LANGUAGES CXX)
+project(Writer VERSION 0.0.1 LANGUAGES CXX)
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
@@ -11,11 +11,7 @@ set(CMAKE_AUTORCC ON)
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-find_package(QT NAMES Qt6 Qt5 COMPONENTS Core Quick Widgets Sql QuickControls2 LinguistTools REQUIRED)
-find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Core Quick Widgets Sql QuickControls2 LinguistTools REQUIRED)
-
-add_subdirectory(MarkdownSyntaxHighlighter)
-add_subdirectory(QGlobalShortcut)
+find_package(Qt5 COMPONENTS Core Quick Widgets Sql QuickControls2 REQUIRED)
 
 set(TS_FILES writer_zh_CN.ts)
 
@@ -23,7 +19,8 @@ add_executable(writer
     qml.qrc
     logo.rc
     res.qrc
-    ${TS_FILES}
+
+    # ${TS_FILES}
 
     main.cpp
     cxapplication.cpp cxapplication.h
@@ -42,8 +39,6 @@ target_link_libraries(writer
     Qt${QT_VERSION_MAJOR}::Widgets
     Qt${QT_VERSION_MAJOR}::Sql
     Qt${QT_VERSION_MAJOR}::QuickControls2
-    MarkdownSyntaxHighlighter
-    QGlobalShortcut
 )
 
-qt5_create_translation(QM_FILES ${CMAKE_SOURCE_DIR} ${TS_FILES})
+# qt5_create_translation(QM_FILES ${CMAKE_SOURCE_DIR} ${TS_FILES})

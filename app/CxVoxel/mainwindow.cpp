@@ -87,12 +87,6 @@ void MainWindow::init3DScene()
     m_root = new QEntity;
     m_view->setRootEntity(m_root);
 
-//    Qt3DRender::QRenderSettings *mRenderSettings = new Qt3DRender::QRenderSettings();
-//    mRenderSettings->pickingSettings()->setPickMethod(Qt3DRender::QPickingSettings::TrianglePicking);
-//    mRenderSettings->pickingSettings()->setPickResultMode(Qt3DRender::QPickingSettings::NearestPick);
-//    mRenderSettings->setActiveFrameGraph(m_view->defaultFrameGraph());
-//    m_root->addComponent(mRenderSettings);
-
     Qt3DRender::QCamera *camera = m_view->camera();
     camera->lens()->setPerspectiveProjection(45.0f, m_view->width()/m_view->height(), 0.1f, 1000.0f);
     camera->setPosition(QVector3D(0, 0, 0));
@@ -106,7 +100,7 @@ void MainWindow::init3DScene()
 
     int counts = 100;
     while (counts-- >= 0) {
-        QEntity *cube = addCube(m_root);
+        addCube(m_root);
     }
 
     QEntity *torus = new QEntity(m_root);
