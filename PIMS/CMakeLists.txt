@@ -12,10 +12,11 @@ set(CMAKE_AUTORCC ON)
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+include_directories("${PROJECT_SOURCE_DIR}/CxFw/")
+
 set(CMAKE_INSTALL_PREFIX "${PROJECT_SOURCE_DIR}/dist/")
 
 add_subdirectory(CxFw)
 
 add_subdirectory(Writer)
 add_subdirectory(AppHub)
-

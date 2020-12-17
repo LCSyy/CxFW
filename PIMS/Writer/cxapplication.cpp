@@ -5,7 +5,7 @@
 #include <QGlobalShortcut/qglobalshortcut.h>
 #include "theme.h"
 #include "listmodel.h"
-#include "cxquicksyntaxhighlighter.h"
+#include <MarkdownSyntaxHighlighter/cxquicksyntaxhighlighter.h>
 
 #define CXQUICK "CxQuick"
 #define CXQUICK_VERSION_MARJOR 0

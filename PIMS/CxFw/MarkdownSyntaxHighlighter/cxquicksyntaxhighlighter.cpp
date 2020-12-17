@@ -1,5 +1,5 @@
 #include "cxquicksyntaxhighlighter.h"
-#include "MarkdownSyntaxHighlighter/markdownhighlighter.h"
+#include "markdownhighlighter.h"
 #include <QQuickTextDocument>
 #include <QDebug>
 

@@ -11,15 +11,20 @@ set(CMAKE_AUTORCC ON)
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-find_package(Qt5 COMPONENTS Core Gui REQUIRED)
+find_package(Qt5 COMPONENTS Core Gui Quick REQUIRED)
 
 add_library(MarkdownSyntaxHighlighter
-    markdownhighlighter.cpp markdownhighlighter.h
-    qownlanguagedata.cpp qownlanguagedata.h
+    markdownhighlighter.cpp
+    markdownhighlighter.h
+    qownlanguagedata.cpp
+    qownlanguagedata.h
+    cxquicksyntaxhighlighter.cpp
+    cxquicksyntaxhighlighter.h
 )
 
 target_link_libraries(MarkdownSyntaxHighlighter
   PRIVATE
     Qt${QT_VERSION_MAJOR}::Core
     Qt${QT_VERSION_MAJOR}::Gui
+    Qt${QT_VERSION_MAJOR}::Quick
 )
