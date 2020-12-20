@@ -7,5 +7,6 @@
         <file>qml/Popup.qml</file>
         <file>qml/ToolBar.qml</file>
         <file>qml/StatusBar.qml</file>
+        <file>qml/Mask.qml</file>
     </qresource>
 </RCC>

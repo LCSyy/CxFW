@@ -14,3 +14,5 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 add_subdirectory(MarkdownSyntaxHighlighter)
 add_subdirectory(QGlobalShortcut)
+add_subdirectory(CxNetwork)
+add_subdirectory(CxBinding)

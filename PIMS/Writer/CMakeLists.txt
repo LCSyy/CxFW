@@ -31,8 +31,6 @@ add_executable(Writer
     theme.h
 )
 
-target_include_directories(Writer PRIVATE "${}")
-
 target_link_options(Writer PRIVATE -mwindows)
 target_compile_definitions(Writer
   PRIVATE $<$<OR:$<CONFIG:Debug>,$<CONFIG:RelWithDebInfo>>:QT_QML_DEBUG>)
@@ -43,9 +41,7 @@ target_link_libraries(Writer
     Qt${QT_VERSION_MAJOR}::Widgets
     Qt${QT_VERSION_MAJOR}::Sql
     Qt${QT_VERSION_MAJOR}::QuickControls2
-    MarkdownSyntaxHighlighter
-    QGlobalShortcut
+    CxBinding
 )
 
 # qt5_create_translation(QM_FILES ${CMAKE_SOURCE_DIR} ${TS_FILES})
-message(WHAT:"${INCLUDE_DIRECTORIES}")

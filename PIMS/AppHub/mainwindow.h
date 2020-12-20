@@ -6,6 +6,7 @@
 
 QT_BEGIN_NAMESPACE
 class QProcess;
+class QQuickWidget;
 QT_END_NAMESPACE
 
 class MainWindow : public QMainWindow
@@ -16,18 +17,13 @@ public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
-public slots:
-    void sendMsg(const QString &msg);
+    void setupTrayIcon(const QIcon &icon);
 
 private slots:
     void onTrayIconActivated(QSystemTrayIcon::ActivationReason reason);
-    // void onRecvMsg();
 
 private:
-    void setupTrayIcon();
-
-private:
-    QList<QProcess*> m_children;
+    QQuickWidget *m_view;
 };
 
 #endif // MAINWINDOW_H

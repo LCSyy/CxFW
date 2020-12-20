@@ -11,7 +11,8 @@ set(CMAKE_AUTORCC ON)
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-find_package(Qt5 COMPONENTS Core Gui REQUIRED)
+find_package(QT NAMES Qt6 Qt5 COMPONENTS Core Gui REQUIRED)
+find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Core Gui REQUIRED)
 
 if(WIN32)
     set(CX_SHORTCUT_SOURCES qglobalshortcut_win.cc)

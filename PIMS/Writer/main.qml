@@ -22,10 +22,35 @@ ApplicationWindow {
     width: 1000
     height: 720
     visible: true
-    title: qsTr("writer")
+    title: qsTr("Writer")
 
     Component.onCompleted: {
-        Js.initDB();
+        Cx.Network.enableHttps(true);
+        // Js.initDB();
+    }
+
+    Settings {
+        id: appSettings
+        property bool contentLineWrap: true
+        property int contentFontPointSize: app.font.pointSize
+        property string host: "localhost"
+        property int port: 80
+    }
+
+    QtObject {
+        id: urls
+
+        function postsUrl() {
+            return "https://<host>:<port>/api/posts/"
+            .replace("<host>",appSettings.host)
+            .replace("<port>", appSettings.port)
+        }
+
+        function tagsUrl() {
+            return "https://<host>:<port>/api/tags/"
+            .replace("<host>",appSettings.host)
+            .replace("<port>", appSettings.port)
+        }
     }
 
     function showWindow() {
@@ -103,10 +128,10 @@ ApplicationWindow {
         onTriggered: {
             var pp = contentComponent.createObject(app);
             contentConnection.target = pp;
-            const tag = tagsModel.get(tagsView.currentIndex);
-            if(tag.name !== "_all_") {
-                pp.setDefaultTag(tag);
-            }
+            // const tag = tagsModel.get(tagsView.currentIndex);
+            // if(tag.name !== "_all_") {
+            //     pp.setDefaultTag(tag);
+            // }
             pp.open();
         }
     }
@@ -149,12 +174,6 @@ ApplicationWindow {
         }
     }
 
-    Settings {
-        id: appSettings
-        property bool contentLineWrap: true
-        property int contentFontPointSize: app.font.pointSize
-    }
-
     Connections {
         id: contentConnection
         target: null
@@ -171,63 +190,60 @@ ApplicationWindow {
         id: tagNewConnection
         target: null
 
-        function onOk(tagName, tagTitle) {
+        function onOk(tagID, tagTitle) {
             tagsModel.update();
         }
     }
 
     Cx.ListModel {
         id: contentsModel
-        roleNames: ["id","uuid","title","create_dt","update_dt"]
+        roleNames: ["id","title","created_at","updated_at"]
 
         Component.onCompleted: {
             update();
         }
 
-        function update(filters) {
+        function update(tags) {
+            mask.showMask(500);
             clear();
-            var sql = "SELECT id,uuid,title,create_dt,update_dt FROM blog WHERE status='release' ORDER BY update_dt DESC;";
-            var datas = [];
-            if (filters === undefined || filters.length === 0) {
-                datas = Js.getData(sql);
-            } else {
-                sql = "SELECT blog.id,uuid,title,create_dt,update_dt "+
-                      "FROM blog, json_each(blog.tags) "+
-                      "WHERE blog.status = 'release' AND json_each.value IN (?) order by blog.update_dt DESC";
-                datas = Js.getData(sql,filters.join(","));
-            }
-
-            for (var i in datas) {
-                this.append(datas[i]);
-            }
-        }
-
-        function getData(uuid) {
-            for (var i = 0; i < count(); ++i) {
-                const item = get(i);
-                if (item.uuid === uuid) {
-                    return item;
-                }
-            }
-            return null;
+            Cx.Network.get(urls.postsUrl(),(resp)=>{
+               try {
+                   const res = JSON.parse(resp);
+                   for (var i in res.body) {
+                       contentsModel.append(res.body[i]);
+                   }
+               } catch(e) {
+                   console.log(e)
+               }
+               mask.hideMask();
+            });
         }
     }
 
     Cx.ListModel {
         id: tagsModel
-        roleNames: ["id","name","title"]
+        roleNames: ["id","title","created_at"]
         Component.onCompleted: {
             update();
         }
 
         function update() {
+            mask.showMask();
             clear();
-            this.append({name:"_all_", title:"All"})
-            const datas = Js.getData("SELECT * FROM tags ORDER BY id ASC;");
-            for (var i in datas) {
-                var row = datas[i];
-                this.append(row);
-            }
+            this.append({name:"_all_", title:"All"});
+            Cx.Network.get(urls.tagsUrl(),(resp)=>{
+                               try {
+                                   const res = JSON.parse(resp);
+                                   const body = res.body;
+                                   for (var i in body) {
+                                       var row = body[i];
+                                       tagsModel.append(row);
+                                   }
+                               } catch(e) {
+                                   console.log(e);
+                               }
+                               mask.hideMask();
+                           });
         }
     }
 
@@ -257,9 +273,9 @@ ApplicationWindow {
                     font.pointSize: app.font.pointSize + 2
 
                     text: {
-                        var str = '<a href="%1">%2</a>'.replace('%1',model.uuid)
+                        var str = '<a href="%1">%2</a>'.replace('%1',model.id)
                         str = str.replace('%2',model.title)
-                        return '<small>%1 - </small>'.replace('%1',model.update_dt) + '<b>%1</b>'.replace('%1',str)
+                        return '<small>%1 - </small>'.replace('%1',model.updated_at) + '<b>%1</b>'.replace('%1',str)
                     }
 
                     onLinkActivated: {
@@ -310,7 +326,10 @@ ApplicationWindow {
                     if (tagsView.currentIndex === 0) {
                         contentsModel.update();
                     } else if (tagsView.currentIndex !== -1) {
-                        contentsModel.update([tagsModel.get(tagsView.currentIndex).name]);
+                        const row = tagsModel.get(tagsView.currentIndex);
+                        if (row !== undefined) {
+                            contentsModel.update([row.id]);
+                        }
                     }
                 }
 
@@ -355,21 +374,43 @@ ApplicationWindow {
             property bool editable: true
             signal ok(int id)
 
-            function edit(uuid) {
-                const datas = Js.getData("SELECT * FROM blog WHERE uuid = ?",[uuid]);
-                if (datas.length > 0) {
-                    const data = datas[0];
-                    meta.uuid = data.uuid;
-                    meta.id = data.id;
-                    textArea.text = data.content;
+            QtObject {
+                id: meta
+                property int id: 0
+                property bool changed: false
 
-                    const tags = Js.getData("select * from tags where name in (select value from blog, json_each(blog.tags) where blog.id = ?);", data.id);
-                    for (var i = 0; i < tags.length; ++i) {
+                function reset() {
+                    id = 0;
+                    changed = false;
+                }
+            }
+
+            function edit(postID) {
+                mask.showMask();
+                Cx.Network.get(urls.postsUrl() + postID, (resp)=>{
+                               try {
+                                   const res = JSON.parse(resp);
+                                   const body = res.body;
+                                   meta.id = body.id;
+                                   textArea.text = body.content;
+                               } catch(e) {
+                                   console.log(e);
+                               }
+                               mask.hideMask();
+                           });
+                open();
+            }
+
+            Connections {
+                id: contentTagEditorCon
+                target: null
+
+                function onOk(tags) {
+                    tagRepeater.model.clear();
+                    for(var i = 0; i < tags.length; ++i){
                         tagRepeater.model.append(tags[i]);
                     }
                 }
-
-                open();
             }
 
             function setDefaultTag(tag) {
@@ -406,10 +447,21 @@ ApplicationWindow {
                         visible: popup.editable
                         text: qsTr("Remove")
                         onClicked: {
-                            Js.updateRow("UPDATE blog SET status = 'trash' WHERE id = ?",["id"],{id:meta.id});
+                            mask.showMask();
+                            Cx.Network.del(urls.postsUrl() + meta.id, (resp)=>{
+                                               try {
+                                                   const res = JSON.parse(resp);
+                                                   if (res.err !== null) {
+                                                       throw res.err;
+                                                   }
+                                               } catch(e) {
+                                                   console.log(e);
+                                               }
+                                               mask.hideMask();
+                                           });
                             meta.id = 0;
-                            meta.uuid = "";
                             popup.ok(0);
+                            popup.close();
                         }
                     }
 
@@ -419,7 +471,6 @@ ApplicationWindow {
                         onClicked: {
                             Js.updateRow("UPDATE blog SET status = 'release' WHERE id = ?", ["id"], {id: meta.id});
                             meta.id = 0;
-                            meta.uuid = "";
                             popup.ok(0);
                             popup.close();
                         }
@@ -491,61 +542,42 @@ ApplicationWindow {
             Action {
                 id: actionSave
                 text: qsTr("Save")
-//                 shortcut: StandardKey.Save
+                // shortcut: StandardKey.Save
                 onTriggered: {
                     if (textArea.text.trim() === '') { return; }
-
-                    var tags = [];
-                    for (var i = 0; i < tagRepeater.model.count(); ++i) {
-                        const tagName = tagRepeater.model.get(i).name;
-                        tags.push('"' + tagName + '"');
-                    }
-
-                    var nowDate = new Date();
-                    const dt = nowDate.format('yyyy-MM-dd hh:mm:ss');
                     var obj = {
                         "id": meta.id,
-                        "uuid": meta.uuid || '',
                         "title": Js.getFirstLine(textArea.text),
                         "content": textArea.text,
-                        "tags": "[" + tags.join(",") + "]",
-                        "status": "release"
                     };
 
-                    if (meta.uuid === '') {
-                        meta.uuid = Js.uuid(nowDate);
-                        obj['uuid'] = meta.uuid;
-                        obj["id"] = null;
-                        meta.id = Js.insertRow("INSERT INTO blog(uuid,title,content,tags,create_dt,update_dt,status) VALUES(?,?,?,?,datetime('now','localtime'),datetime('now','localtime'),?)",["uuid","title","content","tags","status"],obj);
+                    mask.showMask();
+                    if (meta.id <= 0) {
+                        Cx.Network.post(urls.postsUrl(), obj,(resp)=>{
+                                           try {
+                                               const res = JSON.parse(resp);
+                                               const body = res.body;
+                                               meta.id = body.id;
+                                               textArea.text = body.content;
+                                           } catch(e) {
+                                               console.log(e);
+                                           }
+                                           popup.ok(meta.id)
+                                           mask.hideMask();
+                                       });
                     } else {
-                        Js.updateRow("UPDATE blog SET title=?,content=?,tags=?,update_dt=datetime('now','localtime'),status=? WHERE uuid=?;",["title","content","tags","status","uuid"],obj);
-                    }
-
-                    popup.ok(meta.id)
-                }
-            }
-
-            QtObject {
-                id: meta
-                property int id: 0
-                property string uuid: ''
-                property bool changed: false
-
-                function reset() {
-                    id = 0;
-                    uuid = '';
-                    changed = false;
-                }
-            }
-
-            Connections {
-                id: contentTagEditorCon
-                target: null
-
-                function onOk(tags) {
-                    tagRepeater.model.clear();
-                    for(var i = 0; i < tags.length; ++i){
-                        tagRepeater.model.append(tags[i]);
+                        Cx.Network.put(urls.postsUrl(), obj,(resp)=>{
+                                           try {
+                                               const res = JSON.parse(resp);
+                                               const body = res.body;
+                                               meta.id = body.id;
+                                               textArea.text = body.content;
+                                           } catch(e) {
+                                               console.log(e);
+                                           }
+                                           popup.ok(meta.id)
+                                           mask.hideMask();
+                                       });
                     }
                 }
             }
@@ -564,7 +596,7 @@ ApplicationWindow {
             }
             implicitHeight: parent.height * 0.8
 
-            signal ok(string tagName, string tagTitle)
+            signal ok(int tagID, string tagTitle)
 
             header: App.ToolBar {
                 RowLayout {
@@ -598,18 +630,27 @@ ApplicationWindow {
 
                 model: Cx.ListModel {
                     id: tagModel
-                    roleNames: ["id","name","title"]
+                    roleNames: ["id","title","created_at"]
                     Component.onCompleted: {
                         update();
                     }
 
                     function update() {
+                        mask.showMask();
                         clear();
-                        const datas = Js.getData("SELECT * FROM tags ORDER BY id ASC;");
-                        for (var i in datas) {
-                            var row = datas[i];
-                            this.append(row);
-                        }
+                        Cx.Network.get(urls.tagsUrl(),(resp)=>{
+                                           try {
+                                               const res = JSON.parse(resp);
+                                               const body = res.body;
+                                               for (var i in body) {
+                                                   var row = body[i];
+                                                   tagModel.append(row);
+                                               }
+                                           } catch(e) {
+                                               console.log(e);
+                                           }
+                                           mask.hideMask();
+                                       });
                     }
                 }
 
@@ -623,7 +664,7 @@ ApplicationWindow {
                         anchors.bottomMargin: 1
                         textFormat: Qt.RichText
                         verticalAlignment: Qt.AlignVCenter
-                        text: '<a href="%1">%2</a>'.replace("%1",model.name).replace("%2",model.title)
+                        text: '<a href="%1">%2</a>'.replace("%1",model.id).replace("%2",model.title)
 
                         onLinkActivated: {
                             var tag = tagEditComponent.createObject(popup.contentItem);
@@ -631,7 +672,7 @@ ApplicationWindow {
                             var row = {};
                             for (var i = 0; i < tagModel.count(); ++i) {
                                 row = tagModel.get(i);
-                                if (row.name === model.name) {
+                                if (row.id === model.id) {
                                     break;
                                 }
                             }
@@ -653,9 +694,9 @@ ApplicationWindow {
                 id: tagEditConn
                 target: null
 
-                function onOk(tagName, tagTitle) {
+                function onOk(tagID, tagTitle) {
                     tagModel.update();
-                    popup.ok(tagName,tagTitle);
+                    popup.ok(tagID,tagTitle);
                 }
             }
         }
@@ -857,6 +898,44 @@ ApplicationWindow {
                     }
                 }
 
+                Label {
+                    Layout.fillWidth: true
+                    Layout.margins: Cx.Theme.baseMargin
+                    Layout.columnSpan: 2
+                    // horizontalAlignment: Qt.AlignHCenter
+                    text: qsTr("Server")
+                    font.pointSize: app.font.pointSize + 4
+                    font.bold: true
+                }
+
+                Label {
+                    text: qsTr("Host")
+                    Layout.margins: Cx.Theme.baseMargin
+                }
+
+                TextField {
+                    onEditingFinished: {
+                        appSettings.host = text.trim();
+                    }
+                    Component.onCompleted: {
+                        text = appSettings.host;
+                    }
+                }
+
+                Label {
+                    text: qsTr("Port")
+                    Layout.margins: Cx.Theme.baseMargin
+                }
+
+                TextField {
+                    onEditingFinished: {
+                        appSettings.port = parseInt(text.trim());
+                    }
+                    Component.onCompleted: {
+                        text = appSettings.port;
+                    }
+                }
+
                 Item {
                     Layout.fillHeight: true
                     Layout.columnSpan: 2
@@ -881,18 +960,17 @@ ApplicationWindow {
                 border.color: Cx.Theme.bgDeepColor
             }
             onAccepted: {
-                ok(tagName.text,tagTitle.text);
+                ok(meta.id,tagTitle.text);
                 tagEdit.destroy();
             }
             onRejected: {
                 tagEdit.destroy();
             }
 
-            signal ok(string tagName, string tagTitle);
+            signal ok(int tagID, string tagTitle);
 
             function edit(row) {
                 meta.id = row.id || 0;
-                tagName.text = row.name;
                 tagTitle.text = row.title;
                 visible = true;
             }
@@ -914,21 +992,58 @@ ApplicationWindow {
                         App.Button {
                             text: qsTr("Save")
                             onClicked: {
+                                mask.showMask();
+
+                                const obj = {
+                                    id: meta.id,
+                                    title: tagTitle.text
+                                };
                                 if (meta.id === 0) {
-                                    meta.id = Js.insertRow("INSERT INTO tags(name,title) VALUES(?,?);",["name","title"],{name:tagName.text, title:tagTitle.text});
+                                    Cx.Network.post(urls.tagsUrl(), obj, (resp)=>{
+                                                        try {
+                                                            const res = JSON.parse(resp);
+                                                            const body = res.body;
+                                                            meta.id = body.id;
+                                                            tagTitle.text = body.title;
+                                                        } catch(e) {
+                                                            console.log(e);
+                                                        }
+                                                        ok(meta.id,tagTitle.text);
+                                                        mask.hideMask();
+                                                    });
                                 } else {
-                                    Js.updateRow("UPDATE tags SET name=?,title=? WHERE id=?",["name","title","id"],{name:tagName.text, title:tagTitle.text,id:meta.id});
+                                    Cx.Network.put(urls.tagsUrl(), obj, (resp)=>{
+                                                        try {
+                                                           console.log(resp);
+                                                            const res = JSON.parse(resp);
+                                                            const body = res.body;
+                                                            meta.id = body.id;
+                                                            tagTitle.text = body.title;
+                                                        } catch(e) {
+                                                            console.log(e);
+                                                        }
+                                                        ok(meta.id,tagTitle.text);
+                                                        mask.hideMask();
+                                                    });
                                 }
-                                ok(tagName.text,tagTitle.text);
                             }
                         }
 
                         App.Button {
                             text: qsTr("Remove")
                             onClicked: {
-                                Js.removeData("DELETE FROM tags WHERE id=?",meta.id);
-                                meta.id = 0;
-                                ok("","")
+                                Cx.Network.del(urls.tagsUrl() + meta.id, (resp)=>{
+                                                   try {
+                                                       const res = JSON.parse(resp);
+                                                       meta.id = 0;
+                                                       tagTitle.text = "";
+                                                   } catch(e) {
+                                                       console.log(e);
+                                                   }
+                                                   ok(meta.id,tagTitle.text);
+                                                   mask.hideMask();
+                                               });
+                                // Js.removeData("DELETE FROM tags WHERE id=?",meta.id);
                             }
                         }
 
@@ -949,9 +1064,7 @@ ApplicationWindow {
                     columns: 2
                     columnSpacing: Cx.Theme.baseMargin
                     rowSpacing: Cx.Theme.baseMargin
-                    Label { text: qsTr("Name") }
-                    TextField { id: tagName }
-                    Label { text: qsTr("Text") }
+                    Label { text: qsTr("Tag") }
                     TextField { id: tagTitle }
                 }
             }
@@ -1045,4 +1158,9 @@ ApplicationWindow {
         }
     }
 
+
+    App.Mask {
+        id: mask
+        anchors.fill: parent
+    }
 }

@@ -5,11 +5,7 @@
 int main(int argc, char *argv[])
 {
     QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
-    QCoreApplication::setOrganizationName("Lcs App");
-    QCoreApplication::setOrganizationDomain("cxfw.lcs");
-    QCoreApplication::setApplicationName("writer");
-
-    CxApplication app(argc, argv);
+    CxApplication app("Writer", argc, argv);
 
     QQmlApplicationEngine engine;
     {

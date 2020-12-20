@@ -8,7 +8,7 @@ QT_BEGIN_NAMESPACE
 class QMenu;
 QT_END_NAMESPACE
 
-class CxApplication: public QApplication
+class CxApplication: public QObject
 {
     Q_OBJECT
 
@@ -16,8 +16,10 @@ signals:
     void systemTrayIconActivated(int reason, QPrivateSignal);
 
 public:
-    CxApplication(int argc, char *argv[]);
+    CxApplication(const QString &name, int argc, char *argv[]);
     ~CxApplication();
+
+    int exec();
 
 private slots:
     void onTrayActivated(QSystemTrayIcon::ActivationReason reason);
@@ -30,6 +32,7 @@ private:
     void registerTypes();
 
 private:
+    QApplication *app {nullptr};
     QSystemTrayIcon *m_trayIcon {nullptr};
     QMenu *m_trayMenu {nullptr};
 };

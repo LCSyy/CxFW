@@ -1,15 +1,10 @@
 #include "cxapplication.h"
 #include <QQmlApplicationEngine>
 #include <QMenu>
+#include <CxBinding/cxbinding.h>
 
-#include <QGlobalShortcut/qglobalshortcut.h>
 #include "theme.h"
 #include "listmodel.h"
-#include <MarkdownSyntaxHighlighter/cxquicksyntaxhighlighter.h>
-
-#define CXQUICK "CxQuick"
-#define CXQUICK_VERSION_MARJOR 0
-#define CXQUICK_VERSION_MINOR 1
 
 namespace {
     static QJSValue themeSingleton(QQmlEngine *e, QJSEngine *s)
@@ -19,15 +14,19 @@ namespace {
     }
 }
 
-CxApplication::CxApplication(int argc, char *argv[])
-    : QApplication(argc,argv)
-{
+CxApplication::CxApplication(const QString &name, int argc, char *argv[]) {
+    QCoreApplication::setOrganizationName("Lcs App");
+    QCoreApplication::setOrganizationDomain("cxfw.lcs");
+    QCoreApplication::setApplicationName(name);
+
+    app = new QApplication(argc,argv);
 
 #if !defined(QT_DEBUG)
-    setQuitOnLastWindowClosed(false);
+    app->setQuitOnLastWindowClosed(false);
     initTrayIcon();
 #endif
 
+    CxBinding::registerAll();
     registerSingletonTypes();
     registerTypes();
     registerSingletonInstance();
@@ -38,6 +37,15 @@ CxApplication::~CxApplication()
     if (m_trayMenu) {
         delete m_trayMenu;
     }
+
+    if (app) {
+        delete app;
+    }
+}
+
+int CxApplication::exec()
+{
+    return app->exec();
 }
 
 void CxApplication::onTrayActivated(QSystemTrayIcon::ActivationReason reason)
@@ -61,27 +69,24 @@ void CxApplication::initTrayIcon()
     m_trayMenu->addAction(actionQuit);
     m_trayIcon->setContextMenu(m_trayMenu);
 
-
     connect(m_trayIcon,SIGNAL(activated(QSystemTrayIcon::ActivationReason)),
             this, SLOT(onTrayActivated(QSystemTrayIcon::ActivationReason)));
-    connect(actionQuit, SIGNAL(triggered()), this,SLOT(quit()), Qt::QueuedConnection);
+    connect(actionQuit, SIGNAL(triggered()), app, SLOT(quit()), Qt::QueuedConnection);
 
     m_trayIcon->show();
 }
 
 void CxApplication::registerSingletonInstance()
 {
-    qmlRegisterSingletonInstance(CXQUICK,CXQUICK_VERSION_MARJOR,CXQUICK_VERSION_MINOR,"App",this);
+     qmlRegisterSingletonInstance(CxBinding::moduleName(),CxBinding::majorVersion(),CxBinding::minorVersion(),"App",this);
 }
 
 void CxApplication::registerSingletonTypes()
 {
-    qmlRegisterSingletonType(CXQUICK,CXQUICK_VERSION_MARJOR,CXQUICK_VERSION_MINOR,"Theme",themeSingleton);
+     qmlRegisterSingletonType(CxBinding::moduleName(),CxBinding::majorVersion(),CxBinding::minorVersion(),"Theme",themeSingleton);
 }
 
 void CxApplication::registerTypes()
 {
-    qmlRegisterType<ListModel>(CXQUICK,CXQUICK_VERSION_MARJOR,CXQUICK_VERSION_MINOR,"ListModel");
-    qmlRegisterType<CxQuickSyntaxHighlighter>(CXQUICK,CXQUICK_VERSION_MARJOR,CXQUICK_VERSION_MINOR,"SyntaxHighlighter");
-    qmlRegisterType<QGlobalShortcut>(CXQUICK,CXQUICK_VERSION_MARJOR,CXQUICK_VERSION_MINOR,"GlobalShortcut");
+     qmlRegisterType<ListModel>(CxBinding::moduleName(),CxBinding::majorVersion(),CxBinding::minorVersion(),"ListModel");
 }
