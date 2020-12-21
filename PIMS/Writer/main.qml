@@ -29,6 +29,12 @@ ApplicationWindow {
         // Js.initDB();
     }
 
+    function showWindow() {
+        app.showNormal()
+        app.raise()
+        app.requestActivate()
+    }
+
     Settings {
         id: appSettings
         property bool contentLineWrap: true
@@ -51,12 +57,6 @@ ApplicationWindow {
             .replace("<host>",appSettings.host)
             .replace("<port>", appSettings.port)
         }
-    }
-
-    function showWindow() {
-        app.showNormal()
-        app.raise()
-        app.requestActivate()
     }
 
     Connections {
@@ -378,6 +378,7 @@ ApplicationWindow {
                 id: meta
                 property int id: 0
                 property bool changed: false
+                property App.Popup tagEditor: null
 
                 function reset() {
                     id = 0;
@@ -411,6 +412,15 @@ ApplicationWindow {
                         tagRepeater.model.append(tags[i]);
                     }
                 }
+
+                function onLoaded() {
+                    var tags = [];
+                    for (var i = 0; i < tagRepeater.model.count(); ++i) {
+                        tags.push(tagRepeater.model.get(i));
+                    }
+                    meta.tagEditor.setChecked(tags);
+                    meta.tagEditor.visible = true;
+                }
             }
 
             function setDefaultTag(tag) {
@@ -432,14 +442,8 @@ ApplicationWindow {
                         visible: popup.editable
                         text: qsTr("Edit tags")
                         onClicked: {
-                            var tagEditor = contentTagEditComponent.createObject(popup.contentItem);
-                            var tags = [];
-                            for (var i = 0; i < tagRepeater.model.count(); ++i) {
-                                tags.push(tagRepeater.model.get(i));
-                            }
-                            contentTagEditorCon.target = tagEditor;
-                            tagEditor.visible = true;
-                            tagEditor.setChecked(tags);
+                            meta.tagEditor = contentTagEditComponent.createObject(popup.contentItem);
+                            contentTagEditorCon.target = meta.tagEditor;
                         }
                     }
 
@@ -508,7 +512,7 @@ ApplicationWindow {
                     Repeater {
                         id: tagRepeater
                         model: Cx.ListModel {
-                            roleNames: ["id","name","title"]
+                            roleNames: ["id","title"]
                         }
                         delegate: App.Button {
                             text: model.title
@@ -549,7 +553,14 @@ ApplicationWindow {
                         "id": meta.id,
                         "title": Js.getFirstLine(textArea.text),
                         "content": textArea.text,
+                        "tags": [],
                     };
+
+                    for (var i = 0; i < tagRepeater.model.count(); ++i) {
+                        obj.tags.push(tagRepeater.model.get(i).id);
+                    }
+
+                    console.log(JSON.stringify(obj));
 
                     mask.showMask();
                     if (meta.id <= 0) {
@@ -1080,6 +1091,7 @@ ApplicationWindow {
             id: popup
 
             signal ok(var tags)
+            signal loaded()
 
             function setChecked(tags) {
                 var existTags = tags.map((item)=>{return item.id; });
@@ -1138,14 +1150,25 @@ ApplicationWindow {
 
                 model: Cx.ListModel {
                     id: tagsModel
-                    roleNames: ["id","name","title","check"]
+                    roleNames: ["id","title","check"]
                     Component.onCompleted: {
-                        const tags = Js.getData("SELECT * FROM tags;")
-                        for (var i = 0; i < tags.length; ++i) {
-                            var tag = tags[i];
-                            tag["check"] = false;
-                            append(tag);
-                        }
+                        mask.showMask();
+                        Cx.Network.get(urls.tagsUrl(), (resp)=>{
+                                           try {
+                                               const res = JSON.parse(resp);
+                                               const body = res.body;
+
+                                               for (var i in body) {
+                                                   var tag = body[i];
+                                                   tag["check"] = false;
+                                                   tagsModel.append(tag);
+                                               }
+                                           } catch(e) {
+                                               console.log(e);
+                                           }
+                                           popup.loaded();
+                                           mask.hideMask();
+                                       });
                     }
                 }
                 delegate: CheckBox {
@@ -1158,7 +1181,6 @@ ApplicationWindow {
             }
         }
     }
-
 
     App.Mask {
         id: mask
