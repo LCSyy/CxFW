@@ -205,18 +205,18 @@ ApplicationWindow {
 
         function update(tags) {
             mask.showMask(500);
-            clear();
             Cx.Network.get(urls.postsUrl(),(resp)=>{
-               try {
-                   const res = JSON.parse(resp);
-                   for (var i in res.body) {
-                       contentsModel.append(res.body[i]);
-                   }
-               } catch(e) {
-                   console.log(e)
-               }
-               mask.hideMask();
-            });
+                               contentsModel.clear();
+                               try {
+                                   const res = JSON.parse(resp);
+                                   for (var i in res.body) {
+                                       contentsModel.append(res.body[i]);
+                                   }
+                               } catch(e) {
+                                   console.log(e)
+                               }
+                               mask.hideMask();
+                           });
         }
     }
 
@@ -229,9 +229,9 @@ ApplicationWindow {
 
         function update() {
             mask.showMask();
-            clear();
-            this.append({name:"_all_", title:"All"});
             Cx.Network.get(urls.tagsUrl(),(resp)=>{
+                               clear();
+                               this.append({name:"_all_", title:"All"});
                                try {
                                    const res = JSON.parse(resp);
                                    const body = res.body;
@@ -454,13 +454,13 @@ ApplicationWindow {
                                                    if (res.err !== null) {
                                                        throw res.err;
                                                    }
+                                                   meta.id = 0;
+                                                   popup.ok(0);
                                                } catch(e) {
                                                    console.log(e);
                                                }
                                                mask.hideMask();
                                            });
-                            meta.id = 0;
-                            popup.ok(0);
                             popup.close();
                         }
                     }
@@ -637,8 +637,8 @@ ApplicationWindow {
 
                     function update() {
                         mask.showMask();
-                        clear();
                         Cx.Network.get(urls.tagsUrl(),(resp)=>{
+                                           clear();
                                            try {
                                                const res = JSON.parse(resp);
                                                const body = res.body;
@@ -1150,7 +1150,6 @@ ApplicationWindow {
                     checkState: model.check ? Qt.Checked : Qt.Unchecked
                     text: model.title
                     onCheckStateChanged: {
-                        console.log(model.index,":",(checkState === Qt.Checked ? true : false))
                         tagsModel.set(model.index,"check", (checkState === Qt.Checked ? true : false))
                     }
                 }
