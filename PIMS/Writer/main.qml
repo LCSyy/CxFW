@@ -393,12 +393,12 @@ ApplicationWindow {
                                    const body = res.body;
                                    meta.id = body.id;
                                    textArea.text = body.content;
+                                   popup.open();
                                } catch(e) {
                                    console.log(e);
                                }
                                mask.hideMask();
                            });
-                open();
             }
 
             Connections {
@@ -456,12 +456,12 @@ ApplicationWindow {
                                                    }
                                                    meta.id = 0;
                                                    popup.ok(0);
+                                                   popup.close();
                                                } catch(e) {
                                                    console.log(e);
                                                }
                                                mask.hideMask();
                                            });
-                            popup.close();
                         }
                     }
 
@@ -562,6 +562,7 @@ ApplicationWindow {
                                            } catch(e) {
                                                console.log(e);
                                            }
+                                            console.log('On Save Reply')
                                            popup.ok(meta.id)
                                            mask.hideMask();
                                        });
@@ -1037,6 +1038,7 @@ ApplicationWindow {
                                                        const res = JSON.parse(resp);
                                                        meta.id = 0;
                                                        tagTitle.text = "";
+                                                       tagEdit.close();
                                                    } catch(e) {
                                                        console.log(e);
                                                    }
