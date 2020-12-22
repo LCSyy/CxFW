@@ -44,6 +44,15 @@ ApplicationWindow {
     }
 
     QtObject {
+        id: status
+
+        readonly property int stActive: 0 // 激活
+        readonly property int stInActive: 1 // 未激活
+        readonly property int stInValid: 2 // 失效
+        readonly property int stTrash: 3 // 删除
+    }
+
+    QtObject {
         id: urls
 
         function postsUrl() {
@@ -204,10 +213,18 @@ ApplicationWindow {
         }
 
         function update(tags) {
-            mask.showMask(500);
-            Cx.Network.get(urls.postsUrl(),(resp)=>{
+            mask.showMask();
+
+            var tagQuery = "?";
+            if (tags !== undefined) {
+                for (var i in tags) {
+                    tagQuery += ("tag=" + tags[i] + "&")
+                }
+            }
+            Cx.Network.get(urls.postsUrl() + tagQuery,(resp)=>{
                                contentsModel.clear();
                                try {
+                                   console.log(resp);
                                    const res = JSON.parse(resp);
                                    for (var i in res.body) {
                                        contentsModel.append(res.body[i]);
@@ -392,8 +409,12 @@ ApplicationWindow {
                                try {
                                    const res = JSON.parse(resp);
                                    const body = res.body;
+                                   const tags = body.tags || [];
                                    meta.id = body.id;
                                    textArea.text = body.content;
+                                   for(var i in tags){
+                                       tagRepeater.model.append(tags[i]);
+                                   }
                                    popup.open();
                                } catch(e) {
                                    console.log(e);
@@ -473,10 +494,17 @@ ApplicationWindow {
                         visible: !popup.editable
                         text: qsTr("Recovery")
                         onClicked: {
-                            Js.updateRow("UPDATE blog SET status = 'release' WHERE id = ?", ["id"], {id: meta.id});
-                            meta.id = 0;
-                            popup.ok(0);
-                            popup.close();
+                            mask.showMask();
+                            Cx.Network.put(urls.postsUrl() + "status/" + meta.id + "?status=0",null,(resp)=>{
+                                               try {
+                                                   meta.id = 0;
+                                                   popup.ok(0);
+                                                   popup.close();
+                                               }catch(e) {
+                                                   console.log(e);
+                                               }
+                                               mask.hideMask();
+                                           });
                         }
                     }
 
@@ -484,11 +512,21 @@ ApplicationWindow {
                         visible: !popup.editable
                         text: qsTr("Delete")
                         onClicked: {
-                            Js.removeData("DELETE FROM blog WHERE uuid = ?",meta.uuid);
-                            meta.id = 0;
-                            meta.uuid = "";
-                            popup.ok(0);
-                            popup.close();
+                            mask.showMask();
+                            Cx.Network.del(urls.postsUrl() + meta.id + "?del=1", (resp)=>{
+                                               try {
+                                                   const res = JSON.parse(resp);
+                                                   if (res.err !== null) {
+                                                       throw res.err;
+                                                   }
+                                                   meta.id = 0;
+                                                   popup.ok(0);
+                                                   popup.close();
+                                               } catch(e) {
+                                                   console.log(e);
+                                               }
+                                               mask.hideMask();
+                                           });
                         }
                     }
 
@@ -754,24 +792,39 @@ ApplicationWindow {
 
                 model: Cx.ListModel {
                     id: trashModel
-                    roleNames: ["id","uuid","title","create_dt","update_dt"]
+                    roleNames: ["id","title","created_at","updated_at"]
 
                     Component.onCompleted: {
-                        update();
+                        update([]);
                     }
 
-                    function update(filters) {
-                        clear();
-                        var datas = Js.getData("SELECT id,uuid,title,create_dt,update_dt FROM blog WHERE status<>'release' ORDER BY update_dt DESC;");
-                        for (var i in datas) {
-                            this.append(datas[i]);
+                    function update(tags) {
+
+                        mask.showMask();
+                        var tagQuery = "?";
+                        if (tags !== undefined) {
+                            for (var i in tags) {
+                                tagQuery += ("tag=" + tags[i] + "&")
+                            }
                         }
+                        Cx.Network.get(urls.postsUrl() + tagQuery + "status=" + status.stTrash,(resp)=>{
+                                           trashModel.clear();
+                                           try {
+                                               const res = JSON.parse(resp);
+                                               for (var i in res.body) {
+                                                   trashModel.append(res.body[i]);
+                                               }
+                                           } catch(e) {
+                                               console.log(e)
+                                           }
+                                           mask.hideMask();
+                                       });
                     }
 
-                    function getData(uuid) {
+                    function getData(id) {
                         for (var i = 0; i < count(); ++i) {
                             const item = get(i);
-                            if (item.uuid === uuid) {
+                            if (item.id === id) {
                                 return item;
                             }
                         }
@@ -791,9 +844,9 @@ ApplicationWindow {
                         verticalAlignment: Qt.AlignVCenter
 
                         text: {
-                            var str = '<a href="%1">%2</a>'.replace('%1',model.uuid)
+                            var str = '<a href="%1">%2</a>'.replace('%1',model.id)
                             str = str.replace('%2',model.title)
-                            return model.update_dt + ' - ' + str
+                            return model.updated_at + ' - ' + str
                         }
 
                         onLinkActivated: {
@@ -818,9 +871,10 @@ ApplicationWindow {
                 id: trashContentConnection
                 target: null
 
-                function onOk(uuid) {
-                    popup.ok(uuid);
-                    trashModel.update();
+                function onOk(id) {
+                    console.log("That's ok")
+                    popup.ok(id);
+                    trashModel.update([]);
                 }
             }
         }

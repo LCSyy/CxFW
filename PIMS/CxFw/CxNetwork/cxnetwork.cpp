@@ -26,10 +26,13 @@ void CxNetwork::enableHttps(bool enabled)
 {
     if (enabled && !m_sslErr) {
         QFile file("F:/me/perms/ca.crt");
-        file.open(QIODevice::ReadOnly);
-        const QByteArray bytes = file.readAll();
-        const QSslCertificate certificate(bytes);
-        m_sslErr = new QSslError(QSslError::SelfSignedCertificate, certificate);
+        if (file.open(QIODevice::ReadOnly)) {
+            const QByteArray bytes = file.readAll();
+            const QSslCertificate certificate(bytes);
+            m_sslErr = new QSslError(QSslError::SelfSignedCertificate, certificate);
+        } else {
+            m_sslErr = new QSslError(QSslError::SelfSignedCertificate);
+        }
     } else if (!enabled && m_sslErr) {
         delete m_sslErr;
         m_sslErr = nullptr;
@@ -50,7 +53,9 @@ void CxNetwork::post(const QUrl &url, const QJSValue &body, const QJSValue &hand
         QSslConfiguration conf = req.sslConfiguration();
         conf.setProtocol(QSsl::TlsV1SslV3);
         conf.setPeerVerifyMode(QSslSocket::VerifyPeer);
-        conf.addCaCertificate(m_sslErr->certificate());
+        if (!m_sslErr->certificate().isNull()) {
+            conf.addCaCertificate(m_sslErr->certificate());
+        }
         req.setSslConfiguration(conf);
     }
 
