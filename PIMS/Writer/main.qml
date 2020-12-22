@@ -26,7 +26,6 @@ ApplicationWindow {
 
     Component.onCompleted: {
         Cx.Network.enableHttps(true);
-        // Js.initDB();
     }
 
     function showWindow() {
@@ -137,10 +136,10 @@ ApplicationWindow {
         onTriggered: {
             var pp = contentComponent.createObject(app);
             contentConnection.target = pp;
-            // const tag = tagsModel.get(tagsView.currentIndex);
-            // if(tag.name !== "_all_") {
-            //     pp.setDefaultTag(tag);
-            // }
+             const tag = tagsModel.get(tagsView.currentIndex);
+             if(tag.name !== "_all_") {
+                 pp.setDefaultTag(tag);
+             }
             pp.open();
         }
     }
@@ -179,7 +178,6 @@ ApplicationWindow {
         text: qsTr("Refresh")
         onTriggered: {
             tagsModel.update();
-            contentsModel.update();
         }
     }
 
@@ -188,7 +186,6 @@ ApplicationWindow {
         target: null
 
         function onOk(id) {
-            // contentsModel.update();
             const oldIdx = tagsView.currentIndex;
             tagsView.currentIndex = -1;
             tagsView.currentIndex = oldIdx;
@@ -224,10 +221,12 @@ ApplicationWindow {
             Cx.Network.get(urls.postsUrl() + tagQuery,(resp)=>{
                                contentsModel.clear();
                                try {
-                                   console.log(resp);
                                    const res = JSON.parse(resp);
-                                   for (var i in res.body) {
-                                       contentsModel.append(res.body[i]);
+                                   const body = res.body || [];
+                                   for (var i in body) {
+                                       var date = new Date(body[i].updated_at)
+                                       body[i].updated_at = date.toLocaleString(Qt.locale(),Locale.LongFormat)
+                                       contentsModel.append(body[i]);
                                    }
                                } catch(e) {
                                    console.log(e)
@@ -247,8 +246,9 @@ ApplicationWindow {
         function update() {
             mask.showMask();
             Cx.Network.get(urls.tagsUrl(),(resp)=>{
+                               const oldIdx = tagsView.currentIndex
                                clear();
-                               this.append({name:"_all_", title:"All"});
+                               this.append({name:"_all_", title:"全部"});
                                try {
                                    const res = JSON.parse(resp);
                                    const body = res.body;
@@ -259,6 +259,7 @@ ApplicationWindow {
                                } catch(e) {
                                    console.log(e);
                                }
+                               tagsView.currentIndex = oldIdx
                                mask.hideMask();
                            });
         }
@@ -341,7 +342,7 @@ ApplicationWindow {
 
                 onCurrentIndexChanged: {
                     if (tagsView.currentIndex === 0) {
-                        contentsModel.update();
+                        contentsModel.update([]);
                     } else if (tagsView.currentIndex !== -1) {
                         const row = tagsModel.get(tagsView.currentIndex);
                         if (row !== undefined) {
@@ -598,8 +599,6 @@ ApplicationWindow {
                         obj.tags.push(tagRepeater.model.get(i).id);
                     }
 
-                    console.log(JSON.stringify(obj));
-
                     mask.showMask();
                     if (meta.id <= 0) {
                         Cx.Network.post(urls.postsUrl(), obj,(resp)=>{
@@ -611,7 +610,6 @@ ApplicationWindow {
                                            } catch(e) {
                                                console.log(e);
                                            }
-                                            console.log('On Save Reply')
                                            popup.ok(meta.id)
                                            mask.hideMask();
                                        });
@@ -872,7 +870,6 @@ ApplicationWindow {
                 target: null
 
                 function onOk(id) {
-                    console.log("That's ok")
                     popup.ok(id);
                     trashModel.update([]);
                 }
@@ -1080,7 +1077,6 @@ ApplicationWindow {
                                 } else {
                                     Cx.Network.put(urls.tagsUrl(), obj, (resp)=>{
                                                         try {
-                                                           console.log(resp);
                                                             const res = JSON.parse(resp);
                                                             const body = res.body;
                                                             meta.id = body.id;
@@ -1110,7 +1106,6 @@ ApplicationWindow {
                                                    ok(meta.id,tagTitle.text);
                                                    mask.hideMask();
                                                });
-                                // Js.removeData("DELETE FROM tags WHERE id=?",meta.id);
                             }
                         }
 
@@ -1195,7 +1190,6 @@ ApplicationWindow {
                     for (var i = 0; i < count; ++i) {
                         const obj = tagsModel.get(i);
                         if (obj.check === true) {
-                            console.log(JSON.stringify(obj))
                             checked.push({id:obj.id, name: obj.name, title: obj.title });
                         }
                     }
