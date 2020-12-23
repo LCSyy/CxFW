@@ -87,6 +87,7 @@ ApplicationWindow {
     App.MainPage {
         id: mainPage
         anchors.fill: parent
+        visible: !homePage.visible
 
         header: App.ToolBar {
             RowLayout {
@@ -131,6 +132,150 @@ ApplicationWindow {
                 App.Button {
                     text: qsTr("Already Sync")
                 }
+            }
+        }
+
+        Action {
+            id: actionNew
+            text: qsTr('New')
+            shortcut: StandardKey.New
+            onTriggered: {
+                var pp = contentComponent.createObject(app);
+                contentConnection.target = pp;
+                 const tag = tagsModel.get(tagsView.currentIndex);
+                 if(tag.name !== "_all_") {
+                     pp.setDefaultTag(tag);
+                 }
+                pp.open();
+            }
+        }
+
+        Action {
+            id: actionTags
+            text: qsTr("Tags")
+            onTriggered: {
+                var pp = tagsComponent.createObject(app);
+                tagNewConnection.target = pp;
+                pp.open();
+            }
+        }
+
+        Action {
+            id: actionTrash
+            text: qsTr("Trash")
+            onTriggered: {
+                var pp = trashComponent.createObject(app);
+                contentConnection.target = pp;
+                pp.open();
+            }
+        }
+
+        Action {
+            id: actionSettings
+            text: qsTr("Settings")
+            onTriggered: {
+                var pp = settingsComponent.createObject(app)
+                pp.open();
+            }
+        }
+
+        Action {
+            id: actionRefresh
+            text: qsTr("Refresh")
+            onTriggered: {
+                tagsModel.update();
+            }
+        }
+
+        Action {
+            id: actionBacktoHome
+            text: qsTr("Home")
+            onTriggered: {
+                homePage.visible = true
+            }
+        }
+
+        Connections {
+            id: contentConnection
+            target: null
+
+            function onOk(id) {
+                const oldIdx = tagsView.currentIndex;
+                tagsView.currentIndex = -1;
+                tagsView.currentIndex = oldIdx;
+            }
+        }
+
+        Connections {
+            id: tagNewConnection
+            target: null
+
+            function onOk(tagID, tagTitle) {
+                tagsModel.update();
+            }
+        }
+
+        Cx.ListModel {
+            id: contentsModel
+            roleNames: ["id","title","created_at","updated_at"]
+
+            Component.onCompleted: {
+                update();
+            }
+
+            function update(tags) {
+                mask.showMask();
+
+                var tagQuery = "?";
+                if (tags !== undefined) {
+                    for (var i in tags) {
+                        tagQuery += ("tag=" + tags[i] + "&")
+                    }
+                }
+                Cx.Network.get(urls.postsUrl() + tagQuery,(resp)=>{
+                                   contentsModel.clear();
+                                   try {
+                                       const res = JSON.parse(resp);
+                                       const body = res.body || [];
+                                       for (var i in body) {
+                                           var date = new Date(body[i].updated_at)
+                                           body[i].updated_at = date.toLocaleString(Qt.locale(),Locale.LongFormat)
+                                           contentsModel.append(body[i]);
+                                       }
+                                   } catch(e) {
+                                       console.log(e)
+                                   }
+                                   mask.hideMask();
+                               });
+            }
+        }
+
+        Cx.ListModel {
+            id: tagsModel
+            roleNames: ["id","title","created_at"]
+            Component.onCompleted: {
+                update();
+            }
+
+            function update() {
+                mask.showMask();
+                Cx.Network.get(urls.tagsUrl(),(resp)=>{
+                                   const oldIdx = tagsView.currentIndex
+                                   clear();
+                                   this.append({name:"_all_", title:"全部"});
+                                   try {
+                                       const res = JSON.parse(resp);
+                                       const body = res.body;
+                                       for (var i in body) {
+                                           var row = body[i];
+                                           tagsModel.append(row);
+                                       }
+                                   } catch(e) {
+                                       console.log(e);
+                                   }
+                                   tagsView.currentIndex = oldIdx
+                                   mask.hideMask();
+                               });
             }
         }
 
@@ -242,150 +387,6 @@ ApplicationWindow {
                     }
                 }
             }
-        }
-    }
-
-    Action {
-        id: actionNew
-        text: qsTr('New')
-        shortcut: StandardKey.New
-        onTriggered: {
-            var pp = contentComponent.createObject(app);
-            contentConnection.target = pp;
-             const tag = tagsModel.get(tagsView.currentIndex);
-             if(tag.name !== "_all_") {
-                 pp.setDefaultTag(tag);
-             }
-            pp.open();
-        }
-    }
-
-    Action {
-        id: actionTags
-        text: qsTr("Tags")
-        onTriggered: {
-            var pp = tagsComponent.createObject(app);
-            tagNewConnection.target = pp;
-            pp.open();
-        }
-    }
-
-    Action {
-        id: actionTrash
-        text: qsTr("Trash")
-        onTriggered: {
-            var pp = trashComponent.createObject(app);
-            contentConnection.target = pp;
-            pp.open();
-        }
-    }
-
-    Action {
-        id: actionSettings
-        text: qsTr("Settings")
-        onTriggered: {
-            var pp = settingsComponent.createObject(app)
-            pp.open();
-        }
-    }
-
-    Action {
-        id: actionRefresh
-        text: qsTr("Refresh")
-        onTriggered: {
-            tagsModel.update();
-        }
-    }
-
-    Action {
-        id: actionBacktoHome
-        text: qsTr("Home")
-        onTriggered: {
-            homePage.visible = true
-        }
-    }
-
-    Connections {
-        id: contentConnection
-        target: null
-
-        function onOk(id) {
-            const oldIdx = tagsView.currentIndex;
-            tagsView.currentIndex = -1;
-            tagsView.currentIndex = oldIdx;
-        }
-    }
-
-    Connections {
-        id: tagNewConnection
-        target: null
-
-        function onOk(tagID, tagTitle) {
-            tagsModel.update();
-        }
-    }
-
-    Cx.ListModel {
-        id: contentsModel
-        roleNames: ["id","title","created_at","updated_at"]
-
-        Component.onCompleted: {
-            update();
-        }
-
-        function update(tags) {
-            mask.showMask();
-
-            var tagQuery = "?";
-            if (tags !== undefined) {
-                for (var i in tags) {
-                    tagQuery += ("tag=" + tags[i] + "&")
-                }
-            }
-            Cx.Network.get(urls.postsUrl() + tagQuery,(resp)=>{
-                               contentsModel.clear();
-                               try {
-                                   const res = JSON.parse(resp);
-                                   const body = res.body || [];
-                                   for (var i in body) {
-                                       var date = new Date(body[i].updated_at)
-                                       body[i].updated_at = date.toLocaleString(Qt.locale(),Locale.LongFormat)
-                                       contentsModel.append(body[i]);
-                                   }
-                               } catch(e) {
-                                   console.log(e)
-                               }
-                               mask.hideMask();
-                           });
-        }
-    }
-
-    Cx.ListModel {
-        id: tagsModel
-        roleNames: ["id","title","created_at"]
-        Component.onCompleted: {
-            update();
-        }
-
-        function update() {
-            mask.showMask();
-            Cx.Network.get(urls.tagsUrl(),(resp)=>{
-                               const oldIdx = tagsView.currentIndex
-                               clear();
-                               this.append({name:"_all_", title:"全部"});
-                               try {
-                                   const res = JSON.parse(resp);
-                                   const body = res.body;
-                                   for (var i in body) {
-                                       var row = body[i];
-                                       tagsModel.append(row);
-                                   }
-                               } catch(e) {
-                                   console.log(e);
-                               }
-                               tagsView.currentIndex = oldIdx
-                               mask.hideMask();
-                           });
         }
     }
 
