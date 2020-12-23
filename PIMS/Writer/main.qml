@@ -84,47 +84,163 @@ ApplicationWindow {
         }
     }
 
-    header: App.ToolBar {
-        RowLayout {
-            anchors.fill: parent
-            anchors.leftMargin: Cx.Theme.baseMargin
-            anchors.rightMargin: Cx.Theme.baseMargin
-            anchors.bottomMargin: 2
+    App.MainPage {
+        id: mainPage
+        anchors.fill: parent
 
-            App.Button { action: actionNew }
-            App.Button { action: actionTags }
-            App.Button { action: actionTrash }
-            App.Button { action: actionSettings }
-            Item { Layout.fillWidth: true }
-            App.TextField {
-                visible: false
-                placeholderText: qsTr('Search')
-            }
-            App.Button { action: actionRefresh }
-        }
+        header: App.ToolBar {
+            RowLayout {
+                anchors.fill: parent
+                anchors.leftMargin: Cx.Theme.baseMargin
+                anchors.rightMargin: Cx.Theme.baseMargin
+                anchors.bottomMargin: 2
 
-        Rectangle {
-            width: parent.width
-            anchors.bottom: parent.bottom
-            height:1
-            color: Cx.Theme.bgDeepColor
-        }
-    }
-
-    footer: App.StatusBar {
-         visible: false
-        RowLayout {
-            anchors.fill: parent
-            anchors.margins: 0
-            anchors.rightMargin: Cx.Theme.baseMargin / 2
-            anchors.leftMargin: Cx.Theme.baseMargin / 2
-
-            Item {
-                Layout.fillWidth: true
+                App.Button { action: actionNew }
+                App.Button { action: actionTags }
+                App.Button { action: actionTrash }
+                App.Button { action: actionSettings }
+                App.Button { action: actionBacktoHome }
+                Item { Layout.fillWidth: true }
+                App.TextField {
+                    visible: false
+                    placeholderText: qsTr('Search')
+                }
+                App.Button { action: actionRefresh }
             }
 
-            App.Button {
-                text: qsTr("Already Sync")
+            Rectangle {
+                width: parent.width
+                anchors.bottom: parent.bottom
+                height:1
+                color: Cx.Theme.bgDeepColor
+            }
+        }
+
+        footer: App.StatusBar {
+             visible: false
+            RowLayout {
+                anchors.fill: parent
+                anchors.margins: 0
+                anchors.rightMargin: Cx.Theme.baseMargin / 2
+                anchors.leftMargin: Cx.Theme.baseMargin / 2
+
+                Item {
+                    Layout.fillWidth: true
+                }
+
+                App.Button {
+                    text: qsTr("Already Sync")
+                }
+            }
+        }
+
+        SplitView {
+            anchors.fill: parent
+            orientation: Qt.Horizontal
+
+            ListView {
+                id: contentListView
+                SplitView.fillWidth: true
+                SplitView.fillHeight: true
+
+                clip: true
+
+                model: contentsModel
+
+                delegate: Item {
+                    width: contentListView !== null ? contentListView.width : 0
+                    height: 35
+
+                    Text {
+                        anchors.fill: parent
+                        anchors.leftMargin: 16
+                        anchors.bottomMargin: 1
+                        textFormat: Text.RichText
+                        verticalAlignment: Qt.AlignVCenter
+                        font.pointSize: app.font.pointSize + 2
+
+                        text: {
+                            var str = '<a href="%1">%2</a>'.replace('%1',model.id)
+                            str = str.replace('%2',model.title)
+                            return '<small>%1 - </small>'.replace('%1',model.updated_at) + '<b>%1</b>'.replace('%1',str)
+                        }
+
+                        onLinkActivated: {
+                            var pp = contentComponent.createObject(app);
+                            contentConnection.target = pp;
+                            pp.edit(link);
+                        }
+                    }
+
+                    Rectangle {
+                        anchors.bottom: parent.bottom
+                        width: parent.width - Cx.Theme.baseMargin * 2
+                        height: 1
+                        x: Cx.Theme.baseMargin
+                        color: Cx.Theme.bgNormalColor
+                    }
+                }
+            }
+
+            Column {
+                SplitView.preferredWidth: 150
+                SplitView.maximumWidth:  parent.width / 3
+                SplitView.minimumWidth: 100
+                SplitView.fillHeight: true
+
+                Rectangle {
+                    width: parent.width
+                    height: 25
+                    color: Cx.Theme.bgNormalColor
+                    Text {
+                        anchors.fill: parent
+                        anchors.leftMargin: 8
+                        verticalAlignment: Qt.AlignVCenter
+                        text: qsTr('Categories')
+                    }
+                }
+
+                ListView {
+                    id: tagsView
+                    width: parent.width
+                    height: parent.height - 25
+                    clip: true
+                    currentIndex: 0
+
+                    model: tagsModel
+
+                    onCurrentIndexChanged: {
+                        if (tagsView.currentIndex === 0) {
+                            contentsModel.update([]);
+                        } else if (tagsView.currentIndex !== -1) {
+                            const row = tagsModel.get(tagsView.currentIndex);
+                            if (row !== undefined) {
+                                contentsModel.update([row.id]);
+                            }
+                        }
+                    }
+
+                    delegate: Rectangle {
+                        width: parent === null ? 0 : parent.width
+                        height: Cx.Theme.contentHeight
+                        color: model.index === tagsView.currentIndex ? Cx.Theme.bgLightColor : "white"
+                        Text {
+                            anchors.fill: parent
+                            anchors.leftMargin: 8
+                            verticalAlignment: Qt.AlignVCenter
+                            text: model.title
+                            font.pointSize: app.font.pointSize + 2
+                        }
+                    }
+
+                    MouseArea {
+                        anchors.fill: parent
+                        onClicked: {
+                            const p = mapToItem(tagsView,mouse.x,mouse.y);
+                            tagsView.currentIndex = tagsView.indexAt(p.x+tagsView.contentX, p.y+tagsView.contentY);
+                        }
+                    }
+                }
             }
         }
     }
@@ -178,6 +294,14 @@ ApplicationWindow {
         text: qsTr("Refresh")
         onTriggered: {
             tagsModel.update();
+        }
+    }
+
+    Action {
+        id: actionBacktoHome
+        text: qsTr("Home")
+        onTriggered: {
+            homePage.visible = true
         }
     }
 
@@ -262,116 +386,6 @@ ApplicationWindow {
                                tagsView.currentIndex = oldIdx
                                mask.hideMask();
                            });
-        }
-    }
-
-    SplitView {
-        anchors.fill: parent
-        orientation: Qt.Horizontal
-
-        ListView {
-            id: contentListView
-            SplitView.fillWidth: true
-            SplitView.fillHeight: true
-
-            clip: true
-
-            model: contentsModel
-
-            delegate: Item {
-                width: contentListView !== null ? contentListView.width : 0
-                height: 35
-
-                Text {
-                    anchors.fill: parent
-                    anchors.leftMargin: 16
-                    anchors.bottomMargin: 1
-                    textFormat: Text.RichText
-                    verticalAlignment: Qt.AlignVCenter
-                    font.pointSize: app.font.pointSize + 2
-
-                    text: {
-                        var str = '<a href="%1">%2</a>'.replace('%1',model.id)
-                        str = str.replace('%2',model.title)
-                        return '<small>%1 - </small>'.replace('%1',model.updated_at) + '<b>%1</b>'.replace('%1',str)
-                    }
-
-                    onLinkActivated: {
-                        var pp = contentComponent.createObject(app);
-                        contentConnection.target = pp;
-                        pp.edit(link);
-                    }
-                }
-
-                Rectangle {
-                    anchors.bottom: parent.bottom
-                    width: parent.width - Cx.Theme.baseMargin * 2
-                    height: 1
-                    x: Cx.Theme.baseMargin
-                    color: Cx.Theme.bgNormalColor
-                }
-            }
-        }
-
-        Column {
-            SplitView.preferredWidth: 150
-            SplitView.maximumWidth:  parent.width / 3
-            SplitView.minimumWidth: 100
-            SplitView.fillHeight: true
-
-            Rectangle {
-                width: parent.width
-                height: 25
-                color: Cx.Theme.bgNormalColor
-                Text {
-                    anchors.fill: parent
-                    anchors.leftMargin: 8
-                    verticalAlignment: Qt.AlignVCenter
-                    text: qsTr('Categories')
-                }
-            }
-
-            ListView {
-                id: tagsView
-                width: parent.width
-                height: parent.height - 25
-                clip: true
-                currentIndex: 0
-
-                model: tagsModel
-
-                onCurrentIndexChanged: {
-                    if (tagsView.currentIndex === 0) {
-                        contentsModel.update([]);
-                    } else if (tagsView.currentIndex !== -1) {
-                        const row = tagsModel.get(tagsView.currentIndex);
-                        if (row !== undefined) {
-                            contentsModel.update([row.id]);
-                        }
-                    }
-                }
-
-                delegate: Rectangle {
-                    width: parent === null ? 0 : parent.width
-                    height: Cx.Theme.contentHeight
-                    color: model.index === tagsView.currentIndex ? Cx.Theme.bgLightColor : "white"
-                    Text {
-                        anchors.fill: parent
-                        anchors.leftMargin: 8
-                        verticalAlignment: Qt.AlignVCenter
-                        text: model.title
-                        font.pointSize: app.font.pointSize + 2
-                    }
-                }
-
-                MouseArea {
-                    anchors.fill: parent
-                    onClicked: {
-                        const p = mapToItem(tagsView,mouse.x,mouse.y);
-                        tagsView.currentIndex = tagsView.indexAt(p.x+tagsView.contentX, p.y+tagsView.contentY);
-                    }
-                }
-            }
         }
     }
 
@@ -1232,6 +1246,11 @@ ApplicationWindow {
 
     App.Mask {
         id: mask
+        anchors.fill: parent
+    }
+
+    App.HomePage {
+        id: homePage
         anchors.fill: parent
     }
 }

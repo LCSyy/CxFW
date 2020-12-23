@@ -78,7 +78,7 @@ void CxApplication::initTrayIcon()
 
 void CxApplication::registerSingletonInstance()
 {
-     qmlRegisterSingletonInstance(CxBinding::moduleName(),CxBinding::majorVersion(),CxBinding::minorVersion(),"App",this);
+     qmlRegisterSingletonInstance(CxBinding::moduleName(),CxBinding::majorVersion(),CxBinding::minorVersion(),"App", this);
 }
 
 void CxApplication::registerSingletonTypes()

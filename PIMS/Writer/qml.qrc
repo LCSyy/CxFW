@@ -8,5 +8,7 @@
         <file>qml/ToolBar.qml</file>
         <file>qml/StatusBar.qml</file>
         <file>qml/Mask.qml</file>
+        <file>qml/HomePage.qml</file>
+        <file>qml/MainPage.qml</file>
     </qresource>
 </RCC>
