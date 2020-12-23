@@ -724,6 +724,7 @@ ApplicationWindow {
                         anchors.fill: parent
                         anchors.leftMargin: 16
                         anchors.bottomMargin: 1
+                        font.pointSize: app.font.pointSize + 2
                         textFormat: Qt.RichText
                         verticalAlignment: Qt.AlignVCenter
                         text: '<a href="%1">%2</a>'.replace("%1",model.id).replace("%2",model.title)
@@ -823,8 +824,11 @@ ApplicationWindow {
                                            trashModel.clear();
                                            try {
                                                const res = JSON.parse(resp);
-                                               for (var i in res.body) {
-                                                   trashModel.append(res.body[i]);
+                                               const body = res.body;
+                                               for (var i in body) {
+                                                   var date = new Date(body[i].updated_at)
+                                                   body[i].updated_at = date.toLocaleString(Qt.locale(),Locale.LongFormat)
+                                                   trashModel.append(body[i]);
                                                }
                                            } catch(e) {
                                                console.log(e)
@@ -852,6 +856,7 @@ ApplicationWindow {
                         anchors.fill: parent
                         anchors.leftMargin: 16
                         anchors.bottomMargin: 1
+                        font.pointSize: app.font.pointSize + 2
                         textFormat: Text.RichText
                         verticalAlignment: Qt.AlignVCenter
 
