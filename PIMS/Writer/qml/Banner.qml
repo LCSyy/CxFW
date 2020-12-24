@@ -11,7 +11,7 @@ Popup {
         implicitWidth: 200
         implicitHeight: 48
         radius: 4
-        color: "#E5E5E5"
+        color: "white"
     }
 
     contentItem: Text {

@@ -1,16 +1,17 @@
 <RCC>
     <qresource prefix="/">
         <file>main.qml</file>
-        <file>qml/Button.qml</file>
         <file>qml/TextField.qml</file>
         <file>js/app.js</file>
         <file>qml/Popup.qml</file>
-        <file>qml/ToolBar.qml</file>
         <file>qml/StatusBar.qml</file>
         <file>qml/Mask.qml</file>
         <file>qml/HomePage.qml</file>
         <file>qml/MainPage.qml</file>
         <file>qml/ListViewLighlighter.qml</file>
         <file>qml/Banner.qml</file>
+        <file>CxFw/Button.qml</file>
+        <file>qtquickcontrols2.conf</file>
+        <file>CxFw/ToolBar.qml</file>
     </qresource>
 </RCC>

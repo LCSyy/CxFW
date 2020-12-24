@@ -93,25 +93,22 @@ ApplicationWindow {
              color: "#e2e1e4" // 芡食白
         }
 
-        header: App.ToolBar {
+        header: ToolBar {
             RowLayout {
                 anchors.fill: parent
                 anchors.leftMargin: Cx.Theme.baseMargin
                 anchors.rightMargin: Cx.Theme.baseMargin
                 anchors.bottomMargin: 2
 
-                App.Button { action: actionNew }
-                App.Button { action: actionTags }
-                App.Button { action: actionTrash }
-                App.Button { action: actionSettings }
-                App.Button { action: actionBacktoHome }
-
+                Button { action: actionBacktoHome }
+                ToolSeparator {}
+                Button { action: actionNew }
+                Button { action: actionTags }
+                Button { action: actionTrash }
                 Item { Layout.fillWidth: true }
-                App.TextField {
-                    visible: false
-                    placeholderText: qsTr('Search')
-                }
-                App.Button { action: actionRefresh }
+                Button { action: actionRefresh }
+                ToolSeparator {}
+                Button { action: actionSettings }
             }
 
             Rectangle {
@@ -119,24 +116,6 @@ ApplicationWindow {
                 anchors.bottom: parent.bottom
                 height:1
                 color: Cx.Theme.bgDeepColor
-            }
-        }
-
-        footer: App.StatusBar {
-             visible: false
-            RowLayout {
-                anchors.fill: parent
-                anchors.margins: 0
-                anchors.rightMargin: Cx.Theme.baseMargin / 2
-                anchors.leftMargin: Cx.Theme.baseMargin / 2
-
-                Item {
-                    Layout.fillWidth: true
-                }
-
-                App.Button {
-                    text: qsTr("Already Sync")
-                }
             }
         }
 
@@ -482,18 +461,18 @@ ApplicationWindow {
                 tagRepeater.model.append(tag)
             }
 
-            header: App.ToolBar {
+            header: ToolBar {
                 RowLayout {
                     anchors.fill: parent
                     anchors.leftMargin: Cx.Theme.baseMargin
                     anchors.rightMargin: Cx.Theme.baseMargin
 
-                    App.Button {
+                    Button {
                         visible: popup.editable
                         action: actionSave
                     }
 
-                    App.Button {
+                    Button {
                         visible: popup.editable
                         text: qsTr("Edit tags")
                         onClicked: {
@@ -502,7 +481,7 @@ ApplicationWindow {
                         }
                     }
 
-                    App.Button {
+                    Button {
                         visible: popup.editable
                         text: qsTr("Remove")
                         onClicked: {
@@ -525,7 +504,7 @@ ApplicationWindow {
                         }
                     }
 
-                    App.Button {
+                    Button {
                         visible: !popup.editable
                         text: qsTr("Recovery")
                         onClicked: {
@@ -543,7 +522,7 @@ ApplicationWindow {
                         }
                     }
 
-                    App.Button {
+                    Button {
                         visible: !popup.editable
                         text: qsTr("Delete")
                         onClicked: {
@@ -570,7 +549,7 @@ ApplicationWindow {
                         Layout.fillWidth: true
                     }
 
-                    App.Button {
+                    Button {
                         text: qsTr("Close")
                         onClicked: popup.close()
                     }
@@ -589,7 +568,7 @@ ApplicationWindow {
                         model: Cx.ListModel {
                             roleNames: ["id","title"]
                         }
-                        delegate: App.Button {
+                        delegate: Button {
                             text: model.title
                         }
                     }
@@ -686,13 +665,13 @@ ApplicationWindow {
 
             signal ok(int tagID, string tagTitle)
 
-            header: App.ToolBar {
+            header: ToolBar {
                 RowLayout {
                     anchors.fill: parent
                     anchors.leftMargin: 8
                     anchors.rightMargin: 8
 
-                    App.Button {
+                    Button {
                         text: qsTr("New")
                         onClicked: {
                             var tag = tagEditComponent.createObject(popup.contentItem);
@@ -705,7 +684,7 @@ ApplicationWindow {
                         Layout.fillWidth: true
                     }
 
-                    App.Button {
+                    Button {
                         text: qsTr("Close")
                         onClicked: popup.close()
                     }
@@ -805,7 +784,7 @@ ApplicationWindow {
 
             signal ok(string uuid)
 
-            header: App.ToolBar {
+            header: ToolBar {
                 RowLayout {
                     anchors.fill: parent
                     anchors.leftMargin: Cx.Theme.baseMargin
@@ -815,7 +794,7 @@ ApplicationWindow {
                         Layout.fillWidth: true
                     }
 
-                    App.Button {
+                    Button {
                         text: qsTr("Close")
                         onClicked: popup.close()
                     }
@@ -934,13 +913,13 @@ ApplicationWindow {
             }
             implicitHeight: parent.height * 0.8
 
-            header: App.ToolBar {
+            header: ToolBar {
                 RowLayout {
                     anchors.fill: parent
                     anchors.leftMargin: Cx.Theme.baseMargin
                     anchors.rightMargin: Cx.Theme.baseMargin
 
-                    App.Button {
+                    Button {
                         text: qsTr("Save")
                         onClicked: {}
                     }
@@ -949,7 +928,7 @@ ApplicationWindow {
                         Layout.fillWidth: true
                     }
 
-                    App.Button {
+                    Button {
                         text: qsTr("Cancel")
                         onClicked: popup.close()
                     }
@@ -1091,13 +1070,13 @@ ApplicationWindow {
             Page {
                 anchors.fill: parent
 
-                header: App.ToolBar {
+                header: ToolBar {
                     RowLayout {
                         anchors.fill: parent
                         anchors.leftMargin: Cx.Theme.baseMargin
                         anchors.rightMargin: Cx.Theme.baseMargin
 
-                        App.Button {
+                        Button {
                             text: qsTr("Save")
                             onClicked: {
                                 mask.showMask();
@@ -1136,7 +1115,7 @@ ApplicationWindow {
                             }
                         }
 
-                        App.Button {
+                        Button {
                             text: qsTr("Remove")
                             onClicked: {
                                 Cx.Network.del(urls.tagsUrl() + meta.id, (resp)=>{
@@ -1158,7 +1137,7 @@ ApplicationWindow {
                             Layout.fillWidth: true
                         }
 
-                        App.Button {
+                        Button {
                             text: qsTr("Close")
                             onClicked: {
                                 tagEdit.close();
@@ -1199,13 +1178,13 @@ ApplicationWindow {
                 }
             }
 
-            header: App.ToolBar {
+            header: ToolBar {
                 RowLayout {
                     anchors.fill: parent
                     anchors.leftMargin: Cx.Theme.baseMargin
                     anchors.rightMargin: Cx.Theme.baseMargin
 
-                    App.Button {
+                    Button {
                         text: qsTr("Ok")
                         onClicked: {
                             const checkedTags = listView.checkedTags();
@@ -1217,7 +1196,7 @@ ApplicationWindow {
                         Layout.fillWidth: true
                     }
 
-                    App.Button {
+                    Button {
                         text: qsTr("Close")
                         onClicked: {
                             popup.close();
