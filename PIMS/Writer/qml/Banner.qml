@@ -3,13 +3,13 @@ import QtQuick.Controls 2.15
 
 Popup {
     id: control
-    width: 200
-    height: 48
     closePolicy: Popup.NoAutoClose
 
     property alias text: content.text
 
     background: Rectangle {
+        implicitWidth: 200
+        implicitHeight: 48
         radius: 4
         color: "#E5E5E5"
     }
@@ -28,6 +28,11 @@ Popup {
         control.visible = true;
     }
 
+    Behavior on x {
+        NumberAnimation { duration: 100 }
+    }
+
+
     Timer {
         id: showTimer
         interval: 2000
@@ -36,7 +41,7 @@ Popup {
         triggeredOnStart: false
 
         onTriggered: {
-            control.close()
+            control.visible = false
             control.text = ""
         }
     }

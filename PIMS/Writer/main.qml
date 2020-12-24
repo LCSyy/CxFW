@@ -520,6 +520,7 @@ ApplicationWindow {
                                                    console.log(e);
                                                }
                                                mask.hideMask();
+                                               banner.show("Data removed !");
                                            });
                         }
                     }
@@ -560,6 +561,7 @@ ApplicationWindow {
                                                    console.log(e);
                                                }
                                                mask.hideMask();
+                                               banner.show("Data remove permanently !");
                                            });
                         }
                     }
@@ -623,7 +625,6 @@ ApplicationWindow {
                 text: qsTr("Save")
                 // shortcut: StandardKey.Save
                 onTriggered: {
-                    banner.show('Data saved .')
                     if (textArea.text.trim() === '') { return; }
                     var obj = {
                         "id": meta.id,
@@ -649,6 +650,7 @@ ApplicationWindow {
                                            }
                                            popup.ok(meta.id)
                                            mask.hideMask();
+                                           banner.show('Data saved .')
                                        });
                     } else {
                         Cx.Network.put(urls.postsUrl(), obj,(resp)=>{
@@ -662,6 +664,7 @@ ApplicationWindow {
                                            }
                                            popup.ok(meta.id)
                                            mask.hideMask();
+                                           banner.show('Data saved .')
                                        });
                     }
                 }
@@ -1274,11 +1277,8 @@ ApplicationWindow {
 
     App.Banner {
         id: banner
-        x: visible ? (app.width - width - 4) : app.width + 4
-        y: (app.height - height - 4)
-        Behavior on x {
-            NumberAnimation { duration: 100 }
-        }
+        x: visible ? app.width - implicitWidth - 4 : app.width + 4
+        y: app.height - implicitHeight - 4
     }
 
     App.Mask {
