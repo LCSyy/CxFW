@@ -10,5 +10,7 @@
         <file>qml/Mask.qml</file>
         <file>qml/HomePage.qml</file>
         <file>qml/MainPage.qml</file>
+        <file>qml/ListViewLighlighter.qml</file>
+        <file>qml/Banner.qml</file>
     </qresource>
 </RCC>

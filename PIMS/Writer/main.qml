@@ -89,6 +89,10 @@ ApplicationWindow {
         anchors.fill: parent
         visible: !homePage.visible
 
+        background: Rectangle {
+             color: "#e2e1e4" // 芡食白
+        }
+
         header: App.ToolBar {
             RowLayout {
                 anchors.fill: parent
@@ -101,6 +105,7 @@ ApplicationWindow {
                 App.Button { action: actionTrash }
                 App.Button { action: actionSettings }
                 App.Button { action: actionBacktoHome }
+
                 Item { Layout.fillWidth: true }
                 App.TextField {
                     visible: false
@@ -140,10 +145,10 @@ ApplicationWindow {
             text: qsTr('New')
             shortcut: StandardKey.New
             onTriggered: {
-                var pp = contentComponent.createObject(app);
+                var pp = contentComponent.createObject(mainPage);
                 contentConnection.target = pp;
                  const tag = tagsModel.get(tagsView.currentIndex);
-                 if(tag.name !== "_all_") {
+                 if(tag !== undefined && tag.name !== "_all_") {
                      pp.setDefaultTag(tag);
                  }
                 pp.open();
@@ -154,7 +159,7 @@ ApplicationWindow {
             id: actionTags
             text: qsTr("Tags")
             onTriggered: {
-                var pp = tagsComponent.createObject(app);
+                var pp = tagsComponent.createObject(mainPage);
                 tagNewConnection.target = pp;
                 pp.open();
             }
@@ -164,7 +169,7 @@ ApplicationWindow {
             id: actionTrash
             text: qsTr("Trash")
             onTriggered: {
-                var pp = trashComponent.createObject(app);
+                var pp = trashComponent.createObject(mainPage);
                 contentConnection.target = pp;
                 pp.open();
             }
@@ -174,7 +179,7 @@ ApplicationWindow {
             id: actionSettings
             text: qsTr("Settings")
             onTriggered: {
-                var pp = settingsComponent.createObject(app)
+                var pp = settingsComponent.createObject(mainPage)
                 pp.open();
             }
         }
@@ -305,13 +310,13 @@ ApplicationWindow {
                         font.pointSize: app.font.pointSize + 2
 
                         text: {
-                            var str = '<a href="%1">%2</a>'.replace('%1',model.id)
+                            var str = '<a href="%1" style="color:black">%2</a>'.replace('%1',model.id)
                             str = str.replace('%2',model.title)
                             return '<small>%1 - </small>'.replace('%1',model.updated_at) + '<b>%1</b>'.replace('%1',str)
                         }
 
                         onLinkActivated: {
-                            var pp = contentComponent.createObject(app);
+                            var pp = contentComponent.createObject(mainPage);
                             contentConnection.target = pp;
                             pp.edit(link);
                         }
@@ -345,46 +350,59 @@ ApplicationWindow {
                     }
                 }
 
-                ListView {
-                    id: tagsView
-                    width: parent.width
-                    height: parent.height - 25
-                    clip: true
-                    currentIndex: 0
+                Rectangle {
+                     color: "#e2e1e4" // 芡食白
+                     width: parent.width
+                     height: parent.height - 25
 
-                    model: tagsModel
+                     ListView {
+                         id: tagsView
+                         clip: true
+                         width: parent.width
+                         height: parent.height - 25
+                         currentIndex: 0
 
-                    onCurrentIndexChanged: {
-                        if (tagsView.currentIndex === 0) {
-                            contentsModel.update([]);
-                        } else if (tagsView.currentIndex !== -1) {
-                            const row = tagsModel.get(tagsView.currentIndex);
-                            if (row !== undefined) {
-                                contentsModel.update([row.id]);
-                            }
-                        }
-                    }
+                         model: tagsModel
 
-                    delegate: Rectangle {
-                        width: parent === null ? 0 : parent.width
-                        height: Cx.Theme.contentHeight
-                        color: model.index === tagsView.currentIndex ? Cx.Theme.bgLightColor : "white"
-                        Text {
-                            anchors.fill: parent
-                            anchors.leftMargin: 8
-                            verticalAlignment: Qt.AlignVCenter
-                            text: model.title
-                            font.pointSize: app.font.pointSize + 2
-                        }
-                    }
+                         onCurrentIndexChanged: {
+                             if (tagsView.currentIndex === 0) {
+                                 contentsModel.update([]);
+                             } else if (tagsView.currentIndex !== -1) {
+                                 const row = tagsModel.get(tagsView.currentIndex);
+                                 if (row !== undefined) {
+                                     contentsModel.update([row.id]);
+                                 }
+                             }
+                         }
 
-                    MouseArea {
-                        anchors.fill: parent
-                        onClicked: {
-                            const p = mapToItem(tagsView,mouse.x,mouse.y);
-                            tagsView.currentIndex = tagsView.indexAt(p.x+tagsView.contentX, p.y+tagsView.contentY);
-                        }
-                    }
+                         delegate: Item {
+                             width: parent === null ? 0 : parent.width
+                             height: Cx.Theme.contentHeight
+                             // color: model.index === tagsView.currentIndex ? Cx.Theme.bgLightColor : "white"
+                             Text {
+                                 anchors.fill: parent
+                                 anchors.leftMargin: 8
+                                 verticalAlignment: Qt.AlignVCenter
+                                 text: model.title
+                                 font.pointSize: app.font.pointSize + 2
+                             }
+                         }
+
+                         highlightMoveDuration: 1
+                         highlight: App.ListViewLighlighter {
+                             width: parent !== null ? parent.width : 0
+                             height: Cx.Theme.contentHeight
+                         }
+
+                         MouseArea {
+                             anchors.fill: parent
+                             onClicked: {
+                                 const p = mapToItem(tagsView,mouse.x,mouse.y);
+                                 tagsView.currentIndex = tagsView.indexAt(p.x+tagsView.contentX, p.y+tagsView.contentY);
+                             }
+                         }
+                     }
+
                 }
             }
         }
@@ -467,8 +485,8 @@ ApplicationWindow {
             header: App.ToolBar {
                 RowLayout {
                     anchors.fill: parent
-                    anchors.leftMargin: 8
-                    anchors.rightMargin: 8
+                    anchors.leftMargin: Cx.Theme.baseMargin
+                    anchors.rightMargin: Cx.Theme.baseMargin
 
                     App.Button {
                         visible: popup.editable
@@ -562,6 +580,7 @@ ApplicationWindow {
                     Layout.fillWidth: true
                     Layout.topMargin: Cx.Theme.baseMargin / 2
                     spacing: Cx.Theme.baseMargin
+                    leftPadding: 8
 
                     Repeater {
                         id: tagRepeater
@@ -589,6 +608,8 @@ ApplicationWindow {
                         wrapMode: appSettings.contentLineWrap === true ? TextArea.WrapAnywhere : TextArea.NoWrap
                         selectByMouse: true
                         font.pointSize: appSettings.contentFontPointSize
+                        leftPadding: Cx.Theme.baseMargin * 2
+                        rightPadding: Cx.Theme.baseMargin * 2
 
                         Cx.SyntaxHighlighter {
                             target: textArea.textDocument
@@ -602,6 +623,7 @@ ApplicationWindow {
                 text: qsTr("Save")
                 // shortcut: StandardKey.Save
                 onTriggered: {
+                    banner.show('Data saved .')
                     if (textArea.text.trim() === '') { return; }
                     var obj = {
                         "id": meta.id,
@@ -783,8 +805,8 @@ ApplicationWindow {
             header: App.ToolBar {
                 RowLayout {
                     anchors.fill: parent
-                    anchors.leftMargin: 8
-                    anchors.rightMargin: 8
+                    anchors.leftMargin: Cx.Theme.baseMargin
+                    anchors.rightMargin: Cx.Theme.baseMargin
 
                     Item {
                         Layout.fillWidth: true
@@ -851,11 +873,11 @@ ApplicationWindow {
 
                 delegate: Item {
                     width: trashView.contentItem !== null ? trashView.contentItem.width : 0
-                    height: 25
+                    height: Cx.Theme.contentHeight
 
                     Text {
                         anchors.fill: parent
-                        anchors.leftMargin: 16
+                        anchors.leftMargin: Cx.Theme.baseMargin * 2
                         anchors.bottomMargin: 1
                         font.pointSize: app.font.pointSize + 2
                         textFormat: Text.RichText
@@ -1034,7 +1056,7 @@ ApplicationWindow {
             id: tagEdit
             modal: true
             anchors.centerIn: parent
-            padding: 8
+            padding: Cx.Theme.baseMargin
             implicitWidth: 400
             implicitHeight: 300
             background: Rectangle {
@@ -1069,8 +1091,8 @@ ApplicationWindow {
                 header: App.ToolBar {
                     RowLayout {
                         anchors.fill: parent
-                        anchors.leftMargin: 8
-                        anchors.rightMargin: 8
+                        anchors.leftMargin: Cx.Theme.baseMargin
+                        anchors.rightMargin: Cx.Theme.baseMargin
 
                         App.Button {
                             text: qsTr("Save")
@@ -1177,8 +1199,8 @@ ApplicationWindow {
             header: App.ToolBar {
                 RowLayout {
                     anchors.fill: parent
-                    anchors.leftMargin: 8
-                    anchors.rightMargin: 8
+                    anchors.leftMargin: Cx.Theme.baseMargin
+                    anchors.rightMargin: Cx.Theme.baseMargin
 
                     App.Button {
                         text: qsTr("Ok")
@@ -1247,6 +1269,15 @@ ApplicationWindow {
                     }
                 }
             }
+        }
+    }
+
+    App.Banner {
+        id: banner
+        x: visible ? (app.width - width - 4) : app.width + 4
+        y: (app.height - height - 4)
+        Behavior on x {
+            NumberAnimation { duration: 100 }
         }
     }
 

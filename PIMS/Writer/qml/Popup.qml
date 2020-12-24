@@ -1,17 +1,15 @@
 import QtQuick 2.15
 import QtQuick.Controls 2.15 as Controls
-import CxQuick 0.1 as AppType
 
 Controls.Popup {
     modal: true
     anchors.centerIn: parent
-    padding: 8
+    padding: 0
     implicitWidth: parent.width * 0.8
     implicitHeight: parent.height * 0.8
     background: Rectangle {
         radius: 4
         border.width: 1
-        border.color: AppType.Theme.bgLightColor
     }
 
     property bool destroyOnHide: true
@@ -27,5 +25,11 @@ Controls.Popup {
     Controls.Page {
         id: page
         anchors.fill: parent
+        background: Rectangle {
+            radius: 4
+            border.width: 1
+            border.color: "#e2e1e4"
+            color: "#e2e1e4"
+        }
     }
 }
