@@ -22,6 +22,7 @@ Controls.Popup {
             destroy();
         }
     }
+
     Controls.Page {
         id: page
         anchors.fill: parent

@@ -312,9 +312,10 @@ ApplicationWindow {
             }
 
             Column {
+                id: navi
                 SplitView.preferredWidth: 150
-                SplitView.maximumWidth:  parent.width / 3
-                SplitView.minimumWidth: 100
+                SplitView.maximumWidth: parent.width * 0.8
+                 SplitView.minimumWidth: tagsView.contentWidth
                 SplitView.fillHeight: true
 
                 Rectangle {
@@ -330,58 +331,60 @@ ApplicationWindow {
                 }
 
                 Rectangle {
-                     color: "#e2e1e4" // 芡食白
-                     width: parent.width
-                     height: parent.height - 25
+                    color: "#e2e1e4" // 芡食白
+                    width: parent.width
+                    height: parent.height - 25
 
-                     ListView {
-                         id: tagsView
-                         clip: true
-                         width: parent.width
-                         height: parent.height - 25
-                         currentIndex: 0
+                    ListView {
+                        id: tagsView
+                        clip: true
+                        anchors.fill: parent
+                        currentIndex: 0
 
-                         model: tagsModel
+                        model: tagsModel
 
-                         onCurrentIndexChanged: {
-                             if (tagsView.currentIndex === 0) {
-                                 contentsModel.update([]);
-                             } else if (tagsView.currentIndex !== -1) {
-                                 const row = tagsModel.get(tagsView.currentIndex);
-                                 if (row !== undefined) {
-                                     contentsModel.update([row.id]);
-                                 }
-                             }
-                         }
+                        onCurrentIndexChanged: {
+                            if (tagsView.currentIndex === 0) {
+                                contentsModel.update([]);
+                            } else if (tagsView.currentIndex !== -1) {
+                                const row = tagsModel.get(tagsView.currentIndex);
+                                if (row !== undefined) {
+                                    contentsModel.update([row.id]);
+                                }
+                            }
+                        }
 
-                         delegate: Item {
-                             width: parent === null ? 0 : parent.width
-                             height: Cx.Theme.contentHeight
-                             // color: model.index === tagsView.currentIndex ? Cx.Theme.bgLightColor : "white"
-                             Text {
-                                 anchors.fill: parent
-                                 anchors.leftMargin: 8
-                                 verticalAlignment: Qt.AlignVCenter
-                                 text: model.title
-                                 font.pointSize: app.font.pointSize + 2
-                             }
-                         }
+                        delegate: Item {
+                            width: parent == null ? 0 : parent.width
+                            height: Cx.Theme.contentHeight
+                            Text {
+                                id: tagText
+                                anchors.fill: parent
+                                anchors.leftMargin: Cx.Theme.baseMargin
+                                anchors.rightMargin: Cx.Theme.baseMargin
+                                verticalAlignment: Qt.AlignVCenter
+                                text: model.title
+                                font.pointSize: app.font.pointSize + 2
+                            }
+                        }
 
-                         highlightMoveDuration: 1
-                         highlight: App.ListViewLighlighter {
-                             width: parent !== null ? parent.width : 0
-                             height: Cx.Theme.contentHeight
-                         }
+                        highlightMoveDuration: 1
+                        highlight: App.ListViewLighlighter {
+                            width: parent !== null ? parent.width : 0
+                            height: Cx.Theme.contentHeight
+                        }
 
-                         MouseArea {
-                             anchors.fill: parent
-                             onClicked: {
-                                 const p = mapToItem(tagsView,mouse.x,mouse.y);
-                                 tagsView.currentIndex = tagsView.indexAt(p.x+tagsView.contentX, p.y+tagsView.contentY);
-                             }
-                         }
-                     }
-
+                        MouseArea {
+                            anchors.fill: parent
+                            onClicked: {
+                                const p = mapToItem(tagsView,mouse.x,mouse.y);
+                                const idx = tagsView.indexAt(p.x+tagsView.contentX, p.y+tagsView.contentY);
+                                if (idx !== -1) {
+                                    tagsView.currentIndex = idx;
+                                }
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -556,44 +559,49 @@ ApplicationWindow {
                 }
             }
 
-            body: ColumnLayout {
-                Flow {
-                    Layout.fillWidth: true
-                    Layout.topMargin: Cx.Theme.baseMargin / 2
-                    spacing: Cx.Theme.baseMargin
-                    leftPadding: 8
+            body: Item {
+                implicitWidth: 100
+                implicitHeight: 100
+                ColumnLayout {
+                    anchors.fill: parent
+                    Flow {
+                        Layout.fillWidth: true
+                        Layout.topMargin: Cx.Theme.baseMargin / 2
+                        spacing: Cx.Theme.baseMargin
+                        leftPadding: 8
 
-                    Repeater {
-                        id: tagRepeater
-                        model: Cx.ListModel {
-                            roleNames: ["id","title"]
-                        }
-                        delegate: Button {
-                            text: model.title
+                        Repeater {
+                            id: tagRepeater
+                            model: Cx.ListModel {
+                                roleNames: ["id","title"]
+                            }
+                            delegate: Button {
+                                text: model.title
+                            }
                         }
                     }
-                }
 
-                Rectangle {
-                    Layout.fillWidth: true
-                    height: 1
-                    color: Cx.Theme.bgDeepColor
-                }
+                    Rectangle {
+                        Layout.fillWidth: true
+                        height: 1
+                        color: Cx.Theme.bgDeepColor
+                    }
 
-                ScrollView {
-                    Layout.fillWidth: true
-                    Layout.fillHeight: true
-                    TextArea {
-                        id: textArea
-                        readOnly: !popup.editable
-                        wrapMode: appSettings.contentLineWrap === true ? TextArea.WrapAnywhere : TextArea.NoWrap
-                        selectByMouse: true
-                        font.pointSize: appSettings.contentFontPointSize
-                        leftPadding: Cx.Theme.baseMargin * 2
-                        rightPadding: Cx.Theme.baseMargin * 2
+                    ScrollView {
+                        Layout.fillWidth: true
+                        Layout.fillHeight: true
+                        TextArea {
+                            id: textArea
+                            readOnly: !popup.editable
+                            wrapMode: appSettings.contentLineWrap === true ? TextArea.WrapAnywhere : TextArea.NoWrap
+                            selectByMouse: true
+                            font.pointSize: appSettings.contentFontPointSize
+                            leftPadding: Cx.Theme.baseMargin * 2
+                            rightPadding: Cx.Theme.baseMargin * 2
 
-                        Cx.SyntaxHighlighter {
-                            target: textArea.textDocument
+                            Cx.SyntaxHighlighter {
+                                target: textArea.textDocument
+                            }
                         }
                     }
                 }
@@ -803,9 +811,6 @@ ApplicationWindow {
 
             body: ListView {
                 id: trashView
-                SplitView.fillWidth: true
-                SplitView.fillHeight: true
-
                 clip: true
 
                 model: Cx.ListModel {
@@ -935,124 +940,115 @@ ApplicationWindow {
                 }
             }
 
-            body: GridLayout {
-                columns: 2
-                columnSpacing: Cx.Theme.baseMargin
-                rowSpacing: Cx.Theme.baseMargin
+            body: Item {
+                implicitWidth: 100
+                implicitHeight: 100
+                GridLayout {
+                    anchors.fill: parent
+                    columns: 2
+                    columnSpacing: Cx.Theme.baseMargin
+                    rowSpacing: Cx.Theme.baseMargin
 
-                Label {
-                    Layout.fillWidth: true
-                    Layout.margins: Cx.Theme.baseMargin
-                    Layout.columnSpan: 2
-                    // horizontalAlignment: Qt.AlignHCenter
-                    text: qsTr("Content Editor")
-                    font.pointSize: app.font.pointSize + 4
-                    font.bold: true
-                }
-
-                CheckBox {
-                    Layout.columnSpan: 2
-                    Layout.margins: Cx.Theme.baseMargin
-                    text: qsTr("Line Wrap")
-                    onCheckStateChanged: {
-                        appSettings.contentLineWrap = (checkState === Qt.Checked);
-                    }
-                    Component.onCompleted: {
-                        checkState = appSettings.contentLineWrap === true ? Qt.Checked : Qt.Unchecked;
-                    }
-                }
-
-                Label {
-                    text: qsTr("Font Point Size")
-                    Layout.margins: Cx.Theme.baseMargin
-                }
-
-                ComboBox {
-                    model: [9,10,11,12,13,14]
-                    currentIndex: 0
-                    onCurrentIndexChanged: {
-                        appSettings.contentFontPointSize = parseInt(textAt(currentIndex))
+                    Label {
+                        Layout.fillWidth: true
+                        Layout.margins: Cx.Theme.baseMargin
+                        Layout.columnSpan: 2
+                        // horizontalAlignment: Qt.AlignHCenter
+                        text: qsTr("Content Editor")
+                        font.pointSize: app.font.pointSize + 4
+                        font.bold: true
                     }
 
-                    Component.onCompleted: {
-                        const curVal = appSettings.contentFontPointSize
-                        for (var i = 0; i < count; ++i) {
-                            if (textAt(i) === curVal.toString()) {
-                                currentIndex = i;
-                                break;
+                    CheckBox {
+                        Layout.columnSpan: 2
+                        Layout.margins: Cx.Theme.baseMargin
+                        text: qsTr("Line Wrap")
+                        onCheckStateChanged: {
+                            appSettings.contentLineWrap = (checkState === Qt.Checked);
+                        }
+                        Component.onCompleted: {
+                            checkState = appSettings.contentLineWrap === true ? Qt.Checked : Qt.Unchecked;
+                        }
+                    }
+
+                    Label {
+                        text: qsTr("Font Point Size")
+                        Layout.margins: Cx.Theme.baseMargin
+                    }
+
+                    ComboBox {
+                        model: [9,10,11,12,13,14]
+                        currentIndex: 0
+                        onCurrentIndexChanged: {
+                            appSettings.contentFontPointSize = parseInt(textAt(currentIndex))
+                        }
+
+                        Component.onCompleted: {
+                            const curVal = appSettings.contentFontPointSize
+                            for (var i = 0; i < count; ++i) {
+                                if (textAt(i) === curVal.toString()) {
+                                    currentIndex = i;
+                                    break;
+                                }
                             }
                         }
                     }
-                }
 
-                Label {
-                    Layout.fillWidth: true
-                    Layout.margins: Cx.Theme.baseMargin
-                    Layout.columnSpan: 2
-                    // horizontalAlignment: Qt.AlignHCenter
-                    text: qsTr("Server")
-                    font.pointSize: app.font.pointSize + 4
-                    font.bold: true
-                }
-
-                Label {
-                    text: qsTr("Host")
-                    Layout.margins: Cx.Theme.baseMargin
-                }
-
-                TextField {
-                    onEditingFinished: {
-                        appSettings.host = text.trim();
+                    Label {
+                        Layout.fillWidth: true
+                        Layout.margins: Cx.Theme.baseMargin
+                        Layout.columnSpan: 2
+                        // horizontalAlignment: Qt.AlignHCenter
+                        text: qsTr("Server")
+                        font.pointSize: app.font.pointSize + 4
+                        font.bold: true
                     }
-                    Component.onCompleted: {
-                        text = appSettings.host;
-                    }
-                }
 
-                Label {
-                    text: qsTr("Port")
-                    Layout.margins: Cx.Theme.baseMargin
-                }
-
-                TextField {
-                    onEditingFinished: {
-                        appSettings.port = parseInt(text.trim());
+                    Label {
+                        text: qsTr("Host")
+                        Layout.margins: Cx.Theme.baseMargin
                     }
-                    Component.onCompleted: {
-                        text = appSettings.port;
-                    }
-                }
 
-                Item {
-                    Layout.fillHeight: true
-                    Layout.columnSpan: 2
+                    TextField {
+                        onEditingFinished: {
+                            appSettings.host = text.trim();
+                        }
+                        Component.onCompleted: {
+                            text = appSettings.host;
+                        }
+                    }
+
+                    Label {
+                        text: qsTr("Port")
+                        Layout.margins: Cx.Theme.baseMargin
+                    }
+
+                    TextField {
+                        onEditingFinished: {
+                            appSettings.port = parseInt(text.trim());
+                        }
+                        Component.onCompleted: {
+                            text = appSettings.port;
+                        }
+                    }
+
+                    Item {
+                        Layout.fillHeight: true
+                        Layout.columnSpan: 2
+                    }
                 }
             }
+
         }
     }
 
     Component {
         id: tagEditComponent
 
-        Dialog {
+        App.Popup {
             id: tagEdit
-            modal: true
-            anchors.centerIn: parent
-            padding: Cx.Theme.baseMargin
-            implicitWidth: 400
-            implicitHeight: 300
-            background: Rectangle {
-                radius: 4
-                border.width: 1
-                border.color: Cx.Theme.bgDeepColor
-            }
-            onAccepted: {
-                ok(meta.id,tagTitle.text);
-                tagEdit.destroy();
-            }
-            onRejected: {
-                tagEdit.destroy();
-            }
+            implicitWidth: 300
+            implicitHeight: 200
 
             signal ok(int tagID, string tagTitle);
 
@@ -1067,89 +1063,88 @@ ApplicationWindow {
                 property int id: 0
             }
 
-            Page {
-                anchors.fill: parent
+            header: ToolBar {
+                RowLayout {
+                    anchors.fill: parent
+                    anchors.leftMargin: Cx.Theme.baseMargin
+                    anchors.rightMargin: Cx.Theme.baseMargin
 
-                header: ToolBar {
-                    RowLayout {
-                        anchors.fill: parent
-                        anchors.leftMargin: Cx.Theme.baseMargin
-                        anchors.rightMargin: Cx.Theme.baseMargin
+                    Button {
+                        text: qsTr("Save")
+                        onClicked: {
+                            mask.showMask();
 
-                        Button {
-                            text: qsTr("Save")
-                            onClicked: {
-                                mask.showMask();
-
-                                const obj = {
-                                    id: meta.id,
-                                    title: tagTitle.text
-                                };
-                                if (meta.id === 0) {
-                                    Cx.Network.post(urls.tagsUrl(), obj, (resp)=>{
-                                                        try {
-                                                            const res = JSON.parse(resp);
-                                                            const body = res.body;
-                                                            meta.id = body.id;
-                                                            tagTitle.text = body.title;
-                                                        } catch(e) {
-                                                            console.log(e);
-                                                        }
-                                                        ok(meta.id,tagTitle.text);
-                                                        mask.hideMask();
-                                                    });
-                                } else {
-                                    Cx.Network.put(urls.tagsUrl(), obj, (resp)=>{
-                                                        try {
-                                                            const res = JSON.parse(resp);
-                                                            const body = res.body;
-                                                            meta.id = body.id;
-                                                            tagTitle.text = body.title;
-                                                        } catch(e) {
-                                                            console.log(e);
-                                                        }
-                                                        ok(meta.id,tagTitle.text);
-                                                        mask.hideMask();
-                                                    });
-                                }
-                            }
-                        }
-
-                        Button {
-                            text: qsTr("Remove")
-                            onClicked: {
-                                Cx.Network.del(urls.tagsUrl() + meta.id, (resp)=>{
-                                                   try {
-                                                       const res = JSON.parse(resp);
-                                                       meta.id = 0;
-                                                       tagTitle.text = "";
-                                                       tagEdit.close();
-                                                   } catch(e) {
-                                                       console.log(e);
-                                                   }
-                                                   ok(meta.id,tagTitle.text);
-                                                   mask.hideMask();
-                                               });
-                            }
-                        }
-
-                        Item {
-                            Layout.fillWidth: true
-                        }
-
-                        Button {
-                            text: qsTr("Close")
-                            onClicked: {
-                                tagEdit.close();
+                            const obj = {
+                                id: meta.id,
+                                title: tagTitle.text
+                            };
+                            if (meta.id === 0) {
+                                Cx.Network.post(urls.tagsUrl(), obj, (resp)=>{
+                                                    try {
+                                                        const res = JSON.parse(resp);
+                                                        const body = res.body;
+                                                        meta.id = body.id;
+                                                        tagTitle.text = body.title;
+                                                    } catch(e) {
+                                                        console.log(e);
+                                                    }
+                                                    ok(meta.id,tagTitle.text);
+                                                    mask.hideMask();
+                                                });
+                            } else {
+                                Cx.Network.put(urls.tagsUrl(), obj, (resp)=>{
+                                                    try {
+                                                        const res = JSON.parse(resp);
+                                                        const body = res.body;
+                                                        meta.id = body.id;
+                                                        tagTitle.text = body.title;
+                                                    } catch(e) {
+                                                        console.log(e);
+                                                    }
+                                                    ok(meta.id,tagTitle.text);
+                                                    mask.hideMask();
+                                                });
                             }
                         }
                     }
+
+                    Button {
+                        text: qsTr("Remove")
+                        onClicked: {
+                            Cx.Network.del(urls.tagsUrl() + meta.id, (resp)=>{
+                                               try {
+                                                   const res = JSON.parse(resp);
+                                                   meta.id = 0;
+                                                   tagTitle.text = "";
+                                                   tagEdit.close();
+                                               } catch(e) {
+                                                   console.log(e);
+                                               }
+                                               ok(meta.id,tagTitle.text);
+                                               mask.hideMask();
+                                           });
+                        }
+                    }
+
+                    Item {
+                        Layout.fillWidth: true
+                    }
+
+                    Button {
+                        text: qsTr("Close")
+                        onClicked: {
+                            tagEdit.close();
+                        }
+                    }
                 }
-                Grid {
+            }
+
+            body: Item {
+                implicitWidth: 100
+                implicitHeight: 100
+                Row {
                     anchors.centerIn: parent
-                    columns: 2
-                    columnSpacing: Cx.Theme.baseMargin
-                    rowSpacing: Cx.Theme.baseMargin
+                    spacing: Cx.Theme.baseMargin
                     Label { text: qsTr("Tag") }
                     TextField { id: tagTitle }
                 }
