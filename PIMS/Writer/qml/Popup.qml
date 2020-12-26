@@ -26,6 +26,7 @@ Controls.Popup {
     Controls.Page {
         id: page
         anchors.fill: parent
+        clip: true
         background: Rectangle {
             radius: 4
             border.width: 1

@@ -23,17 +23,4 @@ Item {
             onClicked: control.visible = false
         }
     }
-
-//    Rectangle {
-//        color: "#35333c"
-//        x: parent.width / 2
-//        width: parent.width / 2
-//        height: parent.height
-
-//        Button {
-//            anchors.centerIn: parent
-//            text: qsTr("Start Journey")
-//            font.pointSize: 18
-//        }
-//    }
 }

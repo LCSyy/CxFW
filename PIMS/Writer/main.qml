@@ -1038,7 +1038,6 @@ ApplicationWindow {
                     }
                 }
             }
-
         }
     }
 
@@ -1258,6 +1257,7 @@ ApplicationWindow {
     App.Mask {
         id: mask
         anchors.fill: parent
+//        maskItem: mainPage
     }
 
     App.HomePage {

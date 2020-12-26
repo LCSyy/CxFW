@@ -62,7 +62,7 @@ void CxApplication::onTrayActivated(QSystemTrayIcon::ActivationReason reason)
 
 void CxApplication::initTrayIcon()
 {
-    m_trayIcon = new QSystemTrayIcon(QIcon(":/icon/system_tray.png"),this);
+    m_trayIcon = new QSystemTrayIcon(QIcon(":/icon/AppHubIcon.png"),this);
     m_trayMenu = new QMenu;
 
     QAction *actionQuit = new QAction(QObject::tr("Quit"),m_trayMenu);

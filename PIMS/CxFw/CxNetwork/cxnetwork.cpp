@@ -3,6 +3,7 @@
 #include <QNetworkReply>
 #include <QNetworkRequest>
 #include <QJsonDocument>
+#include <QJsonObject>
 #include <QFile>
 
 CxNetwork::CxNetwork(QObject *parent)
@@ -147,8 +148,9 @@ void CxNetwork::onReply()
 
 void CxNetwork::sslErrors(QNetworkReply *reply, QList<QSslError> errs)
 {
-    for (const QSslError &err: errs) {
-        qDebug() << err.errorString();
-    }
+    Q_UNUSED(errs)
+//    for (const QSslError &err: errs) {
+//        qDebug() << err.errorString();
+//    }
     reply->ignoreSslErrors();
 }
