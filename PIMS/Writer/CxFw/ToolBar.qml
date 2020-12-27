@@ -15,7 +15,7 @@ T.ToolBar {
         color: Theme.bgNormalColor
 
         Rectangle {
-            anchors.bottom: parent.bottom
+            anchors.bottom: parent !== undefined ? parent.bottom : undefined
             anchors.bottomMargin: 0
             width: parent.width
             height: parent.height - 4

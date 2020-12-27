@@ -271,6 +271,7 @@ ApplicationWindow {
                 id: contentListView
                 SplitView.fillWidth: true
                 SplitView.fillHeight: true
+                boundsBehavior: Flickable.DragOverBounds
 
                 clip: true
 
@@ -340,6 +341,7 @@ ApplicationWindow {
                         clip: true
                         anchors.fill: parent
                         currentIndex: 0
+                        boundsBehavior: Flickable.DragOverBounds
 
                         model: tagsModel
 
@@ -412,31 +414,40 @@ ApplicationWindow {
                 property int id: 0
                 property bool changed: false
                 property App.Popup tagEditor: null
-
-                function reset() {
-                    id = 0;
-                    changed = false;
-                }
             }
 
             function edit(postID) {
                 mask.showMask();
                 Cx.Network.get(urls.postsUrl() + postID, (resp)=>{
-                               try {
-                                   const res = JSON.parse(resp);
-                                   const body = res.body;
-                                   const tags = body.tags || [];
-                                   meta.id = body.id;
-                                   textArea.text = body.content;
-                                   for(var i in tags){
-                                       tagRepeater.model.append(tags[i]);
+                                   try {
+                                       const res = JSON.parse(resp);
+                                       const body = res.body;
+                                       const tags = body.tags || [];
+                                       meta.id = body.id;
+                                       textArea.text = body.content;
+                                       meta.changed = false;
+                                       for(var i in tags){
+                                           tagRepeater.model.append(tags[i]);
+                                       }
+                                       popup.open();
+                                   } catch(e) {
+                                       console.log(e);
                                    }
-                                   popup.open();
-                               } catch(e) {
-                                   console.log(e);
-                               }
-                               mask.hideMask();
-                           });
+                                   mask.hideMask();
+                               });
+            }
+
+            Connections {
+                id: exitCon
+                target: null
+
+                function onAccept() {
+                    actionSave.trigger();
+                }
+
+                function onReject() {
+                    popup.close();
+                }
             }
 
             Connections {
@@ -448,6 +459,7 @@ ApplicationWindow {
                     for(var i = 0; i < tags.length; ++i){
                         tagRepeater.model.append(tags[i]);
                     }
+                    meta.changed = true;
                 }
 
                 function onLoaded() {
@@ -554,7 +566,15 @@ ApplicationWindow {
 
                     Button {
                         text: qsTr("Close")
-                        onClicked: popup.close()
+                        onClicked: {
+                            if (meta.changed) {
+                                var pp = changeAlertComponent.createObject(popup.contentItem)
+                                exitCon.target = pp;
+                                pp.open();
+                            } else {
+                                popup.close();
+                            }
+                        }
                     }
                 }
             }
@@ -602,6 +622,10 @@ ApplicationWindow {
                             Cx.SyntaxHighlighter {
                                 target: textArea.textDocument
                             }
+
+                            onTextChanged: {
+                                meta.changed = true
+                            }
                         }
                     }
                 }
@@ -627,25 +651,26 @@ ApplicationWindow {
                     mask.showMask();
                     if (meta.id <= 0) {
                         Cx.Network.post(urls.postsUrl(), obj,(resp)=>{
-                                           try {
-                                               const res = JSON.parse(resp);
-                                               const body = res.body;
-                                               meta.id = body.id;
-                                               textArea.text = body.content;
-                                           } catch(e) {
-                                               console.log(e);
-                                           }
-                                           popup.ok(meta.id)
-                                           mask.hideMask();
-                                           banner.show('Data saved .')
-                                       });
+                                            try {
+                                                const res = JSON.parse(resp);
+                                                const body = res.body;
+                                                meta.id = body.id;
+                                                textArea.text = body.content;
+                                                meta.changed = false;
+                                            } catch(e) {
+                                                console.log(e);
+                                            }
+                                            popup.ok(meta.id)
+                                            mask.hideMask();
+                                            banner.show('Data saved .')
+                                        });
                     } else {
                         Cx.Network.put(urls.postsUrl(), obj,(resp)=>{
                                            try {
                                                const res = JSON.parse(resp);
                                                const body = res.body;
                                                meta.id = body.id;
-                                               textArea.text = body.content;
+                                               meta.changed = false;
                                            } catch(e) {
                                                console.log(e);
                                            }
@@ -702,6 +727,7 @@ ApplicationWindow {
             body: ListView {
                 id: tagList
                 clip: true
+                boundsBehavior: Flickable.DragOverBounds
 
                 model: Cx.ListModel {
                     id: tagModel
@@ -812,6 +838,7 @@ ApplicationWindow {
             body: ListView {
                 id: trashView
                 clip: true
+                boundsBehavior: Flickable.DragOverBounds
 
                 model: Cx.ListModel {
                     id: trashModel
@@ -1243,6 +1270,64 @@ ApplicationWindow {
                     onCheckStateChanged: {
                         tagsModel.set(model.index,"check", (checkState === Qt.Checked ? true : false))
                     }
+                }
+            }
+        }
+    }
+
+    Component {
+        id: changeAlertComponent
+
+        App.Popup {
+            id: popup
+            implicitWidth: 300
+            implicitHeight: 200
+
+            signal accept();
+            signal reject();
+
+            header: ToolBar {
+                RowLayout {
+                    anchors.fill: parent
+                    anchors.leftMargin: Cx.Theme.baseMargin
+                    anchors.rightMargin: Cx.Theme.baseMargin
+
+                    Button {
+                        text: qsTr("Save")
+                        onClicked: {
+                            popup.accept();
+                            popup.close();
+                        }
+                    }
+
+                    Button {
+                        text: qsTr("Not Save")
+                        onClicked: {
+                            popup.reject();
+                            popup.close();
+                        }
+                    }
+
+                    Item {
+                        Layout.fillWidth: true
+                    }
+
+                    Button {
+                        text: qsTr("Close")
+                        onClicked: {
+                            popup.close();
+                        }
+                    }
+                }
+            }
+
+            body: Item {
+                implicitWidth: 150
+                implicitHeight: 100
+                Text {
+                    anchors.centerIn: parent
+                    font.pointSize: app.font.pointSize + 2
+                    text: qsTr("Content changed. Save it or not ?")
                 }
             }
         }
