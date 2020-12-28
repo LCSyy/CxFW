@@ -40,6 +40,15 @@ ApplicationWindow {
         property int contentFontPointSize: app.font.pointSize
         property string host: "localhost"
         property int port: 80
+        property string basicAuthKey: ""
+        property string basicAuthValue: ""
+
+        function basicAuth() {
+            var auth = {
+                "Authorization": basicAuthKey + ":" + basicAuthValue,
+            };
+            return auth;
+        }
     }
 
     QtObject {
@@ -216,7 +225,7 @@ ApplicationWindow {
                         tagQuery += ("tag=" + tags[i] + "&")
                     }
                 }
-                Cx.Network.get(urls.postsUrl() + tagQuery,(resp)=>{
+                Cx.Network.get(urls.postsUrl() + tagQuery, appSettings.basicAuth(), (resp)=>{
                                    contentsModel.clear();
                                    try {
                                        const res = JSON.parse(resp);
@@ -227,7 +236,7 @@ ApplicationWindow {
                                            contentsModel.append(body[i]);
                                        }
                                    } catch(e) {
-                                       console.log(e)
+                                       console.log(e,'; Response:',resp);
                                    }
                                    mask.hideMask();
                                });
@@ -243,7 +252,7 @@ ApplicationWindow {
 
             function update() {
                 mask.showMask();
-                Cx.Network.get(urls.tagsUrl(),(resp)=>{
+                Cx.Network.get(urls.tagsUrl(),appSettings.basicAuth(),(resp)=>{
                                    const oldIdx = tagsView.currentIndex
                                    clear();
                                    this.append({name:"_all_", title:"全部"});
@@ -255,7 +264,7 @@ ApplicationWindow {
                                            tagsModel.append(row);
                                        }
                                    } catch(e) {
-                                       console.log(e);
+                                       console.log(e,'; Response:',resp);
                                    }
                                    tagsView.currentIndex = oldIdx
                                    mask.hideMask();
@@ -418,7 +427,7 @@ ApplicationWindow {
 
             function edit(postID) {
                 mask.showMask();
-                Cx.Network.get(urls.postsUrl() + postID, (resp)=>{
+                Cx.Network.get(urls.postsUrl() + postID, appSettings.basicAuth(), (resp)=>{
                                    try {
                                        const res = JSON.parse(resp);
                                        const body = res.body;
@@ -501,7 +510,7 @@ ApplicationWindow {
                         text: qsTr("Remove")
                         onClicked: {
                             mask.showMask();
-                            Cx.Network.del(urls.postsUrl() + meta.id, (resp)=>{
+                            Cx.Network.del(urls.postsUrl() + meta.id, appSettings.basicAuth(), (resp)=>{
                                                try {
                                                    const res = JSON.parse(resp);
                                                    if (res.err !== null) {
@@ -524,7 +533,7 @@ ApplicationWindow {
                         text: qsTr("Recovery")
                         onClicked: {
                             mask.showMask();
-                            Cx.Network.put(urls.postsUrl() + "status/" + meta.id + "?status=0",null,(resp)=>{
+                            Cx.Network.put(urls.postsUrl() + "status/" + meta.id + "?status=0", appSettings.basicAuth(), null, (resp)=>{
                                                try {
                                                    meta.id = 0;
                                                    popup.ok(0);
@@ -542,7 +551,7 @@ ApplicationWindow {
                         text: qsTr("Delete")
                         onClicked: {
                             mask.showMask();
-                            Cx.Network.del(urls.postsUrl() + meta.id + "?del=1", (resp)=>{
+                            Cx.Network.del(urls.postsUrl() + meta.id + "?del=1", appSettings.basicAuth(), (resp)=>{
                                                try {
                                                    const res = JSON.parse(resp);
                                                    if (res.err !== null) {
@@ -650,7 +659,7 @@ ApplicationWindow {
 
                     mask.showMask();
                     if (meta.id <= 0) {
-                        Cx.Network.post(urls.postsUrl(), obj,(resp)=>{
+                        Cx.Network.post(urls.postsUrl(), appSettings.basicAuth(), obj,(resp)=>{
                                             try {
                                                 const res = JSON.parse(resp);
                                                 const body = res.body;
@@ -665,7 +674,7 @@ ApplicationWindow {
                                             banner.show('Data saved .')
                                         });
                     } else {
-                        Cx.Network.put(urls.postsUrl(), obj,(resp)=>{
+                        Cx.Network.put(urls.postsUrl(), appSettings.basicAuth(), obj,(resp)=>{
                                            try {
                                                const res = JSON.parse(resp);
                                                const body = res.body;
@@ -738,7 +747,7 @@ ApplicationWindow {
 
                     function update() {
                         mask.showMask();
-                        Cx.Network.get(urls.tagsUrl(),(resp)=>{
+                        Cx.Network.get(urls.tagsUrl(), appSettings.basicAuth(), (resp)=>{
                                            clear();
                                            try {
                                                const res = JSON.parse(resp);
@@ -857,7 +866,7 @@ ApplicationWindow {
                                 tagQuery += ("tag=" + tags[i] + "&")
                             }
                         }
-                        Cx.Network.get(urls.postsUrl() + tagQuery + "status=" + status.stTrash,(resp)=>{
+                        Cx.Network.get(urls.postsUrl() + tagQuery + "status=" + status.stTrash, appSettings.basicAuth(), (resp)=>{
                                            trashModel.clear();
                                            try {
                                                const res = JSON.parse(resp);
@@ -1059,6 +1068,34 @@ ApplicationWindow {
                         }
                     }
 
+                    Label {
+                        text: qsTr("Auth key")
+                        Layout.margins: Cx.Theme.baseMargin
+                    }
+
+                    TextField {
+                        onEditingFinished: {
+                            appSettings.basicAuthKey = text.trim();
+                        }
+                        Component.onCompleted: {
+                            text = appSettings.basicAuthKey;
+                        }
+                    }
+
+                    Label {
+                        text: qsTr("Auth value")
+                        Layout.margins: Cx.Theme.baseMargin
+                    }
+
+                    TextField {
+                        onEditingFinished: {
+                            appSettings.basicAuthValue = text.trim();
+                        }
+                        Component.onCompleted: {
+                            text = appSettings.basicAuthValue;
+                        }
+                    }
+
                     Item {
                         Layout.fillHeight: true
                         Layout.columnSpan: 2
@@ -1105,7 +1142,7 @@ ApplicationWindow {
                                 title: tagTitle.text
                             };
                             if (meta.id === 0) {
-                                Cx.Network.post(urls.tagsUrl(), obj, (resp)=>{
+                                Cx.Network.post(urls.tagsUrl(), appSettings.basicAuth(), obj, (resp)=>{
                                                     try {
                                                         const res = JSON.parse(resp);
                                                         const body = res.body;
@@ -1118,7 +1155,7 @@ ApplicationWindow {
                                                     mask.hideMask();
                                                 });
                             } else {
-                                Cx.Network.put(urls.tagsUrl(), obj, (resp)=>{
+                                Cx.Network.put(urls.tagsUrl(), appSettings.basicAuth(), obj, (resp)=>{
                                                     try {
                                                         const res = JSON.parse(resp);
                                                         const body = res.body;
@@ -1137,7 +1174,7 @@ ApplicationWindow {
                     Button {
                         text: qsTr("Remove")
                         onClicked: {
-                            Cx.Network.del(urls.tagsUrl() + meta.id, (resp)=>{
+                            Cx.Network.del(urls.tagsUrl() + meta.id, appSettings.basicAuth(), (resp)=>{
                                                try {
                                                    const res = JSON.parse(resp);
                                                    meta.id = 0;
@@ -1246,7 +1283,7 @@ ApplicationWindow {
                     roleNames: ["id","title","check"]
                     Component.onCompleted: {
                         mask.showMask();
-                        Cx.Network.get(urls.tagsUrl(), (resp)=>{
+                        Cx.Network.get(urls.tagsUrl(), appSettings.basicAuth(), (resp)=>{
                                            try {
                                                const res = JSON.parse(resp);
                                                const body = res.body;
@@ -1342,7 +1379,7 @@ ApplicationWindow {
     App.Mask {
         id: mask
         anchors.fill: parent
-//        maskItem: mainPage
+        maskItem: mainPage
     }
 
     App.HomePage {
