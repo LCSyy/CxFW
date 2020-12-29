@@ -1,9 +1,6 @@
 # CxFW
 
-- cxfw frameworks
-  - cmdline
-  - doc - rust-like doc system
-  - ...
-- apps based on cxfw
-  - writer
-  - ...
+### references
+
+- MarkdownSyntaxHighlighter
+- [QGlobalShortcut](https://github.com/mitei/qglobalshortcut.git)
