@@ -212,10 +212,6 @@ ApplicationWindow {
             id: contentsModel
             roleNames: ["id","title","created_at","updated_at"]
 
-            Component.onCompleted: {
-                update();
-            }
-
             function update(tags) {
                 mask.showMask();
 
@@ -246,9 +242,6 @@ ApplicationWindow {
         Cx.ListModel {
             id: tagsModel
             roleNames: ["id","title","created_at"]
-            Component.onCompleted: {
-                update();
-            }
 
             function update() {
                 mask.showMask();
@@ -1385,5 +1378,21 @@ ApplicationWindow {
     App.HomePage {
         id: homePage
         anchors.fill: parent
+        onLogin: {
+            if (user === "cxfw" && password === "cxfw-2020") {
+                contentsModel.update([]);
+                tagsModel.update();
+                homePage.visible = false
+            } else {
+                warningText = "Login error!"
+            }
+        }
+        onVisibleChanged: {
+            if (!visible) {
+                warningText = ""
+                userFieldText = ""
+                passwordFieldText = ""
+            }
+        }
     }
 }
