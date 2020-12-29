@@ -7,7 +7,7 @@ QT_BEGIN_NAMESPACE
 class QTextEdit;
 QT_END_NAMESPACE
 
-class CxMarkdownHighlighter;
+class MarkdownSyntaxHighlighter;
 
 class MainWindow : public QMainWindow
 {
@@ -22,6 +22,6 @@ private:
 
 private:
     QTextEdit *m_textEditor;
-    CxMarkdownHighlighter *m_syntaxHighlighter;
+    MarkdownSyntaxHighlighter *m_highlighter;
 };
 #endif // MAINWINDOW_H

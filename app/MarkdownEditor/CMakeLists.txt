@@ -31,9 +31,8 @@ add_executable(MarkdownEditor
   main.cpp
   mainwindow.cpp
   mainwindow.h
+  markdownsyntaxhighlighter.cpp
+  markdownsyntaxhighlighter.h
 )
 
-target_include_directories(MarkdownEditor PRIVATE "${PROJECT_SOURCE_DIR}/../../dist/include")
-
 target_link_libraries(MarkdownEditor PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)
-target_link_libraries(MarkdownEditor PRIVATE "${PROJECT_SOURCE_DIR}/../../dist/bin/libCxMarkdownHighlighter.a")

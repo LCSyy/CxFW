@@ -1,6 +1,6 @@
 #include "mainwindow.h"
 #include <QTextEdit>
-#include "MarkdownHightlighter/cxmarkdownhighlighter.h"
+#include "markdownsyntaxhighlighter.h"
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -17,7 +17,6 @@ void MainWindow::initUI()
 {
     m_textEditor = new QTextEdit(this);
     setCentralWidget(m_textEditor);
-
-    m_syntaxHighlighter = new CxMarkdownHighlighter(m_textEditor->document());
+    m_highlighter = new MarkdownSyntaxHighlighter(m_textEditor);
 }
 
