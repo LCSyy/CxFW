@@ -504,17 +504,9 @@ ApplicationWindow {
                         onClicked: {
                             mask.showMask();
                             Cx.Network.del(urls.postsUrl() + meta.id, appSettings.basicAuth(), (resp)=>{
-                                               try {
-                                                   const res = JSON.parse(resp);
-                                                   if (res.err !== null) {
-                                                       throw res.err;
-                                                   }
-                                                   meta.id = 0;
-                                                   popup.ok(0);
-                                                   popup.close();
-                                               } catch(e) {
-                                                   console.log(e);
-                                               }
+                                               meta.id = 0;
+                                               popup.ok(0);
+                                               popup.close();
                                                mask.hideMask();
                                                banner.show("Data removed !");
                                            });
@@ -527,13 +519,9 @@ ApplicationWindow {
                         onClicked: {
                             mask.showMask();
                             Cx.Network.put(urls.postsUrl() + "status/" + meta.id + "?status=0", appSettings.basicAuth(), null, (resp)=>{
-                                               try {
-                                                   meta.id = 0;
-                                                   popup.ok(0);
-                                                   popup.close();
-                                               }catch(e) {
-                                                   console.log(e);
-                                               }
+                                               meta.id = 0;
+                                               popup.ok(0);
+                                               popup.close();
                                                mask.hideMask();
                                            });
                         }
@@ -545,17 +533,9 @@ ApplicationWindow {
                         onClicked: {
                             mask.showMask();
                             Cx.Network.del(urls.postsUrl() + meta.id + "?del=1", appSettings.basicAuth(), (resp)=>{
-                                               try {
-                                                   const res = JSON.parse(resp);
-                                                   if (res.err !== null) {
-                                                       throw res.err;
-                                                   }
-                                                   meta.id = 0;
-                                                   popup.ok(0);
-                                                   popup.close();
-                                               } catch(e) {
-                                                   console.log(e);
-                                               }
+                                               meta.id = 0;
+                                               popup.ok(0);
+                                               popup.close();
                                                mask.hideMask();
                                                banner.show("Data remove permanently !");
                                            });
@@ -1168,14 +1148,9 @@ ApplicationWindow {
                         text: qsTr("Remove")
                         onClicked: {
                             Cx.Network.del(urls.tagsUrl() + meta.id, appSettings.basicAuth(), (resp)=>{
-                                               try {
-                                                   const res = JSON.parse(resp);
-                                                   meta.id = 0;
-                                                   tagTitle.text = "";
-                                                   tagEdit.close();
-                                               } catch(e) {
-                                                   console.log(e);
-                                               }
+                                               meta.id = 0;
+                                               tagTitle.text = "";
+                                               tagEdit.close();
                                                ok(meta.id,tagTitle.text);
                                                mask.hideMask();
                                            });
@@ -1280,7 +1255,6 @@ ApplicationWindow {
                                            try {
                                                const res = JSON.parse(resp);
                                                const body = res.body;
-
                                                for (var i in body) {
                                                    var tag = body[i];
                                                    tag["check"] = false;
