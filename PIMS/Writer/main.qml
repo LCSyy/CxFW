@@ -380,11 +380,42 @@ ApplicationWindow {
 
                         MouseArea {
                             anchors.fill: parent
+                            acceptedButtons: Qt.LeftButton | Qt.RightButton
                             onClicked: {
                                 const p = mapToItem(tagsView,mouse.x,mouse.y);
                                 const idx = tagsView.indexAt(p.x+tagsView.contentX, p.y+tagsView.contentY);
                                 if (idx !== -1) {
                                     tagsView.currentIndex = idx;
+                                    if (mouse.button & Qt.RightButton) {
+                                        naviMenu.popup();
+                                    }
+                                    mouse.accepted = true
+                                }
+                            }
+
+                            Menu {
+                                id: naviMenu
+
+                                Action {
+                                    text: qsTr("Pin/Unpin")
+                                }
+
+                                MenuSeparator {}
+
+                                Action {
+                                    text: qsTr("Top")
+                                }
+
+                                Action {
+                                    text: qsTr("Up")
+                                }
+
+                                Action {
+                                    text: qsTr("Down")
+                                }
+
+                                Action {
+                                    text: qsTr("Bottom")
                                 }
                             }
                         }
@@ -1352,6 +1383,7 @@ ApplicationWindow {
     App.HomePage {
         id: homePage
         anchors.fill: parent
+        visible:  false
         onLogin: {
             if (user === "cxfw" && password === "cxfw-2020") {
                 contentsModel.update([]);

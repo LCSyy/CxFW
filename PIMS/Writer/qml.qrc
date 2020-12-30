@@ -13,5 +13,6 @@
         <file>CxFw/Button.qml</file>
         <file>qtquickcontrols2.conf</file>
         <file>CxFw/ToolBar.qml</file>
+        <file>CxFw/Menu.qml</file>
     </qresource>
 </RCC>
