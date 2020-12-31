@@ -34,6 +34,12 @@ ApplicationWindow {
         app.requestActivate()
     }
 
+    function mouseClickMapToListViewIndex(mouseArea, listView, mouse) {
+        const p = mouseArea.mapToItem(listView,mouse.x,mouse.y);
+        const idx = listView.indexAt(p.x+listView.contentX, p.y+listView.contentY);
+        return idx;
+    }
+
     Settings {
         id: appSettings
         property bool contentLineWrap: true
@@ -279,37 +285,55 @@ ApplicationWindow {
 
                 model: contentsModel
 
-                delegate: Item {
-                    width: contentListView !== null ? contentListView.width : 0
+                delegate: App.LinkItem {
+                    width: parent !== null ? parent.width : 0
                     height: 35
 
-                    Text {
-                        anchors.fill: parent
-                        anchors.leftMargin: 16
-                        anchors.bottomMargin: 1
-                        textFormat: Text.RichText
-                        verticalAlignment: Qt.AlignVCenter
-                        font.pointSize: app.font.pointSize + 2
-
-                        text: {
-                            var str = '<a href="%1" style="color:black">%2</a>'.replace('%1',model.id)
-                            str = str.replace('%2',model.title)
-                            return '<small>%1 - </small>'.replace('%1',model.updated_at) + '<b>%1</b>'.replace('%1',str)
-                        }
-
-                        onLinkActivated: {
-                            var pp = contentComponent.createObject(mainPage);
-                            contentConnection.target = pp;
-                            pp.edit(link);
-                        }
+                    text: {
+                        var str = '<a href="%1" style="color:black">%2</a>'.replace('%1',model.id)
+                        str = str.replace('%2',model.title)
+                        return '<small>%1 - </small>'.replace('%1',model.updated_at) + '<b>%1</b>'.replace('%1',str)
                     }
 
-                    Rectangle {
-                        anchors.bottom: parent.bottom
-                        width: parent.width - Cx.Theme.baseMargin * 2
-                        height: 1
-                        x: Cx.Theme.baseMargin
-                        color: Cx.Theme.bgNormalColor
+                    onLinkClicked: {
+                        var pp = contentComponent.createObject(mainPage);
+                        contentConnection.target = pp;
+                        pp.edit(link);
+                    }
+
+                    Component.onCompleted: {
+                        if (index <= 3) {
+                            setBadge('Rank '+index, 'rank', index.toString());
+                            if (index == 0) {
+                                setBadge('Tick '+index, 'tick', index.toString());
+                            }
+                        }
+                    }
+                }
+
+                MouseArea {
+                    acceptedButtons: Qt.RightButton
+                    anchors.fill: parent
+                    onClicked: {
+                        const idx = app.mouseClickMapToListViewIndex(this, contentListView, mouse);
+                        contentListView.currentIndex = idx;
+                        if (idx !== -1) {
+                            contentMenu.popup();
+                            mouse.accepted = true;
+                        }
+                    }
+                }
+
+                Menu {
+                    id: contentMenu
+                    Action {
+                        text: qsTr("Pin/Unpin")
+                    }
+
+                    MenuSeparator {}
+
+                    Action {
+                        text: qsTr("Remove")
                     }
                 }
             }
@@ -382,8 +406,7 @@ ApplicationWindow {
                             anchors.fill: parent
                             acceptedButtons: Qt.LeftButton | Qt.RightButton
                             onClicked: {
-                                const p = mapToItem(tagsView,mouse.x,mouse.y);
-                                const idx = tagsView.indexAt(p.x+tagsView.contentX, p.y+tagsView.contentY);
+                                const idx = app.mouseClickMapToListViewIndex(this, tagsView, mouse)
                                 if (idx !== -1) {
                                     tagsView.currentIndex = idx;
                                     if (mouse.button & Qt.RightButton) {
@@ -1383,8 +1406,8 @@ ApplicationWindow {
     App.HomePage {
         id: homePage
         anchors.fill: parent
-        visible:  false
         onLogin: {
+            // test ...
             if (user === "cxfw" && password === "cxfw-2020") {
                 contentsModel.update([]);
                 tagsModel.update();

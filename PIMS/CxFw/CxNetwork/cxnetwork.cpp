@@ -61,60 +61,26 @@ void CxNetwork::enableHttps(bool enabled)
 
 void CxNetwork::post(const QUrl &url, const QJSValue &header, const QJSValue &body, const QJSValue &handler)
 {
-//    qDebug() << "[POST]" << url.toString();
-//    QNetworkRequest req = newRequest(url, header);
-//    QJsonDocument doc = QJsonDocument::fromVariant(body.toVariant());
-//    QNetworkReply *reply = m_networkAccessMgr->post(req, doc.toJson(QJsonDocument::Compact));
-//    m_responseHanlders.insert(reply, handler);
-//    connect(reply, SIGNAL(finished()), this, SLOT(onReply()));
-
     request(Verbs::POST, url, header, body, handler);
 }
 
 void CxNetwork::get(const QUrl &url, const QJSValue &header, const QJSValue &handler)
 {
-//    qDebug() << "[GET]" << url.toString();
-//    QNetworkRequest req = newRequest(url, header);
-//    QNetworkReply *reply = m_networkAccessMgr->get(req);
-//    m_responseHanlders.insert(reply, handler);
-//    connect(reply, SIGNAL(finished()), this, SLOT(onReply()));
     request(Verbs::GET, url, header, QJSValue(), handler);
 }
 
 void CxNetwork::put(const QUrl &url, const QJSValue &header, const QJSValue &body, const QJSValue &handler)
 {
-//    qDebug() << "[PUT]" << url.toString();
-//    QNetworkRequest req = newRequest(url, header);
-//    QJsonDocument doc = QJsonDocument::fromVariant(body.toVariant());
-//    QNetworkReply *reply = m_networkAccessMgr->put(req, doc.toJson(QJsonDocument::Compact));
-//    m_responseHanlders.insert(reply, handler);
-//    connect(reply, SIGNAL(finished()), this, SLOT(onReply()));
     request(Verbs::PUT, url, header, body, handler);
 }
 
 void CxNetwork::patch(const QUrl &url, const QJSValue &header, const QJSValue &body, const QJSValue &handler)
 {
-//    qDebug() << "[PATCH]" << url.toString();
-//    QNetworkRequest req = newRequest(url, header);
-//    QJsonDocument doc = QJsonDocument::fromVariant(body.toVariant());
-//    QNetworkReply *reply = m_networkAccessMgr->sendCustomRequest(req,
-//                                                                 QByteArray("PATCH"),
-//                                                                 doc.toJson(QJsonDocument::Compact));
-//    m_responseHanlders.insert(reply, handler);
-//    connect(reply, SIGNAL(finished()), this, SLOT(onReply()));
     request(Verbs::PATCH, url, header, body, handler);
 }
 
 void CxNetwork::del(const QUrl &url, const QJSValue &header, const QJSValue &handler)
 {
-//    qDebug() << "[DELETE]" << url.toString();
-//    QNetworkRequest req(url);
-//    req.setHeader(QNetworkRequest::ContentTypeHeader,"application/json");
-//    testCert(req);
-//    setHeader(req,header);
-//    QNetworkReply *reply = m_networkAccessMgr->deleteResource(req);
-//    m_responseHanlders.insert(reply, handler);
-//    connect(reply, SIGNAL(finished()), this, SLOT(onReply()));
     request(Verbs::DELETE, url, header, QJSValue(), handler);
 }
 
@@ -124,6 +90,8 @@ void CxNetwork::onReply()
     if (!reply || !m_responseHanlders.contains(reply)) {
         return;
     }
+
+    qDebug() << "STATUS:" << reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
 
     QJSValue handler = m_responseHanlders.take(reply);
     if (handler.isCallable()) {
