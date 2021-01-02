@@ -11,7 +11,7 @@ namespace {
 QString verbString(const CxNetwork::Verbs verb) {
     if (verb == CxNetwork::POST) {
         return QString("POST");
-    } else if (verb == CxNetwork::DELETE) {
+    } else if (verb == CxNetwork::DELETE || verb == CxNetwork::DELETE2) {
         return QString("DELETE");
     } else if (verb == CxNetwork::GET) {
         return QString("GET");
@@ -84,6 +84,11 @@ void CxNetwork::del(const QUrl &url, const QJSValue &header, const QJSValue &han
     request(Verbs::DELETE, url, header, QJSValue(), handler);
 }
 
+void CxNetwork::del2(const QUrl &url, const QJSValue &header, const QJSValue &body, const QJSValue &handler)
+{
+    request(Verbs::DELETE2, url, header, body, handler);
+}
+
 void CxNetwork::onReply()
 {
     QNetworkReply *reply = qobject_cast<QNetworkReply*>(sender());
@@ -91,7 +96,7 @@ void CxNetwork::onReply()
         return;
     }
 
-    qDebug() << "STATUS:" << reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
+//    qDebug() << "STATUS:" << reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
 
     QJSValue handler = m_responseHanlders.take(reply);
     if (handler.isCallable()) {
@@ -156,6 +161,8 @@ void CxNetwork::request(Verbs verb, const QUrl &url, const QJSValue &header, con
         reply = m_networkAccessMgr->post(req, bodyBytes);
     } else if (verb == Verbs::DELETE) {
         reply = m_networkAccessMgr->deleteResource(req);
+    } else if (verb == Verbs::DELETE2) {
+        reply = m_networkAccessMgr->sendCustomRequest(req, QByteArray("DELETE"), bodyBytes);
     } else if (verb == Verbs::GET) {
         reply = m_networkAccessMgr->get(req);
     } else if (verb == Verbs::PUT) {

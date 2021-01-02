@@ -7,8 +7,16 @@ Item {
 
     property alias text: text.text
     property Component badgeComponent: Qt.createComponent("Badge.qml")
+    property var badges: undefined
 
     signal linkClicked(url link)
+
+    onBadgesChanged: {
+        for (var i in badges) {
+            const badge = badges[i];
+            root.setBadge(badge.badge_value, badge.badge_name, badge.badge_value);
+        }
+    }
 
     function setBadge(text, badgeType, badgeValue) {
         badgeComponent.createObject(badgeRow, { text: text, badgeType: badgeType, badgeValue: badgeValue })

@@ -67,6 +67,12 @@ ApplicationWindow {
     }
 
     QtObject {
+        id: badges
+
+        readonly property int rank: 0 // 置顶排序
+    }
+
+    QtObject {
         id: urls
 
         function postsUrl() {
@@ -77,6 +83,12 @@ ApplicationWindow {
 
         function tagsUrl() {
             return "https://<host>:<port>/api/tags/"
+            .replace("<host>",appSettings.host)
+            .replace("<port>", appSettings.port)
+        }
+
+        function postBadgesUrl() {
+            return "https://<host>:<port>/api/badges/"
             .replace("<host>",appSettings.host)
             .replace("<port>", appSettings.port)
         }
@@ -216,7 +228,19 @@ ApplicationWindow {
 
         Cx.ListModel {
             id: contentsModel
-            roleNames: ["id","title","created_at","updated_at"]
+            roleNames: ["id","title","created_at","updated_at","badges"]
+
+            function hasBadge(index, badgeType) {
+                const obj = contentsModel.get(index);
+                const badges = obj.badges || [];
+                for (var i in badges) {
+                    const badge = badges[i];
+                    if (badge.badge_name === badgeType && badge.badge_value !== null) {
+                        return true;
+                    }
+                }
+                return false;
+            }
 
             function update(tags) {
                 mask.showMask();
@@ -295,19 +319,12 @@ ApplicationWindow {
                         return '<small>%1 - </small>'.replace('%1',model.updated_at) + '<b>%1</b>'.replace('%1',str)
                     }
 
+                    badges: model.badges
+
                     onLinkClicked: {
                         var pp = contentComponent.createObject(mainPage);
                         contentConnection.target = pp;
                         pp.edit(link);
-                    }
-
-                    Component.onCompleted: {
-                        if (index <= 3) {
-                            setBadge('Rank '+index, 'rank', index.toString());
-                            if (index == 0) {
-                                setBadge('Tick '+index, 'tick', index.toString());
-                            }
-                        }
                     }
                 }
 
@@ -318,6 +335,7 @@ ApplicationWindow {
                         const idx = app.mouseClickMapToListViewIndex(this, contentListView, mouse);
                         contentListView.currentIndex = idx;
                         if (idx !== -1) {
+                            pinAction.pinned = contentsModel.hasBadge(idx, badges.rank)
                             contentMenu.popup();
                             mouse.accepted = true;
                         }
@@ -327,7 +345,45 @@ ApplicationWindow {
                 Menu {
                     id: contentMenu
                     Action {
-                        text: qsTr("Pin/Unpin")
+                        id: pinAction
+                        text: pinned ? qsTr("Unpin") : qsTr("Pin")
+
+                        property bool pinned: false
+
+                        onTriggered: {
+                            mask.showMask();
+
+                            const curItem = contentsModel.get(contentListView.currentIndex);
+                            if ((curItem.id || 0) === 0) {
+                                return;
+                            }
+
+                            const data = {
+                                post_id: curItem.id,
+                                badge_name: badges.rank,
+                                badge_value: "",
+                            };
+
+                            if (pinAction.pinned === true) {
+                                Cx.Network.del2(urls.postBadgesUrl(), appSettings.basicAuth(), data, (resp)=>{
+                                                    try {
+                                                        contentConnection.onOk(0);
+                                                    } catch(e) {
+                                                        console.log(e);
+                                                    }
+                                                    mask.hideMask();
+                                                })
+                            } else {
+                                Cx.Network.post(urls.postBadgesUrl(), appSettings.basicAuth(), data, (resp)=>{
+                                                    try {
+                                                        contentConnection.onOk(0);
+                                                    } catch(e) {
+                                                        console.log(e);
+                                                    }
+                                                    mask.hideMask();
+                                                })
+                            }
+                        }
                     }
 
                     MenuSeparator {}
@@ -1407,21 +1463,9 @@ ApplicationWindow {
         id: homePage
         anchors.fill: parent
         onLogin: {
-            // test ...
-            if (user === "cxfw" && password === "cxfw-2020") {
-                contentsModel.update([]);
-                tagsModel.update();
-                homePage.visible = false
-            } else {
-                warningText = "Login error!"
-            }
-        }
-        onVisibleChanged: {
-            if (!visible) {
-                warningText = ""
-                userFieldText = ""
-                passwordFieldText = ""
-            }
+            contentsModel.update([]);
+            tagsModel.update();
+            homePage.visible = false
         }
     }
 }

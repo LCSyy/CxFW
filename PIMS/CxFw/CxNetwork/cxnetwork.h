@@ -20,6 +20,7 @@ public:
     enum Verbs {
         POST,
         DELETE,
+        DELETE2,
         GET,
         PUT,
         PATCH,
@@ -36,6 +37,7 @@ public slots:
     void put(const QUrl &url, const QJSValue &header, const QJSValue &body, const QJSValue &handler=QJSValue());
     void patch(const QUrl &url, const QJSValue &header, const QJSValue &body, const QJSValue &handler=QJSValue());
     void del(const QUrl &url, const QJSValue &header, const QJSValue &handler=QJSValue());
+    void del2(const QUrl &url, const QJSValue &header, const QJSValue &body=QJSValue(), const QJSValue &handler=QJSValue());
 private slots:
     void onReply();
     void sslErrors(QNetworkReply *reply, QList<QSslError> errs);
