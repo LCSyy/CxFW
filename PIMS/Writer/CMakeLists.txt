@@ -46,4 +46,4 @@ target_link_libraries(Writer
 
 # qt5_create_translation(QM_FILES ${CMAKE_SOURCE_DIR} ${TS_FILES})
 
-install(TARGETS Writer DESTINATION "bin/")
+# install(TARGETS Writer DESTINATION "bin/")

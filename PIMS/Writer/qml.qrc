@@ -16,5 +16,7 @@
         <file>CxFw/Menu.qml</file>
         <file>qml/LinkItem.qml</file>
         <file>qml/Badge.qml</file>
+        <file>CxFw/MenuSeparator.qml</file>
+        <file>CxFw/ToolSeparator.qml</file>
     </qresource>
 </RCC>

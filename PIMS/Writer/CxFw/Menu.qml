@@ -13,7 +13,7 @@ T.Menu {
 
     background: Rectangle {
         implicitWidth: control.fixdWidth
-        implicitHeight: Theme.contentHeight * 2
+        implicitHeight: Theme.contentHeight
         color: "white"
         radius: 2
     }
