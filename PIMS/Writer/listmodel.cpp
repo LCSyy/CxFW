@@ -11,7 +11,7 @@ void ListModel::setRoleNames(const QStringList &rs)
     m_roleNames.clear();
     for (int i = 0; i < rs.length(); ++i) {
         const int r =Qt::UserRole + i + 1;
-        m_roleNames.insert(r, QByteArray().append(rs[i]));
+        m_roleNames.insert(r, QByteArray().append(rs[i].toUtf8()));
     }
 }
 
@@ -71,7 +71,6 @@ QVariant ListModel::get(int idx) const
 
 void ListModel::set(int idx, const QString &prop, const QVariant &val)
 {
-    QVariantMap ele;
     if (idx < 0 || count() <= idx) { return; }
 
     QHash<int,QVariant> &e = m_datas[idx];
@@ -109,10 +108,11 @@ void ListModel::clear()
 
 int ListModel::roleFromName(const QString &name) const
 {
-    const QByteArray ba = QByteArray().append(name);
-    for (const int r: m_roleNames.keys()) {
-        const QByteArray rn = m_roleNames[r];
-        if (rn == ba) { return r; }
+    const QByteArray ba = QByteArray().append(name.toUtf8());
+    for (auto iter = m_roleNames.begin(); iter != m_roleNames.end(); ++iter) {
+        if (iter.value() == ba) {
+            return iter.key();
+        }
     }
     return 0;
 }

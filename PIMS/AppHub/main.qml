@@ -23,16 +23,18 @@ Item {
 
         Button {
             onClicked: {
-                Cx.Network.get("https://192.168.1.6:8100/api/posts/1",(resp)=>{
+                mask.showMask(true);
+                Cx.Network.get("https://192.168.1.6:8100/api/posts/1",{},(resp)=>{
                     try{
+                                       console.log("try 1 try");
                         const body = JSON.parse(resp).body;
                         msgText.text = body.content;
+                                       console.log(JSON.stringify(body));
                     }catch(e){
                          console.log(JSON.stringify(e));
                     }
                     mask.showMask(false);
                 })
-                mask.showMask(true);
             }
         }
     }

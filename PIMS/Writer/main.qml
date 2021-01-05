@@ -1,14 +1,14 @@
-import QtQml.Models 2.15
+ import QtQml.Models 2.15
 import QtQuick 2.15
-import QtQuick.Window 2.15
+ import QtQuick.Window 2.15
 import QtQuick.Controls 2.15
-import QtQuick.Layouts 1.15
-import QtQuick.LocalStorage 2.15
-import Qt.labs.settings 1.1
+ import QtQuick.Layouts 1.15
+// import QtQuick.LocalStorage 2.15
+ import Qt.labs.settings 1.1
 
-import CxQuick 0.1 as Cx
-import "qml" as App
-import "js/app.js" as Js
+ import CxQuick 0.1 as Cx
+ import "qml" as App
+ import "js/app.js" as Js
 
 // status:
 //   trash
@@ -25,8 +25,9 @@ ApplicationWindow {
     title: qsTr("Writer")
 
     Component.onCompleted: {
-        Cx.Network.enableHttps(true);
+         Cx.Network.enableHttps(true);
     }
+
 
     function showWindow() {
         app.showNormal()
@@ -93,7 +94,7 @@ ApplicationWindow {
             .replace("<port>", appSettings.port)
         }
     }
-
+    /*
     Connections {
         target: Cx.App
 
@@ -103,13 +104,14 @@ ApplicationWindow {
             }
         }
     }
+    */
 
-    Cx.GlobalShortcut {
-        sequence: "Shift+w"
-        onActivated: {
-            app.showWindow()
-        }
-    }
+//    Cx.GlobalShortcut {
+//        sequence: "Shift+w"
+//        onActivated: {
+//            app.showWindow()
+//        }
+//    }
 
     App.MainPage {
         id: mainPage
@@ -258,7 +260,7 @@ ApplicationWindow {
                                        const body = res.body || [];
                                        for (var i in body) {
                                            var date = new Date(body[i].updated_at)
-                                           body[i].updated_at = date.toLocaleString(Qt.locale(),Locale.LongFormat)
+                                           body[i].updated_at = date.format("yyyy-MM-dd hh:mm:ss")
                                            contentsModel.append(body[i]);
                                        }
                                    } catch(e) {
@@ -311,7 +313,7 @@ ApplicationWindow {
 
                 delegate: App.LinkItem {
                     width: parent !== null ? parent.width : 0
-                    height: 35
+                    height: 40
 
                     text: {
                         var str = '<a href="%1" style="color:black">%2</a>'.replace('%1',model.id)
@@ -1099,7 +1101,7 @@ ApplicationWindow {
                         model: [9,10,11,12,13,14]
                         currentIndex: 0
                         onCurrentIndexChanged: {
-                            appSettings.contentFontPointSize = parseInt(textAt(currentIndex))
+                             appSettings.contentFontPointSize = parseInt(textAt(currentIndex))
                         }
 
                         Component.onCompleted: {
@@ -1468,4 +1470,5 @@ ApplicationWindow {
             homePage.visible = false
         }
     }
+
 }

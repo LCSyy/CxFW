@@ -31,7 +31,10 @@ add_executable(Writer
     theme.h
 )
 
-target_link_options(Writer PRIVATE -mwindows)
+if(WIN32)
+  target_link_options(Writer PRIVATE -mwindows)
+endif()
+
 target_compile_definitions(Writer
   PRIVATE $<$<OR:$<CONFIG:Debug>,$<CONFIG:RelWithDebInfo>>:QT_QML_DEBUG>)
 target_link_libraries(Writer

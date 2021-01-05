@@ -11,12 +11,12 @@
         <file>qml/ListViewLighlighter.qml</file>
         <file>qml/Banner.qml</file>
         <file>CxFw/Button.qml</file>
-        <file>qtquickcontrols2.conf</file>
         <file>CxFw/ToolBar.qml</file>
         <file>CxFw/Menu.qml</file>
         <file>qml/LinkItem.qml</file>
         <file>qml/Badge.qml</file>
         <file>CxFw/MenuSeparator.qml</file>
         <file>CxFw/ToolSeparator.qml</file>
+        <file>qtquickcontrols2.conf</file>
     </qresource>
 </RCC>

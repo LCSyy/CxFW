@@ -19,6 +19,8 @@ public:
     CxApplication(const QString &name, int argc, char *argv[]);
     ~CxApplication();
 
+    QApplication *app() const;
+
     int exec();
 
 private slots:
@@ -32,7 +34,7 @@ private:
     void registerTypes();
 
 private:
-    QApplication *app {nullptr};
+    QApplication *m_app {nullptr};
     QSystemTrayIcon *m_trayIcon {nullptr};
     QMenu *m_trayMenu {nullptr};
 };

@@ -1,19 +1,42 @@
 #include <QQmlApplicationEngine>
 #include <QSettings>
-#include "cxapplication.h"
+#include <QApplication>
+#include <CxBinding/cxbinding.h>
+#include "theme.h"
+#include "listmodel.h"
+
+static QJSValue themeSingleton(QQmlEngine *e, QJSEngine *s)
+{
+    Q_UNUSED(e)
+    return s->newQObject(new Theme(s));
+}
+
+static void registerSingletonTypes()
+{
+     qmlRegisterSingletonType(CxBinding::moduleName(),CxBinding::majorVersion(),CxBinding::minorVersion(),"Theme",themeSingleton);
+}
+
+static void registerTypes()
+{
+     qmlRegisterType<ListModel>(CxBinding::moduleName(),CxBinding::majorVersion(),CxBinding::minorVersion(),"ListModel");
+}
+
 
 int main(int argc, char *argv[])
 {
     QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
-    CxApplication app("Writer", argc, argv);
+//    CxApplication app("Writer", argc, argv);
+
+    QCoreApplication::setOrganizationName("Lcs App");
+    QCoreApplication::setOrganizationDomain("cxfw.lcs");
+    QCoreApplication::setApplicationName("Writer");
+    QApplication app(argc, argv);
+
+    CxBinding::registerAll();
+    registerTypes();
+    registerSingletonTypes();
 
     QQmlApplicationEngine engine;
-    {
-        QSettings s(engine.offlineStorageDatabaseFilePath("writer.db") + ".ini",QSettings::IniFormat);
-        const QString v = s.value("Version","0.0.1").toString();
-        engine.globalObject().setProperty("DBVersion",v);
-    }
-
     const QUrl url(QStringLiteral("qrc:/main.qml"));
     QObject::connect(&engine, &QQmlApplicationEngine::objectCreated,
                      &app, [url](QObject *obj, const QUrl &objUrl) {

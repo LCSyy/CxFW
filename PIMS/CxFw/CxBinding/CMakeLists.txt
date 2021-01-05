@@ -20,13 +20,19 @@ add_library(CxBinding
     cxbinding.cpp
     cxbinding.h
 )
+if(WIN32)
+set(CXFW_LIBS CxNetwork MarkdownSyntaxHighlighter QGlobalShortcut)
+else()
+set(CXFW_LIBS CxNetwork MarkdownSyntaxHighlighter)
+endif()
 
 target_link_libraries(CxBinding
   PRIVATE
     Qt${QT_VERSION_MAJOR}::Core
     Qt${QT_VERSION_MAJOR}::Gui
     Qt${QT_VERSION_MAJOR}::Qml
-    CxNetwork
-    MarkdownSyntaxHighlighter
-    QGlobalShortcut
+    ${CXFW_LIBS}
 )
+
+message(${CXFW_LIBS})
+

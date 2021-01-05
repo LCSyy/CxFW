@@ -19,10 +19,10 @@ CxApplication::CxApplication(const QString &name, int argc, char *argv[]) {
     QCoreApplication::setOrganizationDomain("cxfw.lcs");
     QCoreApplication::setApplicationName(name);
 
-    app = new QApplication(argc,argv);
+    m_app = new QApplication(argc,argv);
 
 #if !defined(QT_DEBUG)
-    app->setQuitOnLastWindowClosed(false);
+    m_app->setQuitOnLastWindowClosed(false);
     initTrayIcon();
 #endif
 
@@ -38,14 +38,19 @@ CxApplication::~CxApplication()
         delete m_trayMenu;
     }
 
-    if (app) {
-        delete app;
+    if (m_app) {
+        delete m_app;
     }
+}
+
+QApplication *CxApplication::app() const
+{
+    return m_app;
 }
 
 int CxApplication::exec()
 {
-    return app->exec();
+    return m_app->exec();
 }
 
 void CxApplication::onTrayActivated(QSystemTrayIcon::ActivationReason reason)
@@ -71,7 +76,7 @@ void CxApplication::initTrayIcon()
 
     connect(m_trayIcon,SIGNAL(activated(QSystemTrayIcon::ActivationReason)),
             this, SLOT(onTrayActivated(QSystemTrayIcon::ActivationReason)));
-    connect(actionQuit, SIGNAL(triggered()), app, SLOT(quit()), Qt::QueuedConnection);
+    connect(actionQuit, SIGNAL(triggered()), m_app, SLOT(quit()), Qt::QueuedConnection);
 
     m_trayIcon->show();
 }

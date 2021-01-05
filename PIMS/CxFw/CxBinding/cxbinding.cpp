@@ -3,7 +3,10 @@
 
 #include <CxNetwork/cxnetwork.h>
 #include <MarkdownSyntaxHighlighter/cxquicksyntaxhighlighter.h>
+
+#if defined(Q_OS_WIN32)
 #include <QGlobalShortcut/qglobalshortcut.h>
+#endif
 
 namespace {
     constexpr char CXQUICK[] = "CxQuick";
@@ -56,5 +59,7 @@ void CxBinding::registerTypes()
 {
 //    qmlRegisterType<ListModel>(CXQUICK,CXQUICK_VERSION_MARJOR,CXQUICK_VERSION_MINOR,"ListModel");
     qmlRegisterType<CxQuickSyntaxHighlighter>(moduleName(),majorVersion(),minorVersion(),"SyntaxHighlighter");
+#if defined(Q_OS_WIN32)
     qmlRegisterType<QGlobalShortcut>(moduleName(),majorVersion(),minorVersion(),"GlobalShortcut");
+#endif
 }
