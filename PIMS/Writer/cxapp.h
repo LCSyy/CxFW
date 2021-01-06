@@ -8,35 +8,27 @@ QT_BEGIN_NAMESPACE
 class QMenu;
 QT_END_NAMESPACE
 
-class CxApplication: public QObject
+class CxApp: public QObject
 {
     Q_OBJECT
 
-signals:
-    void systemTrayIconActivated(int reason, QPrivateSignal);
-
 public:
-    CxApplication(const QString &name, int argc, char *argv[]);
-    ~CxApplication();
+    static void setup(const QString &name, const QString &version);
 
-    QApplication *app() const;
+    CxApp(QApplication *app);
+    ~CxApp();
 
-    int exec();
+    void init(QApplication *app);
+    void initTrayIcon();
 
 private slots:
     void onTrayActivated(QSystemTrayIcon::ActivationReason reason);
-
-private:
-    void initTrayIcon();
-
-    void registerSingletonInstance();
-    void registerSingletonTypes();
-    void registerTypes();
 
 private:
     QApplication *m_app {nullptr};
     QSystemTrayIcon *m_trayIcon {nullptr};
     QMenu *m_trayMenu {nullptr};
 };
+
 
 #endif // CXAPPLICATION_H

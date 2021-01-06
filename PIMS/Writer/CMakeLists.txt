@@ -23,8 +23,8 @@ add_executable(Writer
     # ${TS_FILES}
 
     main.cpp
-    cxapplication.cpp
-    cxapplication.h
+    cxapp.cpp
+    cxapp.h
     listmodel.cpp
     listmodel.h
     theme.cpp
