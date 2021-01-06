@@ -12,7 +12,6 @@ set(CMAKE_AUTORCC ON)
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-
 find_package(QT NAMES Qt6 Qt5 COMPONENTS Core Gui Qml REQUIRED)
 find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Core Gui Qml REQUIRED)
 
@@ -20,6 +19,7 @@ add_library(CxBinding
     cxbinding.cpp
     cxbinding.h
 )
+
 if(WIN32)
 set(CXFW_LIBS CxNetwork MarkdownSyntaxHighlighter QGlobalShortcut)
 else()
@@ -33,6 +33,4 @@ target_link_libraries(CxBinding
     Qt${QT_VERSION_MAJOR}::Qml
     ${CXFW_LIBS}
 )
-
-message(${CXFW_LIBS})
 

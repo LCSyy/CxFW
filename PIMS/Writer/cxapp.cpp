@@ -2,7 +2,6 @@
 #include <QQmlApplicationEngine>
 #include <QMenu>
 #include <CxBinding/cxbinding.h>
-#include "cxsystemnotify.h"
 #include "theme.h"
 #include "listmodel.h"
 
