@@ -18,5 +18,6 @@
         <file>CxFw/MenuSeparator.qml</file>
         <file>CxFw/ToolSeparator.qml</file>
         <file>qtquickcontrols2.conf</file>
+        <file>qml/OneColumnTreeView.qml</file>
     </qresource>
 </RCC>

@@ -155,7 +155,7 @@ ApplicationWindow {
             onTriggered: {
                 var pp = contentComponent.createObject(mainPage);
                 contentConnection.target = pp;
-                 const tag = tagsModel.get(tagsView.currentIndex);
+                 const tag = tagsView.model.get(tagsView.currentIndex);
                  if(tag !== undefined && tag.name !== "_all_") {
                      pp.setDefaultTag(tag);
                  }
@@ -196,7 +196,7 @@ ApplicationWindow {
             id: actionRefresh
             text: qsTr("Refresh")
             onTriggered: {
-                tagsModel.update();
+                tagsView.update();
             }
         }
 
@@ -224,7 +224,7 @@ ApplicationWindow {
             target: null
 
             function onOk(tagID, tagTitle) {
-                tagsModel.update();
+                tagsView.update();
             }
         }
 
@@ -271,6 +271,7 @@ ApplicationWindow {
             }
         }
 
+            /*
         Cx.ListModel {
             id: tagsModel
             roleNames: ["id","title","created_at"]
@@ -296,6 +297,7 @@ ApplicationWindow {
                                });
             }
         }
+        */
 
         SplitView {
             anchors.fill: parent
@@ -420,44 +422,40 @@ ApplicationWindow {
                     width: parent.width
                     height: parent.height - 25
 
-                    ListView {
+                    App.OneColumnTreeView {
                         id: tagsView
                         clip: true
                         anchors.fill: parent
                         currentIndex: 0
                         boundsBehavior: Flickable.DragOverBounds
 
-                        model: tagsModel
-
                         onCurrentIndexChanged: {
                             if (tagsView.currentIndex === 0) {
                                 contentsModel.update([]);
                             } else if (tagsView.currentIndex !== -1) {
-                                const row = tagsModel.get(tagsView.currentIndex);
+                                const row = tagsView.model.get(tagsView.currentIndex);
+                                console.log(JSON.stringify(row));
                                 if (row !== undefined) {
                                     contentsModel.update([row.id]);
                                 }
                             }
                         }
 
-                        delegate: Item {
-                            width: parent == null ? 0 : parent.width
-                            height: Cx.Theme.contentHeight
-                            Text {
-                                id: tagText
-                                anchors.fill: parent
-                                anchors.leftMargin: Cx.Theme.baseMargin
-                                anchors.rightMargin: Cx.Theme.baseMargin
-                                verticalAlignment: Qt.AlignVCenter
-                                text: model.title
-                                font.pointSize: app.font.pointSize + 2
-                            }
-                        }
-
-                        highlightMoveDuration: 1
-                        highlight: App.ListViewLighlighter {
-                            width: parent !== null ? parent.width : 0
-                            height: Cx.Theme.contentHeight
+                        function update() {
+                            mask.showMask();
+                            Cx.Network.get(urls.tagsUrl(),appSettings.basicAuth(),(resp)=>{
+                                               const oldIdx = tagsView.currentIndex
+                                               tagsView.model.clear();
+                                               try {
+                                                   const res = JSON.parse(resp);
+                                                   const body = res.body;
+                                                   tagsView.load(body);
+                                               } catch(e) {
+                                                   console.log(e,'; Response:',resp);
+                                               }
+                                               tagsView.currentIndex = oldIdx
+                                               mask.hideMask();
+                                           });
                         }
 
                         MouseArea {
@@ -467,36 +465,34 @@ ApplicationWindow {
                                 const idx = app.mouseClickMapToListViewIndex(this, tagsView, mouse)
                                 if (idx !== -1) {
                                     tagsView.currentIndex = idx;
-                                    if (mouse.button & Qt.RightButton) {
-                                        naviMenu.popup();
+                                    if (mouse.button & Qt.LeftButton) {
+                                        var item = tagsView.currentItem;
+                                        item.execClick(this.mapToItem(item, mouse.x, mouse.y))
+                                    } else if (mouse.button & Qt.RightButton) {
+                                        tagMenu.popup()
                                     }
-                                    mouse.accepted = true
                                 }
                             }
 
                             Menu {
-                                id: naviMenu
+                                id: tagMenu
 
                                 Action {
-                                    text: qsTr("Pin/Unpin")
-                                }
+                                    text: qsTr("New")
 
-                                MenuSeparator {}
-
-                                Action {
-                                    text: qsTr("Top")
-                                }
-
-                                Action {
-                                    text: qsTr("Up")
+                                    onTriggered: {
+                                        const m = tagsView.model.get(tagsView.currentIndex);
+                                        var tag = tagEditComponent.createObject(mainPage);
+                                         tagNewConnection.target = tag;
+                                        tag.edit({id:0,title:"",parent: m.id});
+                                    }
                                 }
 
                                 Action {
-                                    text: qsTr("Down")
-                                }
-
-                                Action {
-                                    text: qsTr("Bottom")
+                                    text: qsTr("Remove")
+                                    onTriggered: {
+                                        // Cx.Network.del()
+                                    }
                                 }
                             }
                         }
@@ -1194,21 +1190,24 @@ ApplicationWindow {
         id: tagEditComponent
 
         App.Popup {
-            id: tagEdit
+            id: popup
             implicitWidth: 300
             implicitHeight: 200
 
             signal ok(int tagID, string tagTitle);
 
-            function edit(row) {
-                meta.id = row.id || 0;
-                tagTitle.text = row.title;
-                visible = true;
-            }
+            property int tagID: 0
+            property string tagTitle: ""
+            property int parentID: -1
 
-            QtObject {
-                id: meta
-                property int id: 0
+            function edit(row) {
+                tagID = row.id || 0;
+                tagTitle = row.title;
+                parentID = (row.parent||0) === 0 ? -1 : row.parent
+
+                tagTitleField.text = row.title;
+
+                open();
             }
 
             header: ToolBar {
@@ -1223,20 +1222,22 @@ ApplicationWindow {
                             mask.showMask();
 
                             const obj = {
-                                id: meta.id,
-                                title: tagTitle.text
+                                id: popup.tagID,
+                                title: tagTitleField.text,
+                                parent: popup.parentID
                             };
-                            if (meta.id === 0) {
+
+                            if (popup.tagID === 0) {
                                 Cx.Network.post(urls.tagsUrl(), appSettings.basicAuth(), obj, (resp)=>{
                                                     try {
                                                         const res = JSON.parse(resp);
                                                         const body = res.body;
-                                                        meta.id = body.id;
-                                                        tagTitle.text = body.title;
+                                                        popup.tagID = body.id;
+                                                        tagTitleField.text = body.title;
                                                     } catch(e) {
                                                         console.log(e);
                                                     }
-                                                    ok(meta.id,tagTitle.text);
+                                                    ok(popup.tagID,tagTitleField.text);
                                                     mask.hideMask();
                                                 });
                             } else {
@@ -1244,12 +1245,12 @@ ApplicationWindow {
                                                     try {
                                                         const res = JSON.parse(resp);
                                                         const body = res.body;
-                                                        meta.id = body.id;
-                                                        tagTitle.text = body.title;
+                                                       popup.tagID = body.id;
+                                                        tagTitleField.text = body.title;
                                                     } catch(e) {
                                                         console.log(e);
                                                     }
-                                                    ok(meta.id,tagTitle.text);
+                                                   ok(popup.tagID,tagTitleField.text);
                                                     mask.hideMask();
                                                 });
                             }
@@ -1260,10 +1261,10 @@ ApplicationWindow {
                         text: qsTr("Remove")
                         onClicked: {
                             Cx.Network.del(urls.tagsUrl() + meta.id, appSettings.basicAuth(), (resp)=>{
-                                               meta.id = 0;
-                                               tagTitle.text = "";
-                                               tagEdit.close();
-                                               ok(meta.id,tagTitle.text);
+                                               popup.tagID = 0;
+                                               tagTitleField.text = "";
+                                               popup.close();
+                                               ok(popup.tagID,tagTitleField.text);
                                                mask.hideMask();
                                            });
                         }
@@ -1276,7 +1277,7 @@ ApplicationWindow {
                     Button {
                         text: qsTr("Close")
                         onClicked: {
-                            tagEdit.close();
+                            popup.close();
                         }
                     }
                 }
@@ -1289,7 +1290,7 @@ ApplicationWindow {
                     anchors.centerIn: parent
                     spacing: Cx.Theme.baseMargin
                     Label { text: qsTr("Tag") }
-                    TextField { id: tagTitle }
+                    TextField { id: tagTitleField }
                 }
             }
         }
@@ -1466,7 +1467,7 @@ ApplicationWindow {
         anchors.fill: parent
         onLogin: {
             contentsModel.update([]);
-            tagsModel.update();
+            tagsView.update();
             homePage.visible = false
         }
     }
