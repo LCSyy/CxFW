@@ -1,4 +1,5 @@
 #include "listmodel.h"
+#include <QDebug>
 
 ListModel::ListModel(QObject *parent)
     : QAbstractListModel(parent)
@@ -77,6 +78,8 @@ void ListModel::set(int idx, const QString &prop, const QVariant &val)
     const int role = roleFromName(prop);
     if (role == 0) { return; }
     e[role] = val;
+
+    emit dataChanged(index(idx),index(idx),QVector<int>{role});
 }
 
 void ListModel::insert(int idx, const QVariantMap &map)

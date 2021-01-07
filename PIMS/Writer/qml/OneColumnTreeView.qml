@@ -13,7 +13,7 @@ ListView {
 
     function load(treeItems) {
         treeModel.clear();
-        treeModel.append({id: -1, title: "所有", created_at: "", parent: -1, expand: true, visible: true, level: 0 });
+        treeModel.append({id: -1, title: "所有", created_at: "", parent: -1, expand: true, visible: true, level: 0, hasChildren: false });
         treeModel.loadTree(treeItems, -1, 0)
     }
 
@@ -29,41 +29,39 @@ ListView {
 
     model: Cx.ListModel {
         id: treeModel
-        roleNames: ["id","title","created_at", "parent", "expand", "visible", "level"]
+        roleNames: ["id","title","created_at", "parent", "expand", "visible", "level","hasChildren"]
 
         function loadTree(items, parentID, level) {
             if ((items || null) === null) { return; }
 
-            while (items.length > 0) {
-                for (var i = 0; items.length > 0; ) {
-                    const item = items[i];
-                    if (item.parent === parentID) {
-                        items.splice(i,1);
-                        const cur = {
-                            id: item.id,
-                            title: item.title,
-                            created_at: item.created_at,
-                            parent: item.parent,
-                            expand: true,
-                            visible: true,
-                            level: level,
-                        }
-                        treeModel.append(cur);
-                        loadTree(items, item.id, level+1);
-                    } else {
-                        ++i;
+            for (var i = 0; items.length > 0 && i < items.length; ) {
+                const item = items[i];
+                if (item.parent === parentID) {
+                    items.splice(i,1);
+                    const cur = {
+                        id: item.id,
+                        title: item.title,
+                        created_at: item.created_at,
+                        parent: item.parent,
+                        expand: true,
+                        visible: true,
+                        level: level,
+                        hasChildren: false,
                     }
+                    treeModel.append(cur);
+                    const idx = treeModel.count() - 1;
+                    const oldCount = items.length;
+                    items = loadTree(items, item.id, level+1);
+                    if (oldCount > items.length) {
+                        treeModel.set(idx,"hasChildren", true);
+                    }
+                    i = 0;
+                } else {
+                    i += 1;
                 }
             }
 
-//            for (var i in items) {
-//                const item = items[i];
-//                const children = item.children;
-//                const cur = {id: item.id, title: item.title, created_at: item.created_at, parent: item.parent,
-//                    expand: true, visible: true, level: level}
-//                treeModel.append(cur);
-//                loadTree(children, treeModel.count-1, level+1);
-//            }
+            return items;
         }
     }
 
@@ -74,24 +72,25 @@ ListView {
 
         function execClick(p) {
             const pp = mapToItem(arrow,p.x,p.y)
-            if (arrow.contains(pp)) {
+            if (arrow.contains(pp) && model.hasChildren) {
                 const expand = !model.expand;
                 treeModel.set(model.index,"expand",expand);
-
                 var pIdxs = [];
-                pIdxs.push({pIdx: model.index, visible: expand});
-                for (; pIdxs.length !== 0; ) {
+                pIdxs.push({id: model.id, visible: expand});
+                while(pIdxs.length > 0) {
                     const pm = pIdxs.splice(0,1)[0];
-                    for (var j = 0; j < treeModel.count; ++j) {
+                    for (var j = 0; j < treeModel.count(); ++j) {
                         const m = treeModel.get(j);
-                        if (m.parent_index === pm.pIdx) {
+                        if (m.parent === pm.id) {
                             treeModel.set(j,"visible", pm.visible);
-                            pIdxs.push({pIdx:j, visible: pm.visible ? m.expand : pm.visible});
+                            pIdxs.push({id: m.id, visible: (pm.visible ? m.expand : pm.visible)});
                         }
                     }
                 }
                 arrow.markDirty(Qt.rect(0,0,theme.arrowSize,theme.arrowSize))
+                return true
             }
+            return false
         }
 
         Row {
@@ -106,6 +105,7 @@ ListView {
                     anchors.centerIn: parent
                     width: theme.arrowSize
                     height: theme.arrowSize
+                    visible: model.hasChildren
 
                     onPaint: {
                         const s = theme.arrowSize

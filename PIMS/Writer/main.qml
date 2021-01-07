@@ -24,6 +24,11 @@ ApplicationWindow {
     visible: true
     title: qsTr("Writer")
 
+    QtObject {
+        id: uiConf
+        readonly property int naviSize: 300
+    }
+
     Component.onCompleted: {
          Cx.Network.enableHttps(true);
     }
@@ -271,34 +276,6 @@ ApplicationWindow {
             }
         }
 
-            /*
-        Cx.ListModel {
-            id: tagsModel
-            roleNames: ["id","title","created_at"]
-
-            function update() {
-                mask.showMask();
-                Cx.Network.get(urls.tagsUrl(),appSettings.basicAuth(),(resp)=>{
-                                   const oldIdx = tagsView.currentIndex
-                                   clear();
-                                   this.append({name:"_all_", title:"全部"});
-                                   try {
-                                       const res = JSON.parse(resp);
-                                       const body = res.body;
-                                       for (var i in body) {
-                                           var row = body[i];
-                                           tagsModel.append(row);
-                                       }
-                                   } catch(e) {
-                                       console.log(e,'; Response:',resp);
-                                   }
-                                   tagsView.currentIndex = oldIdx
-                                   mask.hideMask();
-                               });
-            }
-        }
-        */
-
         SplitView {
             anchors.fill: parent
             orientation: Qt.Horizontal
@@ -400,7 +377,7 @@ ApplicationWindow {
 
             Column {
                 id: navi
-                SplitView.preferredWidth: 150
+                SplitView.preferredWidth: uiConf.naviSize
                 SplitView.maximumWidth: parent.width * 0.8
                  SplitView.minimumWidth: tagsView.contentWidth
                 SplitView.fillHeight: true
@@ -434,10 +411,11 @@ ApplicationWindow {
                                 contentsModel.update([]);
                             } else if (tagsView.currentIndex !== -1) {
                                 const row = tagsView.model.get(tagsView.currentIndex);
-                                console.log(JSON.stringify(row));
                                 if (row !== undefined) {
                                     contentsModel.update([row.id]);
                                 }
+                            } else {
+                                contentsModel.clear();
                             }
                         }
 
@@ -462,15 +440,19 @@ ApplicationWindow {
                             anchors.fill: parent
                             acceptedButtons: Qt.LeftButton | Qt.RightButton
                             onClicked: {
-                                const idx = app.mouseClickMapToListViewIndex(this, tagsView, mouse)
-                                if (idx !== -1) {
-                                    tagsView.currentIndex = idx;
+                                const idx = app.mouseClickMapToListViewIndex(this, tagsView, mouse);
+                                if (idx !== - 1) {
                                     if (mouse.button & Qt.LeftButton) {
-                                        var item = tagsView.currentItem;
-                                        item.execClick(this.mapToItem(item, mouse.x, mouse.y))
+                                        var item = tagsView.itemAtIndex(idx);
+                                        if(!item.execClick(this.mapToItem(item, mouse.x, mouse.y))) {
+                                            tagsView.currentIndex = idx;
+                                        }
                                     } else if (mouse.button & Qt.RightButton) {
+                                        tagsView.currentIndex = idx;
                                         tagMenu.popup()
                                     }
+                                } else {
+                                    tagsView.currentIndex = -1;
                                 }
                             }
 
@@ -484,14 +466,34 @@ ApplicationWindow {
                                         const m = tagsView.model.get(tagsView.currentIndex);
                                         var tag = tagEditComponent.createObject(mainPage);
                                          tagNewConnection.target = tag;
-                                        tag.edit({id:0,title:"",parent: m.id});
+                                        tag.edit({id:0, title:"", parent: m.id});
+                                    }
+                                }
+
+                                Action {
+                                    text: qsTr("Edit")
+                                    onTriggered: {
+                                        const m = tagsView.model.get(tagsView.currentIndex);
+                                        console.log('Edit tag:',JSON.stringify(m));
+                                        var tag = tagEditComponent.createObject(mainPage);
+                                         tagNewConnection.target = tag;
+                                        tag.edit({id: m.id, title: m.title, parent: m.parent});
                                     }
                                 }
 
                                 Action {
                                     text: qsTr("Remove")
                                     onTriggered: {
-                                        // Cx.Network.del()
+                                        mask.showMask();
+                                        const m = tagsView.model.get(tagsView.currentIndex);
+                                        Cx.Network.del(urls.tagsUrl() + m.id, appSettings.basicAuth(), (resp)=>{
+                                                           try {
+                                                               tagsView.update();
+                                                           } catch(e) {
+                                                               console.log('[ERROR] Remove tag:'+JSON.stringify(e));
+                                                           }
+                                                           mask.hideMask();
+                                                       })
                                     }
                                 }
                             }
@@ -1260,7 +1262,7 @@ ApplicationWindow {
                     Button {
                         text: qsTr("Remove")
                         onClicked: {
-                            Cx.Network.del(urls.tagsUrl() + meta.id, appSettings.basicAuth(), (resp)=>{
+                            Cx.Network.del(urls.tagsUrl() + popup.tagID, appSettings.basicAuth(), (resp)=>{
                                                popup.tagID = 0;
                                                tagTitleField.text = "";
                                                popup.close();
