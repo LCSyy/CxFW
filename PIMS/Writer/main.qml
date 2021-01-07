@@ -94,17 +94,17 @@ ApplicationWindow {
             .replace("<port>", appSettings.port)
         }
     }
-    /*
+
     Connections {
-        target: Cx.App
+        target: Cx.Sys
 
         function onSystemTrayIconActivated(reason) {
-            if (reason === 2) { // double clicked
+            // double clicked
+            if (reason === 2) {
                 app.showWindow()
             }
         }
     }
-    */
 
 //    Cx.GlobalShortcut {
 //        sequence: "Shift+w"

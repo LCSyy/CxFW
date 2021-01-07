@@ -40,10 +40,11 @@ CxApp::CxApp(QApplication *app)
     m_app->setQuitOnLastWindowClosed(false);
 #endif
 
-    ::qmlTypeRegister();
-    // qmlRegisterSingletonInstance(CxBinding::moduleName(),CxBinding::majorVersion(),CxBinding::minorVersion(),"Sys", m_notify);
-
     initTrayIcon();
+
+    ::qmlTypeRegister();
+     qmlRegisterSingletonInstance(CxBinding::moduleName(),CxBinding::majorVersion(),CxBinding::minorVersion(),"Sys", this);
+
 }
 
 CxApp::~CxApp()
@@ -58,12 +59,18 @@ void CxApp::initTrayIcon()
     m_trayIcon = new QSystemTrayIcon(QIcon(":/icon/AppHubIcon.png"),m_app);
     m_trayMenu = new QMenu;
 
-    QAction *actionQuit = new QAction(QObject::tr("Quit"),m_trayMenu);
+    QAction *actionPopup = new QAction(tr("Popup"), m_trayMenu);
+    QAction *actionQuit = new QAction(tr("Quit"),m_trayMenu);
+    m_trayMenu->addAction(actionPopup);
+    m_trayMenu->addSeparator();
     m_trayMenu->addAction(actionQuit);
     m_trayIcon->setContextMenu(m_trayMenu);
 
     QObject::connect(m_trayIcon,SIGNAL(activated(QSystemTrayIcon::ActivationReason)),
             this, SLOT(onTrayActivated(QSystemTrayIcon::ActivationReason)));
+    QObject::connect(actionPopup, &QAction::triggered, this, [this](){
+        emit systemTrayIconActivated(QSystemTrayIcon::DoubleClick, QPrivateSignal{});
+    });
     QObject::connect(actionQuit, SIGNAL(triggered()), m_app, SLOT(quit()), Qt::QueuedConnection);
 
     m_trayIcon->show();
@@ -72,11 +79,18 @@ void CxApp::initTrayIcon()
 // do nothing yet.
 void CxApp::onTrayActivated(QSystemTrayIcon::ActivationReason reason)
 {
+#if defined(Q_OS_WIN32)
     switch(reason) {
     case QSystemTrayIcon::DoubleClick:
         break;
     default:
         ;
     }
+
+    emit systemTrayIconActivated(reason, QPrivateSignal{});
+#else
+    // deepin double-click not work, always QSystemTrayIcon::Trigger
+    Q_UNUSED(reason)
+#endif
 }
 

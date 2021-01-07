@@ -12,6 +12,9 @@ class CxApp: public QObject
 {
     Q_OBJECT
 
+signals:
+    void systemTrayIconActivated(int reason, QPrivateSignal);
+
 public:
     static void setup(const QString &name, const QString &version);
 
