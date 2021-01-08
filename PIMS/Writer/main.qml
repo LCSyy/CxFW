@@ -404,7 +404,11 @@ ApplicationWindow {
                             if (tagsView.currentIndex !== -1) {
                                 const row = tagsView.model.get(tagsView.currentIndex);
                                 if (row !== undefined) {
-                                    contentsModel.update([row.id]);
+                                    if (row.id <= 0) {
+                                        contentsModel.update([]);
+                                    } else {
+                                        contentsModel.update([row.id]);
+                                    }
                                 }
                             } else {
                                 contentsModel.clear();
