@@ -22,7 +22,7 @@ ListView {
         readonly property color highlightColor: "gray"
         readonly property int rowHeight: 25
         readonly property int arrowSize: 10
-        readonly property color arrowColor: "black"
+        readonly property color arrowColor: Cx.Theme.bgNormalColor
         readonly property int arrowTextSpacing: 8
         readonly property int arrowLeftMargin: 8
     }

@@ -39,9 +39,7 @@ private:
     QApplication *m_app {nullptr};
     QSystemTrayIcon *m_trayIcon {nullptr};
     QMenu *m_trayMenu {nullptr};
-#if defined(Q_OS_WIN32)
     QGlobalShortcut *m_shortcut {nullptr};
-#endif
 };
 
 

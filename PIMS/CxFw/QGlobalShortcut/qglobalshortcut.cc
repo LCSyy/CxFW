@@ -101,7 +101,15 @@ Qt::Key QGlobalShortcut::getKey(const QKeySequence& keyseq) {
 
 Qt::KeyboardModifiers QGlobalShortcut::getMods(const QKeySequence& keyseq) {
     if (keyseq.isEmpty()) {
-        return Qt::KeyboardModifiers(0);
+        return Qt::KeyboardModifiers(Qt::NoModifier);
     }
     return Qt::KeyboardModifiers(keyseq[0] & Qt::KeyboardModifierMask);
 }
+
+#ifdef Q_OS_UNIX
+#include "qglobalshortcut_x11.cc"
+#elif Q_OS_WIN32
+#include "qglobalshortcut_win.cc"
+#elif Q_OS_MACOS
+#include "qglobalshortcut_macx.cc"
+#endif

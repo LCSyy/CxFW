@@ -2,9 +2,7 @@
 #include <QQmlApplicationEngine>
 #include <QMenu>
 #include <CxBinding/cxbinding.h>
-#if defined(Q_OS_WIN32)
 #include <QGlobalShortcut/qglobalshortcut.h>
-#endif
 #include "theme.h"
 #include "listmodel.h"
 
@@ -80,18 +78,15 @@ void CxApp::initTrayIcon()
 
 void CxApp::initShortcut()
 {
-#if defined(Q_OS_WIN32)
     m_shortcut = new QGlobalShortcut(QKeySequence(Qt::CTRL + Qt::Key_T), this);
     connect(m_shortcut,&QGlobalShortcut::activated, this, [this](){
         emit systemNotify(GlobalShorcut, QPrivateSignal{});
     });
-#endif
 }
 
 // do nothing yet.
 void CxApp::onTrayActivated(QSystemTrayIcon::ActivationReason reason)
 {
-#if defined(Q_OS_WIN32)
     switch(reason) {
     case QSystemTrayIcon::DoubleClick:
         break;
@@ -100,9 +95,5 @@ void CxApp::onTrayActivated(QSystemTrayIcon::ActivationReason reason)
     }
 
     emit systemNotify(reason, QPrivateSignal{});
-#else
-    // deepin double-click not work, always QSystemTrayIcon::Trigger
-    Q_UNUSED(reason)
-#endif
 }
 

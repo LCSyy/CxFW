@@ -15,20 +15,24 @@ find_package(QT NAMES Qt6 Qt5 COMPONENTS Core Gui REQUIRED)
 find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Core Gui REQUIRED)
 
 if(WIN32)
-    set(CX_SHORTCUT_SOURCES qglobalshortcut_win.cc)
+#    set(CX_SHORTCUT_SOURCES qglobalshortcut_win.cc)
 elseif(UNIX)
+    include(FindPkgConfig)
+    pkg_check_modules(xcb REQUIRED)
+
+    find_package(X11)
     find_package(QT NAMES Qt6 Qt5 COMPONENTS Core Gui X11Extras REQUIRED)
     find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Core Gui X11Extras REQUIRED)
 
-    set(CX_SHORTCUT_SOURCES qglobalshortcut_x11.cc)
+#    set(CX_SHORTCUT_SOURCES qglobalshortcut_x11.cc)
 elseif(APPLE)
-    set(CX_SHORTCUT_SOURCES qglobalshortcut_macx.cc)
+#    set(CX_SHORTCUT_SOURCES qglobalshortcut_macx.cc)
 endif()
 
 add_library(QGlobalShortcut
     qglobalshortcut.h
     qglobalshortcut.cc
-    "${CX_SHORTCUT_SOURCES}"
+#    "${CX_SHORTCUT_SOURCES}"
 )
 
 if(WIN32)
@@ -43,5 +47,7 @@ elseif(UNIX)
         Qt${QT_VERSION_MAJOR}::Core
         Qt${QT_VERSION_MAJOR}::Gui
         Qt${QT_VERSION_MAJOR}::X11Extras
+        X11
+        xcb
     )
 endif()
