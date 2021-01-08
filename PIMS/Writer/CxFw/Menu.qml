@@ -6,10 +6,10 @@ import CxQuick 0.1
 T.Menu {
     id: control
 
+    readonly property int fixdWidth: 100
+
     implicitWidth:  Math.max(implicitBackgroundWidth,implicitContentWidth)
     implicitHeight: Math.max(implicitBackgroundHeight, implicitContentHeight)
-
-    readonly property int fixdWidth: 100
 
     background: Rectangle {
         implicitWidth: control.fixdWidth

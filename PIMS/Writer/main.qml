@@ -27,6 +27,7 @@ ApplicationWindow {
     QtObject {
         id: uiConf
         readonly property int naviSize: 300
+        readonly property string datetimeFormat: "yyyy年MM月dd日 hh:mm:ss"
     }
 
     Component.onCompleted: {
@@ -103,20 +104,13 @@ ApplicationWindow {
     Connections {
         target: Cx.Sys
 
-        function onSystemTrayIconActivated(reason) {
-            // double clicked
-            if (reason === 2) {
+        function onSystemNotify(reason) {
+            // double clicked & global shortcut
+            if (reason === 2 || reason === 5) {
                 app.showWindow()
             }
         }
     }
-
-//    Cx.GlobalShortcut {
-//        sequence: "Shift+w"
-//        onActivated: {
-//            app.showWindow()
-//        }
-//    }
 
     App.MainPage {
         id: mainPage
@@ -265,7 +259,7 @@ ApplicationWindow {
                                        const body = res.body || [];
                                        for (var i in body) {
                                            var date = new Date(body[i].updated_at)
-                                           body[i].updated_at = date.format("yyyy-MM-dd hh:mm:ss")
+                                           body[i].updated_at = date.format(uiConf.datetimeFormat)
                                            contentsModel.append(body[i]);
                                        }
                                    } catch(e) {
@@ -407,9 +401,7 @@ ApplicationWindow {
                         boundsBehavior: Flickable.DragOverBounds
 
                         onCurrentIndexChanged: {
-                            if (tagsView.currentIndex === 0) {
-                                contentsModel.update([]);
-                            } else if (tagsView.currentIndex !== -1) {
+                            if (tagsView.currentIndex !== -1) {
                                 const row = tagsView.model.get(tagsView.currentIndex);
                                 if (row !== undefined) {
                                     contentsModel.update([row.id]);
@@ -424,6 +416,7 @@ ApplicationWindow {
                             Cx.Network.get(urls.tagsUrl(),appSettings.basicAuth(),(resp)=>{
                                                const oldIdx = tagsView.currentIndex
                                                tagsView.model.clear();
+                                               tagsView.currentIndex = -1;
                                                try {
                                                    const res = JSON.parse(resp);
                                                    const body = res.body;
@@ -496,6 +489,21 @@ ApplicationWindow {
                                                        })
                                     }
                                 }
+
+                                MenuSeparator {}
+
+                                Action {
+                                    text: qsTr("Top")
+                                }
+                                Action {
+                                    text: qsTr("Up")
+                                }
+                                Action {
+                                    text: qsTr("Down")
+                                }
+                                Action {
+                                    text: qsTr("Bottom")
+                                }
                             }
                         }
                     }
@@ -509,24 +517,20 @@ ApplicationWindow {
 
         App.Popup {
             id: popup
-            closePolicy: Popup.NoAutoClose
 
+            signal ok(int id)
+            property int postID: 0
+            property bool editable: true
+            property bool changed: false
+            property App.Popup tagEditor: null
+
+            closePolicy: Popup.NoAutoClose
             implicitWidth: {
                 var dw = parent.width * 0.8;
                 if (dw > 800) { dw = 800; }
                 return dw;
             }
             implicitHeight: parent.height * 0.95
-
-            property bool editable: true
-            signal ok(int id)
-
-            QtObject {
-                id: meta
-                property int id: 0
-                property bool changed: false
-                property App.Popup tagEditor: null
-            }
 
             function edit(postID) {
                 mask.showMask();
@@ -535,9 +539,11 @@ ApplicationWindow {
                                        const res = JSON.parse(resp);
                                        const body = res.body;
                                        const tags = body.tags || [];
-                                       meta.id = body.id;
+                                       popup.postID = body.id;
+                                       const date = new Date(body.created_at)
+                                       createdAtField.text = qsTr("Created at: ") + date.format(uiConf.datetimeFormat)
                                        textArea.text = body.content;
-                                       meta.changed = false;
+                                       popup.changed = false;
                                        for(var i in tags){
                                            tagRepeater.model.append(tags[i]);
                                        }
@@ -571,7 +577,7 @@ ApplicationWindow {
                     for(var i = 0; i < tags.length; ++i){
                         tagRepeater.model.append(tags[i]);
                     }
-                    meta.changed = true;
+                    popup.changed = true;
                 }
 
                 function onLoaded() {
@@ -579,8 +585,8 @@ ApplicationWindow {
                     for (var i = 0; i < tagRepeater.model.count(); ++i) {
                         tags.push(tagRepeater.model.get(i));
                     }
-                    meta.tagEditor.setChecked(tags);
-                    meta.tagEditor.visible = true;
+                    popup.tagEditor.setChecked(tags);
+                    popup.tagEditor.visible = true;
                 }
             }
 
@@ -603,8 +609,8 @@ ApplicationWindow {
                         visible: popup.editable
                         text: qsTr("Edit tags")
                         onClicked: {
-                            meta.tagEditor = contentTagEditComponent.createObject(popup.contentItem);
-                            contentTagEditorCon.target = meta.tagEditor;
+                            popup.tagEditor = contentTagEditComponent.createObject(popup.contentItem);
+                            contentTagEditorCon.target = popup.tagEditor;
                         }
                     }
 
@@ -613,8 +619,8 @@ ApplicationWindow {
                         text: qsTr("Remove")
                         onClicked: {
                             mask.showMask();
-                            Cx.Network.del(urls.postsUrl() + meta.id, appSettings.basicAuth(), (resp)=>{
-                                               meta.id = 0;
+                            Cx.Network.del(urls.postsUrl() + popup.postID, appSettings.basicAuth(), (resp)=>{
+                                               popup.postID = 0;
                                                popup.ok(0);
                                                popup.close();
                                                mask.hideMask();
@@ -628,8 +634,8 @@ ApplicationWindow {
                         text: qsTr("Recovery")
                         onClicked: {
                             mask.showMask();
-                            Cx.Network.put(urls.postsUrl() + "status/" + meta.id + "?status=0", appSettings.basicAuth(), null, (resp)=>{
-                                               meta.id = 0;
+                            Cx.Network.put(urls.postsUrl() + "status/" + popup.postID + "?status=0", appSettings.basicAuth(), null, (resp)=>{
+                                               post.postID = 0;
                                                popup.ok(0);
                                                popup.close();
                                                mask.hideMask();
@@ -642,8 +648,8 @@ ApplicationWindow {
                         text: qsTr("Delete")
                         onClicked: {
                             mask.showMask();
-                            Cx.Network.del(urls.postsUrl() + meta.id + "?del=1", appSettings.basicAuth(), (resp)=>{
-                                               meta.id = 0;
+                            Cx.Network.del(urls.postsUrl() + popup.postID + "?del=1", appSettings.basicAuth(), (resp)=>{
+                                               popup.postID = 0;
                                                popup.ok(0);
                                                popup.close();
                                                mask.hideMask();
@@ -659,7 +665,7 @@ ApplicationWindow {
                     Button {
                         text: qsTr("Close")
                         onClicked: {
-                            if (meta.changed) {
+                            if (popup.changed) {
                                 var pp = changeAlertComponent.createObject(popup.contentItem)
                                 exitCon.target = pp;
                                 pp.open();
@@ -716,11 +722,18 @@ ApplicationWindow {
                             }
 
                             onTextChanged: {
-                                meta.changed = true
+                                popup.changed = true
                             }
                         }
                     }
                 }
+            }
+
+            footer: Text {
+                id: createdAtField
+//                height: 25 + padding * 2
+                padding: Cx.Theme.baseMargin
+                horizontalAlignment: Qt.AlignRight
             }
 
             Action {
@@ -730,7 +743,7 @@ ApplicationWindow {
                 onTriggered: {
                     if (textArea.text.trim() === '') { return; }
                     var obj = {
-                        "id": meta.id,
+                        "id": popup.postID,
                         "title": Js.getFirstLine(textArea.text),
                         "content": textArea.text,
                         "tags": [],
@@ -741,18 +754,18 @@ ApplicationWindow {
                     }
 
                     mask.showMask();
-                    if (meta.id <= 0) {
+                    if (popup.postID <= 0) {
                         Cx.Network.post(urls.postsUrl(), appSettings.basicAuth(), obj,(resp)=>{
                                             try {
                                                 const res = JSON.parse(resp);
                                                 const body = res.body;
-                                                meta.id = body.id;
+                                                popup.postID = body.id;
                                                 textArea.text = body.content;
-                                                meta.changed = false;
+                                                popup.changed = false;
                                             } catch(e) {
                                                 console.log(e);
                                             }
-                                            popup.ok(meta.id)
+                                            popup.ok(popup.id)
                                             mask.hideMask();
                                             banner.show('Data saved .')
                                         });
@@ -761,12 +774,12 @@ ApplicationWindow {
                                            try {
                                                const res = JSON.parse(resp);
                                                const body = res.body;
-                                               meta.id = body.id;
-                                               meta.changed = false;
+                                               popup.postID = body.id;
+                                               popup.changed = false;
                                            } catch(e) {
                                                console.log(e);
                                            }
-                                           popup.ok(meta.id)
+                                           popup.ok(popup.postID)
                                            mask.hideMask();
                                            banner.show('Data saved .')
                                        });
@@ -1468,7 +1481,6 @@ ApplicationWindow {
         id: homePage
         anchors.fill: parent
         onLogin: {
-            contentsModel.update([]);
             tagsView.update();
             homePage.visible = false
         }

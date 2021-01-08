@@ -2,6 +2,9 @@
 #include <QQmlApplicationEngine>
 #include <QMenu>
 #include <CxBinding/cxbinding.h>
+#if defined(Q_OS_WIN32)
+#include <QGlobalShortcut/qglobalshortcut.h>
+#endif
 #include "theme.h"
 #include "listmodel.h"
 
@@ -40,10 +43,10 @@ CxApp::CxApp(QApplication *app)
 #endif
 
     initTrayIcon();
+    initShortcut();
 
     ::qmlTypeRegister();
      qmlRegisterSingletonInstance(CxBinding::moduleName(),CxBinding::majorVersion(),CxBinding::minorVersion(),"Sys", this);
-
 }
 
 CxApp::~CxApp()
@@ -68,11 +71,21 @@ void CxApp::initTrayIcon()
     QObject::connect(m_trayIcon,SIGNAL(activated(QSystemTrayIcon::ActivationReason)),
             this, SLOT(onTrayActivated(QSystemTrayIcon::ActivationReason)));
     QObject::connect(actionPopup, &QAction::triggered, this, [this](){
-        emit systemTrayIconActivated(QSystemTrayIcon::DoubleClick, QPrivateSignal{});
+        emit systemNotify(QSystemTrayIcon::DoubleClick, QPrivateSignal{});
     });
     QObject::connect(actionQuit, SIGNAL(triggered()), m_app, SLOT(quit()), Qt::QueuedConnection);
 
     m_trayIcon->show();
+}
+
+void CxApp::initShortcut()
+{
+#if defined(Q_OS_WIN32)
+    m_shortcut = new QGlobalShortcut(QKeySequence(Qt::CTRL + Qt::Key_T), this);
+    connect(m_shortcut,&QGlobalShortcut::activated, this, [this](){
+        emit systemNotify(GlobalShorcut, QPrivateSignal{});
+    });
+#endif
 }
 
 // do nothing yet.
@@ -86,7 +99,7 @@ void CxApp::onTrayActivated(QSystemTrayIcon::ActivationReason reason)
         ;
     }
 
-    emit systemTrayIconActivated(reason, QPrivateSignal{});
+    emit systemNotify(reason, QPrivateSignal{});
 #else
     // deepin double-click not work, always QSystemTrayIcon::Trigger
     Q_UNUSED(reason)

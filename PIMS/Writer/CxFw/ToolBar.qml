@@ -5,11 +5,14 @@ import CxQuick 0.1
 T.ToolBar {
     id: control
 
+    property int upRadius: 4
+    property int bottomRadius: 0
+
     implicitWidth: implicitBackgroundWidth
     implicitHeight: implicitBackgroundHeight
 
     background: Rectangle {
-        radius: 4
+        radius: control.upRadius
         implicitWidth: control.parent.width
         implicitHeight: Theme.toolBarHeight
         color: Theme.bgNormalColor
@@ -20,6 +23,7 @@ T.ToolBar {
             width: parent.width
             height: parent.height - 4
             color: Theme.bgNormalColor
+            radius: control.bottomRadius
         }
     }
 }
