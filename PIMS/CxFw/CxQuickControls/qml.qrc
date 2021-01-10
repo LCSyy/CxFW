@@ -17,5 +17,6 @@
         <file>Qml/Popup.qml</file>
         <file>Qml/StatusBar.qml</file>
         <file>Qml/TextField.qml</file>
+        <file>Scripts/cxfw.js</file>
     </qresource>
 </RCC>

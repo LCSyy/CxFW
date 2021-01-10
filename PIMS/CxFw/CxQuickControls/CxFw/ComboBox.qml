@@ -60,7 +60,7 @@ T.ComboBox {
         width: control.width
         height: Theme.contentHeight
         contentItem: Text {
-            text: model[control.textRole]
+            text: control.textRole === "" ? modelData : model[control.textRole]
             color: "black"
             font: control.font
             elide: Text.ElideRight
