@@ -122,6 +122,8 @@ ApplicationWindow {
         }
 
         header: ToolBar {
+            upRadius: 0
+            bottomRadius: 0
             RowLayout {
                 anchors.fill: parent
                 anchors.leftMargin: Cx.Theme.baseMargin
