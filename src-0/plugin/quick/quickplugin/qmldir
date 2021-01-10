@@ -1,3 +1,0 @@
-﻿module CxQuick
-plugin quickplugin
-typeinfo quickplugin.qmltypes

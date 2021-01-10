@@ -1,21 +1,11 @@
 #include <QQmlApplicationEngine>
 #include <CxApp/cxapp.h>
-// #include <CxBinding/cxbinding.h>
-// #include "listmodel.h"
-
-namespace {
-    static void qmlTypeRegister() {
-        // qmlRegisterType<ListModel>(CxBinding::moduleName(),CxBinding::majorVersion(),CxBinding::minorVersion(),"ListModel");
-    }
-}
 
 int main(int argc, char *argv[])
 {
-    CxApp::setup("Writer","0.0.1");
+    CxApp::setup("Todos","0.0.1");
     QApplication app(argc, argv);
     CxApp a(&app);
-
-    qmlTypeRegister();
 
     QQmlApplicationEngine engine;
     const QUrl url(QStringLiteral("qrc:/main.qml"));

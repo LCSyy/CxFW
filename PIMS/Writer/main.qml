@@ -7,7 +7,7 @@ import QtQuick.Controls 2.15
  import Qt.labs.settings 1.1
 
  import CxQuick 0.1 as Cx
- import "qml" as App
+ import "ui" as Ui
  import "js/app.js" as Js
 
 // status:
@@ -112,7 +112,7 @@ ApplicationWindow {
         }
     }
 
-    App.MainPage {
+    Ui.MainPage {
         id: mainPage
         anchors.fill: parent
         visible: !homePage.visible
@@ -284,7 +284,7 @@ ApplicationWindow {
 
                 model: contentsModel
 
-                delegate: App.LinkItem {
+                delegate: Ui.LinkItem {
                     width: parent !== null ? parent.width : 0
                     height: 40
 
@@ -393,7 +393,7 @@ ApplicationWindow {
                     width: parent.width
                     height: parent.height - 25
 
-                    App.OneColumnTreeView {
+                    Ui.OneColumnTreeView {
                         id: tagsView
                         clip: true
                         anchors.fill: parent
@@ -519,14 +519,14 @@ ApplicationWindow {
     Component {
         id: contentComponent
 
-        App.Popup {
+        Ui.Popup {
             id: popup
 
             signal ok(int id)
             property int postID: 0
             property bool editable: true
             property bool changed: false
-            property App.Popup tagEditor: null
+            property Ui.Popup tagEditor: null
 
             closePolicy: Popup.NoAutoClose
             implicitWidth: {
@@ -796,7 +796,7 @@ ApplicationWindow {
     Component {
         id: tagsComponent
 
-        App.Popup {
+        Ui.Popup {
             id: popup
             implicitWidth: {
                 var dw = parent.width * 0.8;
@@ -916,7 +916,7 @@ ApplicationWindow {
     Component {
         id: trashComponent
 
-        App.Popup {
+        Ui.Popup {
             id: popup
             implicitWidth: {
                 var dw = parent.width * 0.8;
@@ -1045,7 +1045,7 @@ ApplicationWindow {
     Component {
         id: settingsComponent
 
-        App.Popup {
+        Ui.Popup {
             id: popup
             implicitWidth: {
                 var dw = parent.width * 0.8;
@@ -1208,7 +1208,7 @@ ApplicationWindow {
     Component {
         id: tagEditComponent
 
-        App.Popup {
+        Ui.Popup {
             id: popup
             implicitWidth: 300
             implicitHeight: 200
@@ -1318,7 +1318,7 @@ ApplicationWindow {
     Component {
         id: contentTagEditComponent
 
-        App.Popup {
+        Ui.Popup {
             id: popup
 
             signal ok(var tags)
@@ -1414,7 +1414,7 @@ ApplicationWindow {
     Component {
         id: changeAlertComponent
 
-        App.Popup {
+        Ui.Popup {
             id: popup
             implicitWidth: 300
             implicitHeight: 200
@@ -1469,19 +1469,19 @@ ApplicationWindow {
         }
     }
 
-    App.Banner {
+    Ui.Banner {
         id: banner
         x: visible ? app.width - implicitWidth - 4 : app.width + 4
         y: app.height - implicitHeight - 4
     }
 
-    App.Mask {
+    Ui.Mask {
         id: mask
         anchors.fill: parent
         maskItem: mainPage
     }
 
-    App.HomePage {
+    Ui.HomePage {
         id: homePage
         anchors.fill: parent
         onLogin: {

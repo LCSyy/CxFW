@@ -16,6 +16,7 @@ find_package(Qt5 COMPONENTS Core Quick Widgets Sql QuickControls2 REQUIRED)
 set(TS_FILES writer_zh_CN.ts)
 
 add_executable(Writer
+    "${CMAKE_CURRENT_SOURCE_DIR}/../CxFw/CxQuickControls/qml.qrc"
     qml.qrc
     logo.rc
     res.qrc
@@ -23,12 +24,12 @@ add_executable(Writer
     # ${TS_FILES}
 
     main.cpp
-    cxapp.cpp
-    cxapp.h
-    listmodel.cpp
-    listmodel.h
-    theme.cpp
-    theme.h
+    # cxapp.cpp
+    # cxapp.h
+    # listmodel.cpp
+    # listmodel.h
+    # theme.cpp
+    # theme.h
 )
 
 if(WIN32)
@@ -44,7 +45,7 @@ target_link_libraries(Writer
     Qt${QT_VERSION_MAJOR}::Widgets
     Qt${QT_VERSION_MAJOR}::Sql
     Qt${QT_VERSION_MAJOR}::QuickControls2
-    CxBinding
+    CxApp
 )
 
 # qt5_create_translation(QM_FILES ${CMAKE_SOURCE_DIR} ${TS_FILES})

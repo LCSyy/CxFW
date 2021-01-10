@@ -1,23 +1,18 @@
 <RCC>
     <qresource prefix="/">
         <file>main.qml</file>
-        <file>qml/TextField.qml</file>
         <file>js/app.js</file>
-        <file>qml/Popup.qml</file>
-        <file>qml/StatusBar.qml</file>
-        <file>qml/Mask.qml</file>
-        <file>qml/HomePage.qml</file>
-        <file>qml/MainPage.qml</file>
-        <file>qml/ListViewLighlighter.qml</file>
-        <file>qml/Banner.qml</file>
-        <file>CxFw/Button.qml</file>
-        <file>CxFw/ToolBar.qml</file>
-        <file>CxFw/Menu.qml</file>
-        <file>qml/LinkItem.qml</file>
-        <file>qml/Badge.qml</file>
-        <file>CxFw/MenuSeparator.qml</file>
-        <file>CxFw/ToolSeparator.qml</file>
         <file>qtquickcontrols2.conf</file>
-        <file>qml/OneColumnTreeView.qml</file>
+        <file>ui/Badge.qml</file>
+        <file>ui/Banner.qml</file>
+        <file>ui/HomePage.qml</file>
+        <file>ui/LinkItem.qml</file>
+        <file>ui/ListViewLighlighter.qml</file>
+        <file>ui/MainPage.qml</file>
+        <file>ui/Mask.qml</file>
+        <file>ui/OneColumnTreeView.qml</file>
+        <file>ui/Popup.qml</file>
+        <file>ui/StatusBar.qml</file>
+        <file>ui/TextField.qml</file>
     </qresource>
 </RCC>

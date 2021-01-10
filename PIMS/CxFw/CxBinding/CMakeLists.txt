@@ -20,7 +20,7 @@ add_library(CxBinding
     cxbinding.h
 )
 
-set(CXFW_LIBS CxNetwork MarkdownSyntaxHighlighter QGlobalShortcut)
+set(CXFW_LIBS CxCore CxNetwork MarkdownSyntaxHighlighter QGlobalShortcut CxQuick)
 target_link_libraries(CxBinding
   PRIVATE
     Qt${QT_VERSION_MAJOR}::Core

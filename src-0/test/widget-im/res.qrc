@@ -1,6 +1,0 @@
-<RCC>
-    <qresource prefix="/">
-        <file>ArrowOnly32x.png</file>
-        <file>ArrowOnly.png</file>
-    </qresource>
-</RCC>

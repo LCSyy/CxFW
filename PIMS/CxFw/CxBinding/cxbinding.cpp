@@ -4,6 +4,8 @@
 #include <CxNetwork/cxnetwork.h>
 #include <MarkdownSyntaxHighlighter/cxquicksyntaxhighlighter.h>
 #include <QGlobalShortcut/qglobalshortcut.h>
+#include <CxQuick/theme.h>
+#include <CxCore/cxlistmodel.h>
 
 namespace {
     constexpr char CXQUICK[] = "CxQuick";
@@ -11,6 +13,12 @@ namespace {
     static QJSValue networkSingleton(QQmlEngine *e, QJSEngine *s) {
         Q_UNUSED(e)
         return s->newQObject(new CxNetwork(s));
+    }
+
+    static QJSValue themeSingleton(QQmlEngine *e, QJSEngine *s)
+    {
+        Q_UNUSED(e)
+        return s->newQObject(new Theme(s));
     }
 }
 
@@ -49,12 +57,12 @@ void CxBinding::registerSingletonInstance()
 void CxBinding::registerSingletonTypes()
 {
     qmlRegisterSingletonType(moduleName(),majorVersion(),minorVersion(),"Network",networkSingleton);
-//    qmlRegisterSingletonType(CXQUICK,CXQUICK_VERSION_MARJOR,CXQUICK_VERSION_MINOR,"Theme",themeSingleton);
+    qmlRegisterSingletonType(moduleName(),majorVersion(),minorVersion(),"Theme",themeSingleton);
 }
 
 void CxBinding::registerTypes()
 {
-//    qmlRegisterType<ListModel>(CXQUICK,CXQUICK_VERSION_MARJOR,CXQUICK_VERSION_MINOR,"ListModel");
+    qmlRegisterType<CxListModel>(moduleName(),majorVersion(),minorVersion(),"ListModel");
     qmlRegisterType<CxQuickSyntaxHighlighter>(moduleName(),majorVersion(),minorVersion(),"SyntaxHighlighter");
     qmlRegisterType<QGlobalShortcut>(moduleName(),majorVersion(),minorVersion(),"GlobalShortcut");
 }
