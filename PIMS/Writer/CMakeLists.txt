@@ -17,7 +17,6 @@ set(TS_FILES writer_zh_CN.ts)
 
 add_executable(Writer
     "${CMAKE_CURRENT_SOURCE_DIR}/../CxFw/CxQuickControls/qml.qrc"
-    qml.qrc
     logo.rc
     res.qrc
 
@@ -50,4 +49,4 @@ target_link_libraries(Writer
 
 # qt5_create_translation(QM_FILES ${CMAKE_SOURCE_DIR} ${TS_FILES})
 
-# install(TARGETS Writer DESTINATION "bin/")
+install(TARGETS Writer DESTINATION "bin/")

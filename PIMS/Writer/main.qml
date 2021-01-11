@@ -1,14 +1,15 @@
- import QtQml.Models 2.15
+import QtQml.Models 2.15
 import QtQuick 2.15
- import QtQuick.Window 2.15
+import QtQuick.Window 2.15
 import QtQuick.Controls 2.15
- import QtQuick.Layouts 1.15
+import QtQuick.Layouts 1.15
 // import QtQuick.LocalStorage 2.15
- import Qt.labs.settings 1.1
+import Qt.labs.settings 1.1
 
- import CxQuick 0.1 as Cx
- import "ui" as Ui
- import "js/app.js" as Js
+import CxQuick 0.1 as Cx
+import "Quick" as Cx
+import "Controls" as Cx
+import "Scripts/cxfw.js" as Js
 
 // status:
 //   trash
@@ -83,19 +84,19 @@ ApplicationWindow {
         id: urls
 
         function postsUrl() {
-            return "https://<host>:<port>/api/posts/"
+            return "https://<host>:<port>/api/writer/posts/"
             .replace("<host>",appSettings.host)
             .replace("<port>", appSettings.port)
         }
 
         function tagsUrl() {
-            return "https://<host>:<port>/api/tags/"
+            return "https://<host>:<port>/api/writer/tags/"
             .replace("<host>",appSettings.host)
             .replace("<port>", appSettings.port)
         }
 
         function postBadgesUrl() {
-            return "https://<host>:<port>/api/badges/"
+            return "https://<host>:<port>/api/writer/badges/"
             .replace("<host>",appSettings.host)
             .replace("<port>", appSettings.port)
         }
@@ -112,7 +113,7 @@ ApplicationWindow {
         }
     }
 
-    Ui.MainPage {
+    Cx.MainPage {
         id: mainPage
         anchors.fill: parent
         visible: !homePage.visible
@@ -286,7 +287,7 @@ ApplicationWindow {
 
                 model: contentsModel
 
-                delegate: Ui.LinkItem {
+                delegate: Cx.LinkItem {
                     width: parent !== null ? parent.width : 0
                     height: 40
 
@@ -395,7 +396,7 @@ ApplicationWindow {
                     width: parent.width
                     height: parent.height - 25
 
-                    Ui.OneColumnTreeView {
+                    Cx.OneColumnTreeView {
                         id: tagsView
                         clip: true
                         anchors.fill: parent
@@ -521,14 +522,14 @@ ApplicationWindow {
     Component {
         id: contentComponent
 
-        Ui.Popup {
+        Cx.Popup {
             id: popup
 
             signal ok(int id)
             property int postID: 0
             property bool editable: true
             property bool changed: false
-            property Ui.Popup tagEditor: null
+            property Cx.Popup tagEditor: null
 
             closePolicy: Popup.NoAutoClose
             implicitWidth: {
@@ -798,7 +799,7 @@ ApplicationWindow {
     Component {
         id: tagsComponent
 
-        Ui.Popup {
+        Cx.Popup {
             id: popup
             implicitWidth: {
                 var dw = parent.width * 0.8;
@@ -918,7 +919,7 @@ ApplicationWindow {
     Component {
         id: trashComponent
 
-        Ui.Popup {
+        Cx.Popup {
             id: popup
             implicitWidth: {
                 var dw = parent.width * 0.8;
@@ -1047,7 +1048,7 @@ ApplicationWindow {
     Component {
         id: settingsComponent
 
-        Ui.Popup {
+        Cx.Popup {
             id: popup
             implicitWidth: {
                 var dw = parent.width * 0.8;
@@ -1210,7 +1211,7 @@ ApplicationWindow {
     Component {
         id: tagEditComponent
 
-        Ui.Popup {
+        Cx.Popup {
             id: popup
             implicitWidth: 300
             implicitHeight: 200
@@ -1320,7 +1321,7 @@ ApplicationWindow {
     Component {
         id: contentTagEditComponent
 
-        Ui.Popup {
+        Cx.Popup {
             id: popup
 
             signal ok(var tags)
@@ -1416,7 +1417,7 @@ ApplicationWindow {
     Component {
         id: changeAlertComponent
 
-        Ui.Popup {
+        Cx.Popup {
             id: popup
             implicitWidth: 300
             implicitHeight: 200
@@ -1471,19 +1472,19 @@ ApplicationWindow {
         }
     }
 
-    Ui.Banner {
+    Cx.Banner {
         id: banner
         x: visible ? app.width - implicitWidth - 4 : app.width + 4
         y: app.height - implicitHeight - 4
     }
 
-    Ui.Mask {
+    Cx.Mask {
         id: mask
         anchors.fill: parent
         maskItem: mainPage
     }
 
-    Ui.HomePage {
+    Cx.HomePage {
         id: homePage
         anchors.fill: parent
         onLogin: {

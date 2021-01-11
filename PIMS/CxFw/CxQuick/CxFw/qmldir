@@ -1,0 +1,7 @@
+module CxQuick.Controls.CxFw
+Button 0.1 Button.qml
+ComboBox 0.1 ComboBox.qml
+Menu.qml 0.1 Menu.qml
+MenuSeparator 0.1 MenuSeparator.qml
+ToolBar 0.1 ToolBar.qml
+ToolSeparator 0.1 ToolSeparator.qml

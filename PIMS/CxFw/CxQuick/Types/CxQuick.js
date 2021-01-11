@@ -1,3 +1,5 @@
+const DateTimeFormat = "yyyy年MM月dd日 hh:mm:ss"
+
 // 对Date的扩展，将 Date 转化为指定格式的String
 // 月(M)、日(d)、小时(H)、分(m)、秒(s)、季度(q) 可以用 1-2 个占位符，
 // 年(y)可以用 1-4 个占位符，毫秒(S)只能用 1 个占位符(是 1-3 位的数字)
@@ -12,7 +14,8 @@ Date.prototype.format = function(fmt) {
         "m+" : this.getMinutes(),                 //分
         "s+" : this.getSeconds(),                 //秒
         "q+" : Math.floor((this.getMonth()+3)/3), //季度
-        "S"  : this.getMilliseconds()             //毫秒
+        "S"  : this.getMilliseconds(),            //毫秒
+        "z+"  : 0 - (this.getTimezoneOffset() / 60) // 时区
     };
 
     if(/(y+)/.test(fmt)) {

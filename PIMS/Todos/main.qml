@@ -1,11 +1,12 @@
 import QtQuick 2.15
 import QtQuick.Controls 2.15
-import CxQuick 0.1 as Cx
 import QtQuick.Layouts 1.15
-import Qt.labs.settings 1.1
 
-import "Qml" as CxUi
+import CxQuick 0.1 as Cx
+import "Quick" as Cx
+import "Controls" as Cx
 import "Scripts/cxfw.js" as Js
+import "qml" as Todos
 
 ApplicationWindow {
     id: app
@@ -57,22 +58,8 @@ ApplicationWindow {
         todosModel.load(tType,0);
     }
 
-
-    Settings {
+    Todos.Settings {
         id: appSettings
-        property bool contentLineWrap: true
-        property int contentFontPointSize: app.font.pointSize
-        property string host: "localhost"
-        property int port: 80
-        property string basicAuthKey: ""
-        property string basicAuthValue: ""
-
-        function basicAuth() {
-            var auth = {
-                "Authorization": basicAuthKey + ":" + basicAuthValue,
-            };
-            return auth;
-        }
     }
 
     QtObject {
@@ -171,6 +158,12 @@ ApplicationWindow {
         }
     }
 
+    footer: Button {
+        id: settingsBtn
+        text: qsTr("Settings")
+        onClicked: appSettings.open()
+    }
+
     Column {
         anchors.fill: parent
         anchors.margins: 8
@@ -182,7 +175,7 @@ ApplicationWindow {
             ComboBox {
                 id: taskCombo
                 height: parent.height
-                width: parent.width - newTaskBtn.width - parent.spacing
+                width: parent.width - taskBtn.width - parent.spacing
                 model: tasksModel
                 textRole: "title"
                 valueRole: "id"
@@ -193,10 +186,10 @@ ApplicationWindow {
                 }
             }
             Button {
-                id: newTaskBtn
-                text: qsTr("New Task")
+                id: taskBtn
+                text: qsTr("Tasks")
                 onClicked: {
-                    var p = newComponent.createObject(app);
+                    var p = taskComponent.createObject(app);
                     p.open();
                 }
             }
@@ -316,7 +309,7 @@ ApplicationWindow {
     Component {
         id: newComponent
 
-        CxUi.Popup {
+        Cx.Popup {
             id: popup
 
             signal ok(int id)
@@ -535,7 +528,7 @@ ApplicationWindow {
     Component {
         id: changeAlertComponent
 
-        CxUi.Popup {
+        Cx.Popup {
             id: popup
             implicitWidth: 300
             implicitHeight: 200
@@ -590,16 +583,16 @@ ApplicationWindow {
         }
     }
 
-    CxUi.Banner {
+    Cx.Banner {
         id: banner
         x: visible ? app.width - implicitWidth - 4 : app.width + 4
         y: app.height - implicitHeight - 4
     }
 
-    CxUi.Mask {
+    Cx.Mask {
         id: mask
         anchors.fill: parent
-        maskItem: app.contentItem
+         maskItem: app.contentItem
     }
 
 }

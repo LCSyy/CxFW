@@ -1,18 +1,18 @@
 cmake_minimum_required(VERSION 3.15)
 
-project(CxQuickControls VERSION 0.0.1 DESCRIPTION "cxfw Quick controls.")
+project(ColorSheet VERSION 0.0.1 DESCRIPTION "cxfw Quick color sheet.")
 
 set(CMAKE_INSTALL_PREFIX "${CMAKE_SOURCE_DIR}/../../../../dist")
 
 add_custom_target(CxQuickControls
     SOURCES
         qmldir
-        Button.qml
+        ColorSheet.js
 )
 
 install(FILES
     qmldir
-    Button.qml
+    ColorSheet.js
     DESTINATION
-        "bin/qml/CxQuick/Controls"
+        "bin/qml/CxQuick/ColorSheet"
 )

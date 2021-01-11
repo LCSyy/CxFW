@@ -1,6 +1,5 @@
 import QtQuick 2.15
 import QtQuick.Templates 2.15 as T
-
 import CxQuick 0.1
 
 T.Button {

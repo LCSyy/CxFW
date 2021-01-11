@@ -1,0 +1,21 @@
+add_custom_target(CxQuickTypes
+  SOURCES
+    qmldir
+    CxQuick.js
+    LinkItem.qml
+    ListViewHighlighter.qml
+    Mask.qml
+    OneColumnTreeView.qml
+)
+
+install(
+  FILES
+    qmldir
+    CxQuick.js
+    LinkItem.qml
+    ListViewHighlighter.qml
+    Mask.qml
+    OneColumnTreeView.qml
+  DESTINATION
+    "qml/CxQuick/Types"
+)

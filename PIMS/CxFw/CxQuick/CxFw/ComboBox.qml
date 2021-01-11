@@ -46,7 +46,6 @@ T.ComboBox {
         }
 
         onPaint: {
-            var context = canvas.getContext("2d");
             context.reset();
             context.moveTo(0, 0);
             context.lineTo(width, 0);

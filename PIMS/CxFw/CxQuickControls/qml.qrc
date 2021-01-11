@@ -6,17 +6,17 @@
         <file>CxFw/ToolBar.qml</file>
         <file>CxFw/ToolSeparator.qml</file>
         <file>CxFw/ComboBox.qml</file>
-        <file>Qml/Badge.qml</file>
-        <file>Qml/Banner.qml</file>
-        <file>Qml/HomePage.qml</file>
-        <file>Qml/LinkItem.qml</file>
-        <file>Qml/ListViewLighlighter.qml</file>
-        <file>Qml/MainPage.qml</file>
-        <file>Qml/Mask.qml</file>
-        <file>Qml/OneColumnTreeView.qml</file>
-        <file>Qml/Popup.qml</file>
-        <file>Qml/StatusBar.qml</file>
-        <file>Qml/TextField.qml</file>
         <file>Scripts/cxfw.js</file>
+        <file>Controls/Badge.qml</file>
+        <file>Controls/Banner.qml</file>
+        <file>Controls/HomePage.qml</file>
+        <file>Controls/MainPage.qml</file>
+        <file>Controls/Popup.qml</file>
+        <file>Controls/StatusBar.qml</file>
+        <file>Controls/TextField.qml</file>
+        <file>Quick/LinkItem.qml</file>
+        <file>Quick/ListViewLighlighter.qml</file>
+        <file>Quick/Mask.qml</file>
+        <file>Quick/OneColumnTreeView.qml</file>
     </qresource>
 </RCC>

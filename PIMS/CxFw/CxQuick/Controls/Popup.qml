@@ -1,7 +1,7 @@
 import QtQuick 2.15
-import QtQuick.Controls 2.15 as Controls
+import QtQuick.Controls 2.15 as C
 
-Controls.Popup {
+C.Popup {
     modal: true
     anchors.centerIn: parent
     padding: 0
@@ -23,7 +23,7 @@ Controls.Popup {
         }
     }
 
-    Controls.Page {
+    C.Page {
         id: page
         anchors.fill: parent
         clip: true

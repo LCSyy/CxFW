@@ -9,7 +9,7 @@ void CxApp::setup(const QString &name, const QString &version)
 #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
     QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
 #endif
-    QCoreApplication::setOrganizationName("Lcs Apps");
+    QCoreApplication::setOrganizationName("LcsApps");
     QCoreApplication::setOrganizationDomain("cxfw.lcs");
     QCoreApplication::setApplicationName(name);
     QCoreApplication::setApplicationVersion(version);

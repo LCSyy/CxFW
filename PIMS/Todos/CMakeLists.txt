@@ -16,7 +16,7 @@ find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Widgets Quick QuickWidgets REQUIRE
 
 add_executable(Todos
   "${CMAKE_CURRENT_SOURCE_DIR}/../CxFw/CxQuickControls/qml.qrc"
-  qml.qrc
+  res.qrc
   main.cpp
 )
 
@@ -28,3 +28,5 @@ target_link_libraries(Todos
     Qt${QT_VERSION_MAJOR}::QuickWidgets
     CxApp
 )
+
+install(TARGETS Todos DESTINATION "bin/")
