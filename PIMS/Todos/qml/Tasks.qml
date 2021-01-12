@@ -30,7 +30,7 @@ Cx.Popup {
             pp.taskTitle = row.title || "";
             pp.open();
         } else if (com.status === Component.Error) {
-            console.info(com.errorString());
+            console.log(com.errorString());
         } else {
             com.statusChanged.connect(()=>{
                                           var pp = com.createObject(popup.contentItem);

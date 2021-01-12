@@ -20,7 +20,12 @@ add_executable(Todos
   main.cpp
 )
 
+if(WIN32)
+  target_link_options(Todos PRIVATE -mwindows)
+endif()
 
+target_compile_definitions(Todos
+  PRIVATE $<$<OR:$<CONFIG:Debug>,$<CONFIG:RelWithDebInfo>>:QT_QML_DEBUG>)
 target_link_libraries(Todos
   PRIVATE
     Qt${QT_VERSION_MAJOR}::Widgets
