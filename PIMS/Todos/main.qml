@@ -54,28 +54,12 @@ ApplicationWindow {
 
     Component.onCompleted: {
         Cx.Network.enableHttps();
-        tasksModel.load();
-        todosModel.load(tType,0);
+        tasksModel.update();
+        todosModel.update(tType,0);
     }
 
     Todos.Settings {
         id: appSettings
-    }
-
-    QtObject {
-        id: urls
-
-        function todoItems() {
-            return "https://<host>:<port>/api/todos/"
-            .replace("<host>",appSettings.host)
-            .replace("<port>", appSettings.port)
-        }
-
-        function todoTasks() {
-            return "https://<host>:<port>/api/todos/tasks/"
-            .replace("<host>",appSettings.host)
-            .replace("<port>", appSettings.port)
-        }
     }
 
     Connections {
@@ -93,7 +77,15 @@ ApplicationWindow {
         id: newTodoConnection
         target: null
         function onOk(id) {
-            todosModel.load(app.tType, taskCombo.currentValue);
+            todosModel.update(app.tType, taskCombo.currentValue);
+        }
+    }
+
+    Connections {
+        id: taskConnection
+        target: null
+        function onOk(id) {
+            tasksModel.update()
         }
     }
 
@@ -101,11 +93,12 @@ ApplicationWindow {
         id: tasksModel
         roleNames: ["id","title","created_at","remark"]
 
-        function load() {
+        function update() {
             mask.showMask();
-            Cx.Network.get(urls.todoTasks(),
+            Cx.Network.get(URLs.url("/tasks/"),
                            appSettings.basicAuth(),
                            (resp)=>{
+                               const old = taskCombo.currentIndex;
                                tasksModel.clear();
                                tasksModel.append({id:0,title:"所有",created_at:"",remark:""});
                                try {
@@ -117,6 +110,7 @@ ApplicationWindow {
                                } catch(e) {
                                    console.log(JSON.stringify(e));
                                }
+                               taskCombo.currentIndex = old;
                                mask.hideMask();
                            });
         }
@@ -126,11 +120,11 @@ ApplicationWindow {
         id: todosModel
         roleNames: ["id", "task_id", "title", "content", "dead_line", "importance", "urgency"]
 
-        function load(watchType, taskID) {
+        function update(watchType, taskID) {
             mask.showMask();
 
-            const query = "?dimen={0}&task={1}".replace("{0}",watchType).replace("{1}", taskID)
-            Cx.Network.get(urls.todoItems() + query, appSettings.basicAuth(), (resp)=>{
+            const query = "dimen={0}&task={1}".replace("{0}",watchType).replace("{1}", taskID)
+            Cx.Network.get(URLs.url("/items/", query), appSettings.basicAuth(), (resp)=>{
                                todosModel.clear();
                                try {
                                    const r = JSON.parse(resp)
@@ -154,7 +148,7 @@ ApplicationWindow {
         text: app.tType === 0 ? qsTr("Importance") : qsTr("Urgency")
         onClicked: {
             app.tType = (app.tType === 0 ? 1 : 0);
-            todosModel.load(app.tType, taskCombo.currentValue);
+            todosModel.update(app.tType, taskCombo.currentValue);
         }
     }
 
@@ -182,15 +176,30 @@ ApplicationWindow {
                 currentIndex: 0
 
                 onCurrentIndexChanged: {
-                    todosModel.load(app.tType, tasksModel.get(currentIndex).id);
+                    const row = tasksModel.get(currentIndex);
+                    if (row || null !== null) {
+                        todosModel.update(app.tType, row.id);
+                    }
                 }
             }
             Button {
                 id: taskBtn
                 text: qsTr("Tasks")
                 onClicked: {
-                    var p = taskComponent.createObject(app);
-                    p.open();
+                    var com = Qt.createComponent("qrc:/qml/Tasks.qml");
+                    if (com.status === Component.Ready) {
+                        var pp = com.createObject(app.contentItem);
+                        taskConnection.target = pp;
+                        pp.open();
+                    } else if (com.status === Component.Error) {
+                        console.log(com.errorString());
+                    } else {
+                        com.statusChanged.connect(()=>{
+                                                      var pp = com.createObject(app.contentItem);
+                                                      taskConnection.target = pp;
+                                                      pp.open();
+                                                  })
+                    }
                 }
             }
         }
@@ -201,6 +210,7 @@ ApplicationWindow {
             width: parent.width
             onClicked: {
                 var p = newComponent.createObject(app);
+                p.taskID = taskCombo.currentValue;
                 newTodoConnection.target = p;
                 p.open();
             }
@@ -290,17 +300,22 @@ ApplicationWindow {
                     id: itemMenu
 
                     Action {
+                        text: qsTr("Edit")
+                    }
+
+                    Action {
                         text: qsTr("Remove")
                         onTriggered: {
                             mask.showMask();
                             const todoID = todosModel.get(todosView.currentIndex).id;
-                            Cx.Network.del(urls.todoItems() + todoID, appSettings.basicAuth(), (resp)=>{
-                                               todosModel.load(app.tType, taskCombo.currentValue);
+                            Cx.Network.del(URLs.url("/items/"+todoID), appSettings.basicAuth(), (resp)=>{
+                                               todosModel.update(app.tType, taskCombo.currentValue);
                                                mask.hideMask();
                                                banner.show("Data removed !");
                                            });
                         }
                     }
+
                 }
             }
         }
@@ -315,32 +330,47 @@ ApplicationWindow {
             signal ok(int id)
             property bool changed: false
             property int todoID: 0
+            property int taskID: 0
 
             closePolicy: Popup.NoAutoClose
-            implicitWidth: {
-                var dw = parent.width * 0.95;
-                if (dw > 800) { dw = 800; }
-                return dw;
-            }
+            implicitWidth: parent.width * 0.95
             implicitHeight: parent.height * 0.95
+
+            Connections {
+                id: exitConnection
+                target: null
+
+                function onAccept() {
+                    actionSave.trigger();
+                }
+
+                function onReject() {
+                    popup.close();
+                }
+            }
 
             Cx.ListModel {
                 id: tasksModel
                 roleNames: ["id","title","created_at","remark"]
-                Component.onCompleted: load()
+                Component.onCompleted: update()
 
-                function load() {
+                function update() {
                     mask.showMask();
-                    Cx.Network.get(urls.todoTasks(),
+                    Cx.Network.get(URLs.url("/tasks/"),
                                    appSettings.basicAuth(),
                                    (resp)=>{
                                        tasksModel.clear();
                                        try {
+                                           var curIdx = 0;
                                            const r = JSON.parse(resp)
                                            const body = r.body || [];
                                            for (var i in body) {
+                                               if (body[i].id === popup.taskID) {
+                                                   curIdx = i;
+                                               }
                                                tasksModel.append(body[i]);
                                            }
+                                           taskCombo.currentIndex = curIdx;
                                        } catch(e) {
                                            console.log(JSON.stringify(e));
                                        }
@@ -376,7 +406,7 @@ ApplicationWindow {
                             };
 
                             if (data.id <= 0) {
-                                Cx.Network.post(urls.todoItems(), appSettings.basicAuth(), data, (resp)=>{
+                                Cx.Network.post(URLs.url("/items/"), appSettings.basicAuth(), data, (resp)=>{
                                                     try {
                                                         const r = JSON.parse(resp);
                                                         const body = r.body;
@@ -390,7 +420,7 @@ ApplicationWindow {
                                                    banner.show("Data saved !");
                                                });
                             } else {
-                                Cx.Network.put(urls.todoItems() + data.id, appSettings.basicAuth(), data, (resp)=>{
+                                Cx.Network.put(URLs.url("/items/" + data.id), appSettings.basicAuth(), data, (resp)=>{
                                                    try {
                                                        const r = JSON.parse(resp);
                                                        const body = r.body;
@@ -411,7 +441,7 @@ ApplicationWindow {
                         text: qsTr("Remove")
                         onClicked: {
                             mask.showMask();
-                            Cx.Network.del(urls.todoTasks() + popup.todoID, appSettings.basicAuth(), (resp)=>{
+                            Cx.Network.del(URLs.url("/tasks/" + popup.todoID), appSettings.basicAuth(), (resp)=>{
                                                popup.todoID = 0;
                                                popup.ok(0);
                                                popup.close();
@@ -501,25 +531,6 @@ ApplicationWindow {
                             color: "white"
                         }
                     }
-                }
-            }
-
-            footer: Text {
-                id: createdAtField
-                padding: Cx.Theme.baseMargin
-                horizontalAlignment: Qt.AlignRight
-            }
-
-            Connections {
-                id: exitConnection
-                target: null
-
-                function onAccept() {
-                    actionSave.trigger();
-                }
-
-                function onReject() {
-                    popup.close();
                 }
             }
         }

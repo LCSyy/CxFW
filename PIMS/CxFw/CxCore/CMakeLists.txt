@@ -18,6 +18,8 @@ find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Core REQUIRED)
 add_library(CxCore
     cxlistmodel.cpp
     cxlistmodel.h
+    cxurls.cpp
+    cxurls.h
 )
 
 target_link_libraries(CxCore

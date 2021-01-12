@@ -3,5 +3,7 @@
         <file>main.qml</file>
         <file>qtquickcontrols2.conf</file>
         <file>qml/Settings.qml</file>
+        <file>qml/Tasks.qml</file>
+        <file>qml/TaskEdit.qml</file>
     </qresource>
 </RCC>

@@ -8,12 +8,8 @@ import "../Controls" as Cx
 Cx.Popup {
     id: popup
     destroyOnHide: false
-    implicitWidth: {
-        var dw = parent.width * 0.8;
-        if (dw > 640) { dw = 640; }
-        return dw;
-    }
-    implicitHeight: parent.height * 0.8
+    implicitWidth: parent.width * 0.95
+    implicitHeight: parent.height * 0.95
 
     property alias contentLineWrap: appSettings.contentLineWrap
     property alias contentFontPointSize: appSettings.contentFontPointSize
@@ -62,8 +58,6 @@ Cx.Popup {
     }
 
     body: Item {
-        implicitWidth: 100
-        implicitHeight: 100
         GridLayout {
             anchors.fill: parent
             columns: 2
