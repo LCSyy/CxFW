@@ -1,6 +1,10 @@
 #include "cxapp.h"
+#include <QSharedMemory>
 #include <QMenu>
+#include <QTimer>
 #include <QQmlApplicationEngine>
+#include <QLocalServer>
+#include <QLocalSocket>
 #include <CxBinding/cxbinding.h>
 #include <QGlobalShortcut/qglobalshortcut.h>
 
@@ -19,7 +23,6 @@ CxApp::CxApp(QApplication *app)
     : m_app(app)
 {
     Q_ASSERT_X(m_app, "CxApp::init", "app is null");
-
 #if !defined(QT_DEBUG)
     m_app->setQuitOnLastWindowClosed(false);
 #endif
@@ -46,9 +49,38 @@ void CxApp::setGlobalShortcut(const QKeySequence &keyseq)
     m_shortcut->setKey(keyseq);
 }
 
+bool CxApp::setupSingleInstance()
+{
+    QLocalServer *srv = new QLocalServer(this);
+    QLocalSocket *sock = new QLocalSocket(this);
+
+    const QString name = QString("%1.cxfw.liu").arg(QCoreApplication::applicationName());
+    QSharedMemory *lock = new QSharedMemory(name, this);
+    if (!lock->create(1)) {
+        QObject::connect(sock, &QLocalSocket::connected, m_app, &QApplication::quit, Qt::QueuedConnection);
+        sock->connectToServer(name);
+        return false;
+    } else {
+        QObject::connect(srv,&QLocalServer::newConnection, m_app, [this, srv](){
+            QLocalSocket *sock = srv->nextPendingConnection();
+            if (sock) {
+                sock->deleteLater();
+            }
+            emit this->systemNotify(ActiveByRun,QPrivateSignal{});
+        });
+
+        if (!srv->listen(name)) {
+            QTimer::singleShot(1000, m_app, SLOT(quit()));
+            return false;
+        }
+    }
+
+    return true;
+}
+
 void CxApp::initTrayIcon()
 {
-    m_trayIcon = new QSystemTrayIcon(QIcon(":/icon/AppHubIcon.png"),m_app);
+    m_trayIcon = new QSystemTrayIcon(QIcon(QString(":/icons/%1-logo.png").arg(QCoreApplication::applicationName())),m_app);
     m_trayMenu = new QMenu;
 
     QAction *actionPopup = new QAction(tr("Popup"), m_trayMenu);

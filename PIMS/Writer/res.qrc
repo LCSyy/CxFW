@@ -1,7 +1,7 @@
 <RCC>
     <qresource prefix="/">
-        <file>icon/AppHubIcon.png</file>
         <file>main.qml</file>
         <file>qtquickcontrols2.conf</file>
+        <file>icons/Writer-logo.png</file>
     </qresource>
 </RCC>

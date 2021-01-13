@@ -1,5 +1,5 @@
 <RCC>
     <qresource prefix="/">
-        <file>res/Icons/AppHubIcon.png</file>
+        <file>icons/AppHub-logo.png</file>
     </qresource>
 </RCC>

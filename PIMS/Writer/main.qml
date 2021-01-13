@@ -106,8 +106,8 @@ ApplicationWindow {
         target: Cx.Sys
 
         function onSystemNotify(reason) {
-            // double clicked & global shortcut
-            if (reason === 2 || reason === 5) {
+            // double clicked & global shortcut & active by run
+            if (reason === 2 || reason === 5 || reason === 6) {
                 app.showWindow()
             }
         }
@@ -380,21 +380,8 @@ ApplicationWindow {
                 SplitView.fillHeight: true
 
                 Rectangle {
-                    width: parent.width
-                    height: 25
-                    color: Cx.Theme.bgNormalColor
-                    Text {
-                        anchors.fill: parent
-                        anchors.leftMargin: 8
-                        verticalAlignment: Qt.AlignVCenter
-                        text: qsTr('Categories')
-                    }
-                }
-
-                Rectangle {
                     color: "#e2e1e4" // 芡食白
-                    width: parent.width
-                    height: parent.height - 25
+                    anchors.fill: parent
 
                     Cx.OneColumnTreeView {
                         id: tagsView

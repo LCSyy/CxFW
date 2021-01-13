@@ -10,7 +10,6 @@ import "qml" as Todos
 
 ApplicationWindow {
     id: app
-    flags: Qt.Tool
     title: qsTr("Todos")
     width: 302
     height: 500
@@ -66,8 +65,8 @@ ApplicationWindow {
         target: Cx.Sys
 
         function onSystemNotify(reason) {
-            // double clicked & global shortcut
-            if (reason === 2 || reason === 5) {
+            // double clicked & global shortcut & active by run
+            if (reason === 2 || reason === 5 || reason === 6) {
                 app.showWindow()
             }
         }

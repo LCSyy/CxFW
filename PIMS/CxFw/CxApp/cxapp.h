@@ -17,6 +17,7 @@ public:
     enum NotifyReason {
         // 0 - 4 is trayicon active reason
         GlobalShorcut = QSystemTrayIcon::MiddleClick + 1,
+        ActiveByRun,
     };
 
 signals:
@@ -29,6 +30,7 @@ public:
     ~CxApp();
 
     void setGlobalShortcut(const QKeySequence& keyseq);
+    bool setupSingleInstance();
 
 private:
     void initTrayIcon();

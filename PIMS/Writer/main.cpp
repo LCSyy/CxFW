@@ -15,16 +15,20 @@ int main(int argc, char *argv[])
     QApplication app(argc, argv);
     CxApp a(&app);
 
-    qmlTypeRegister();
+    if(a.setupSingleInstance()) {
+        qmlTypeRegister();
 
-    QQmlApplicationEngine engine;
-    const QUrl url(QStringLiteral("qrc:/main.qml"));
-    QObject::connect(&engine, &QQmlApplicationEngine::objectCreated,
-                     &app, [url](QObject *obj, const QUrl &objUrl) {
-        if (!obj && url == objUrl)
-            QCoreApplication::exit(-1);
-    }, Qt::QueuedConnection);
-    engine.load(url);
+        QQmlApplicationEngine engine;
+        const QUrl url(QStringLiteral("qrc:/main.qml"));
+        QObject::connect(&engine, &QQmlApplicationEngine::objectCreated,
+                         &app, [url](QObject *obj, const QUrl &objUrl) {
+            if (!obj && url == objUrl)
+                QCoreApplication::exit(-1);
+        }, Qt::QueuedConnection);
+        engine.load(url);
+
+        return app.exec();
+    }
 
     return app.exec();
 }
