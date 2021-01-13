@@ -17,6 +17,7 @@ find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Widgets Quick QuickWidgets REQUIRE
 add_executable(AppHub
   res.qrc
   qml.qrc
+  logo.rc
   main.cpp
   mainwindow.cpp
   mainwindow.h
@@ -29,3 +30,5 @@ target_link_libraries(AppHub
     Qt${QT_VERSION_MAJOR}::QuickWidgets
     CxBinding
 )
+
+install(TARGETS AppHub DESTINATION "bin")
