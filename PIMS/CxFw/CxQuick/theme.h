@@ -2,10 +2,12 @@
 #define THEME_H
 
 #include <QObject>
+#include <QQmlEngine>
 
 class Theme : public QObject
 {
     Q_OBJECT
+    QML_ELEMENT
     Q_PROPERTY(int baseMargin READ baseMargin CONSTANT)
     Q_PROPERTY(int contentHeight READ contentHeight CONSTANT)
     Q_PROPERTY(int toolBarHeight READ toolBarHeight CONSTANT)

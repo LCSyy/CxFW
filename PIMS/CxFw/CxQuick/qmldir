@@ -1,0 +1,5 @@
+module CxQuick
+OneColumnTreeView 0.1 OneColumnTreeView.qml
+plugin libCxQuickPlugin
+classname CxQuickPlugin
+typeinfo plugins.qmltypes
