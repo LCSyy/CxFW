@@ -7,6 +7,8 @@ import QtQuick.Layouts 1.15
 import Qt.labs.settings 1.1
 
 import CxQuick 0.1 as Cx
+import CxQuick.Controls 0.1 as Cx
+import CxQuick.App 0.1 as CxApp
 import "Quick" as Cx
 import "Controls" as Cx
 import "Scripts/cxfw.js" as Js
@@ -103,7 +105,7 @@ ApplicationWindow {
     }
 
     Connections {
-        target: Cx.Sys
+        target: CxApp.Sys
 
         function onSystemNotify(reason) {
             // double clicked & global shortcut & active by run
@@ -381,7 +383,8 @@ ApplicationWindow {
 
                 Rectangle {
                     color: "#e2e1e4" // 芡食白
-                    anchors.fill: parent
+                    width: parent.width
+                    height: parent.height
 
                     Cx.OneColumnTreeView {
                         id: tagsView

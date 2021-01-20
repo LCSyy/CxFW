@@ -25,5 +25,5 @@ target_link_libraries(CxApp
     Qt${QT_VERSION_MAJOR}::Core
     Qt${QT_VERSION_MAJOR}::Widgets
     Qt${QT_VERSION_MAJOR}::Qml
-    CxBinding
+    QGlobalShortcut
 )

@@ -5,7 +5,7 @@
 #include <QQmlApplicationEngine>
 #include <QLocalServer>
 #include <QLocalSocket>
-#include <CxBinding/cxbinding.h>
+// #include <CxBinding/cxbinding.h>
 #include <QGlobalShortcut/qglobalshortcut.h>
 
 void CxApp::setup(const QString &name, const QString &version)
@@ -30,10 +30,7 @@ CxApp::CxApp(QApplication *app)
     initTrayIcon();
     initShortcut();
 
-    CxBinding::registerAll();
-     qmlRegisterSingletonInstance(CxBinding::moduleName(),
-                                  CxBinding::majorVersion(),
-                                  CxBinding::minorVersion(),
+     qmlRegisterSingletonInstance("CxQuick.App", 0, 1,
                                   "Sys", this);
 }
 

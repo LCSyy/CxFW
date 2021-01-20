@@ -82,7 +82,7 @@ Module {
 
         // The name is a unique identifier used to refer to this type.
         // It is recommended you simply use the C++ type name.
-        name: "CxListModel"
+        name: "ListModel"
 
         // The name of the prototype Component.
         prototype: "QObject"

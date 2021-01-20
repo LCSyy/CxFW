@@ -1,0 +1,8 @@
+module CxQuick.Controls
+Badge 0.1 Badge.qml
+Banner 0.1 Banner.qml
+HomePage 0.1 HomePage.qml
+MainPage 0.1 MainPage.qml
+Popup 0.1 Popup.qml
+StatusBar 0.1 StatusBar.qml
+TextField 0.1 TextField.qml

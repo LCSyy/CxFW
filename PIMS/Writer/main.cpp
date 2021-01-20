@@ -1,13 +1,5 @@
 #include <QQmlApplicationEngine>
 #include <CxApp/cxapp.h>
-// #include <CxBinding/cxbinding.h>
-// #include "listmodel.h"
-
-namespace {
-    static void qmlTypeRegister() {
-        // qmlRegisterType<ListModel>(CxBinding::moduleName(),CxBinding::majorVersion(),CxBinding::minorVersion(),"ListModel");
-    }
-}
 
 int main(int argc, char *argv[])
 {
@@ -16,9 +8,8 @@ int main(int argc, char *argv[])
     CxApp a(&app);
 
     if(a.setupSingleInstance()) {
-        qmlTypeRegister();
-
         QQmlApplicationEngine engine;
+        engine.addImportPath("F://dev/cxfw/cxfw/PIMS/dist/bin/plugins");
         const QUrl url(QStringLiteral("qrc:/main.qml"));
         QObject::connect(&engine, &QQmlApplicationEngine::objectCreated,
                          &app, [url](QObject *obj, const QUrl &objUrl) {

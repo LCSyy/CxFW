@@ -11,12 +11,14 @@ set(CMAKE_AUTORCC ON)
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+set(QML_IMPORT_PATH "${CMAKE_INSTALL_PREFIX}/bin/plugins" CACHE PATH "" FORCE)
+
 find_package(Qt5 COMPONENTS Core Quick Widgets Sql QuickControls2 REQUIRED)
 
 set(TS_FILES writer_zh_CN.ts)
 
 add_executable(Writer
-    "${CMAKE_CURRENT_SOURCE_DIR}/../CxFw/CxQuickControls/qml.qrc"
+    # "${CMAKE_CURRENT_SOURCE_DIR}/../CxFw/CxQuickControls/qml.qrc"
     logo.rc
     res.qrc
 
