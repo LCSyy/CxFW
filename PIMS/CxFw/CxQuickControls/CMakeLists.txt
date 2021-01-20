@@ -1,4 +1,4 @@
 add_custom_target(CxQuickControls
-  SOURCES
-    qml.qrc
+    SOURCES
+        qml.qrc
 )
