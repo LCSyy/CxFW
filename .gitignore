@@ -2,6 +2,7 @@
 *.user
 *.4.8-pre1
 *.exe
+dist/publish.sh
 
 # ignore path
 build-*/

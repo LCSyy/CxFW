@@ -400,8 +400,8 @@ ApplicationWindow {
                             mask.showMask();
                             Cx.Network.get(urls.tagsUrl(),appSettings.basicAuth(),(resp)=>{
                                                const oldIdx = tagsView.currentIndex
-                                               tagsView.currentIndex = -1;
                                                tagsView.model.clear();
+                                               tagsView.currentIndex = -1;
                                                try {
                                                    const res = JSON.parse(resp);
                                                    const body = res.body;

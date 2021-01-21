@@ -35,6 +35,7 @@ QtObject {
     readonly property color color4: "#a61b29" // 苋菜红
     readonly property color color5: "#495c69" // 战舰灰
     readonly property color color6: "#74787a" // 嫩灰
+    readonly property color color7: "#f1939c" // 春梅红
 
     readonly property int toolBarHeight: 40
 }

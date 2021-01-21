@@ -1,26 +1,26 @@
 import QtQuick 2.15
 import QtQuick.Controls 2.15
 import CxQuick 0.1
+import CxQuick.Controls 0.1
 
 Item {
     id: root
 
     property alias text: text.text
-    property Component badgeComponent: Qt.createComponent("Badge.qml")
     property var badges: undefined
 
     signal linkClicked(url link)
 
-    onBadgesChanged: {
-        for (var i in badges) {
-            const badge = badges[i];
-            root.setBadge(badge.badge_value, badge.badge_name, badge.badge_value);
-        }
-    }
+//    onBadgesChanged: {
+//        for (var i in badges) {
+//            const badge = badges[i];
+//            root.setBadge(badge.badge_value, badge.badge_name, badge.badge_value);
+//        }
+//    }
 
-    function setBadge(text, badgeType, badgeValue) {
-        badgeComponent.createObject(badgeRow, { text: text, badgeType: badgeType, badgeValue: badgeValue })
-    }
+//    function setBadge(text, badgeType, badgeValue) {
+//        badgeComponent.createObject(badgeRow, { text: text, badgeType: badgeType, badgeValue: badgeValue })
+//    }
 
     Text {
         id: text
@@ -39,15 +39,20 @@ Item {
     Rectangle {
         anchors.bottom: parent.bottom
         width: parent.width - Theme.baseMargin * 2
-        height: 1
+        height: (root.badges || null) === null ? 1 : 2
         x: Theme.baseMargin
-        color: Theme.bgNormalColor
+        color: (root.badges || null) === null ? BoxTheme.backgroundFocus : BoxTheme.color7
     }
 
-    Row {
-        id: badgeRow
-        anchors.left: parent.right
-        anchors.leftMargin: -(Theme.baseMargin * 2 + width)
-        anchors.verticalCenter: parent.verticalCenter
-    }
+//    Row {
+//        id: badgeRow
+//        anchors.left: parent.right
+//        anchors.leftMargin: -(BoxTheme.leftPadding * 2 + width)
+//        anchors.verticalCenter: parent.verticalCenter
+//    }
+
+//    Component {
+//        id: badgeComponent
+//        Badge { }
+//    }
 }
