@@ -4,7 +4,6 @@ ListViewLighlighter 0.1 ListViewLighlighter.qml
 Mask 0.1 Mask.qml
 OneColumnTreeView 0.1 OneColumnTreeView.qml
 CxFw 0.1 cxfw.js
-ColorSheet 0.1 ColorSheet.js
 singleton BoxTheme 0.1 BoxTheme.qml
 plugin libCxQuickPlugin
 classname CxQuickPlugin
