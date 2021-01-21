@@ -9,9 +9,6 @@ import Qt.labs.settings 1.1
 import CxQuick 0.1 as Cx
 import CxQuick.Controls 0.1 as Cx
 import CxQuick.App 0.1 as CxApp
-import "Quick" as Cx
-import "Controls" as Cx
-import "Scripts/cxfw.js" as Js
 
 // status:
 //   trash
@@ -34,20 +31,13 @@ ApplicationWindow {
     }
 
     Component.onCompleted: {
-         Cx.Network.enableHttps(true);
+        Cx.Network.enableHttps(true);
     }
-
 
     function showWindow() {
         app.showNormal()
         app.raise()
         app.requestActivate()
-    }
-
-    function mouseClickMapToListViewIndex(mouseArea, listView, mouse) {
-        const p = mouseArea.mapToItem(listView,mouse.x,mouse.y);
-        const idx = listView.indexAt(p.x+listView.contentX, p.y+listView.contentY);
-        return idx;
     }
 
     Settings {
@@ -217,9 +207,7 @@ ApplicationWindow {
             target: null
 
             function onOk(id) {
-                const oldIdx = tagsView.currentIndex;
-                tagsView.currentIndex = -1;
-                tagsView.currentIndex = oldIdx;
+                tagsView.update();
             }
         }
 
@@ -312,7 +300,7 @@ ApplicationWindow {
                     acceptedButtons: Qt.RightButton
                     anchors.fill: parent
                     onClicked: {
-                        const idx = app.mouseClickMapToListViewIndex(this, contentListView, mouse);
+                        const idx = CxFw.mouseClickMapToListViewIndex(this, contentListView, mouse);
                         contentListView.currentIndex = idx;
                         if (idx !== -1) {
                             pinAction.pinned = contentsModel.hasBadge(idx, badges.rank)
@@ -412,8 +400,8 @@ ApplicationWindow {
                             mask.showMask();
                             Cx.Network.get(urls.tagsUrl(),appSettings.basicAuth(),(resp)=>{
                                                const oldIdx = tagsView.currentIndex
-                                               tagsView.model.clear();
                                                tagsView.currentIndex = -1;
+                                               tagsView.model.clear();
                                                try {
                                                    const res = JSON.parse(resp);
                                                    const body = res.body;
@@ -430,7 +418,7 @@ ApplicationWindow {
                             anchors.fill: parent
                             acceptedButtons: Qt.LeftButton | Qt.RightButton
                             onClicked: {
-                                const idx = app.mouseClickMapToListViewIndex(this, tagsView, mouse);
+                                const idx = CxFw.mouseClickMapToListViewIndex(this, tagsView, mouse);
                                 if (idx !== - 1) {
                                     if (mouse.button & Qt.LeftButton) {
                                         var item = tagsView.itemAtIndex(idx);
@@ -681,9 +669,9 @@ ApplicationWindow {
                     anchors.fill: parent
                     Flow {
                         Layout.fillWidth: true
-                        Layout.topMargin: Cx.Theme.baseMargin / 2
-                        spacing: Cx.Theme.baseMargin
-                        leftPadding: 8
+                        Layout.topMargin: Cx.BoxTheme.topPadding
+                        spacing: 0
+                        leftPadding: Cx.BoxTheme.leftPadding
 
                         Repeater {
                             id: tagRepeater
@@ -741,7 +729,7 @@ ApplicationWindow {
                     if (textArea.text.trim() === '') { return; }
                     var obj = {
                         "id": popup.postID,
-                        "title": Js.getFirstLine(textArea.text),
+                        "title": CxFw.getFirstLine(textArea.text),
                         "content": textArea.text,
                         "tags": [],
                     };

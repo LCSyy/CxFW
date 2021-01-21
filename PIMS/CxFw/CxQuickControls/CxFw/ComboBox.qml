@@ -6,23 +6,23 @@ import CxQuick 0.1
 T.ComboBox {
     id: control
 
-    leftPadding: Theme.baseMargin
-    rightPadding: Theme.baseMargin
-    spacing: Theme.baseMargin
+    leftPadding: BoxTheme.leftPadding
+    rightPadding: BoxTheme.rightPadding
+    spacing: BoxTheme.spacing
     implicitWidth: Math.max(implicitBackgroundWidth + leftInset + rightInset,
                             implicitContentWidth + leftPadding + rightPadding)
     implicitHeight: Math.max(implicitBackgroundHeight + topInset + bottomInset,
                              implicitContentHeight + topPadding + bottomPadding)
     background: Rectangle {
-        implicitWidth: 100
-        implicitHeight: Theme.contentHeight
-        border.color: control.pressed ? Theme.bgNormalColor : "#e2e1e4"
+        implicitWidth: BoxTheme.baseWidth
+        implicitHeight: BoxTheme.baseHeight
+        border.color: control.pressed ? BoxTheme.backgroundFocus : BoxTheme.backgroundInActive
         border.width: control.visualFocus ? 2 : 1
         radius: 2
     }
 
     contentItem: Text {
-        leftPadding: Theme.baseMargin
+        leftPadding: BoxTheme.leftPadding
         rightPadding: control.indicator.width + control.spacing
 
         text: control.displayText
@@ -52,14 +52,14 @@ T.ComboBox {
             context.lineTo(width, 0);
             context.lineTo(width / 2, height);
             context.closePath();
-            context.fillStyle = control.pressed ? Theme.bgNormalColor : "#e2e1e4";
+            context.fillStyle = control.pressed ? BoxTheme.backgroundFocus : BoxTheme.backgroundInActive;
             context.fill();
         }
     }
 
     delegate: ItemDelegate {
         width: control.width
-        height: Theme.contentHeight
+        height: BoxTheme.baseHeight
         contentItem: Text {
             text: control.textRole === "" ? modelData : model[control.textRole]
             color: "black"
@@ -85,7 +85,7 @@ T.ComboBox {
         }
 
         background: Rectangle {
-            border.color: "#e2e1e4"
+            border.color: BoxTheme.backgroundInActive
             radius: 2
         }
     }

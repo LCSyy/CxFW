@@ -40,3 +40,11 @@ function getFirstLine(txt) {
     }
     return txt.substring(0,lineEndIdx);
 }
+
+
+// ListView MouseArea
+function mouseClickMapToListViewIndex(mouseArea, listView, mouse) {
+    const p = mouseArea.mapToItem(listView,mouse.x,mouse.y);
+    const idx = listView.indexAt(p.x+listView.contentX, p.y+listView.contentY);
+    return idx;
+}

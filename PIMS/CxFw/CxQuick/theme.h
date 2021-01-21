@@ -18,7 +18,7 @@ class Theme : public QObject
     Q_PROPERTY(QString fgNormalColor READ fgNormalColor CONSTANT)
     Q_PROPERTY(QString fgLightColor READ fgNormalColor CONSTANT)
 public:
-    explicit Theme(QObject *parent = nullptr);
+    explicit Theme(QObject *parent = nullptr): QObject(parent) {}
 
     int baseMargin() const { return m_baseMargin; }
     int contentHeight() const { return m_contentHeight; }
@@ -41,5 +41,19 @@ protected:
     QString m_fgNormalColor;
     QString m_fgLightColor;
 };
+
+// Box
+//   Width
+//   Height
+//   Inset
+//   Padding
+//   Background
+//     Color
+//     Border
+//       Color
+//       Size
+//       Radius
+//   Content
+//     Margin
 
 #endif // THEME_H

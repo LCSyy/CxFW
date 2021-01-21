@@ -1,26 +1,26 @@
-set(CONTROLS_SOURCES
-    qml.qrc
-)
+cmake_minimum_required(VERSION 3.15)
 
-set(QUICK_FILES
-    Quick/LinkItem.qml
-    Quick/ListViewLighlighter.qml
-    Quick/Mask.qml
-    Quick/OneColumnTreeView.qml
-)
-
-set(JS_FILES
-    Scripts/cxfw.js
+project(CxQuickControls
+    VERSION 0.1
+    DESCRIPTION "Quick Controls and CxFw QuickControl Style."
 )
 
 add_subdirectory(CxFw)
-add_subdirectory(Controls)
 
-add_custom_target(CxQuickControls
-    SOURCES
-        ${CONTROLS_SOURCES}
+set(src
+    qmldir
+    Badge.qml
+    Banner.qml
+    HomePage.qml
+    MainPage.qml
+    Popup.qml
+    StatusBar.qml
+    TextField.qml
 )
 
-install(FILES ${CONTROLS_SOURCES} DESTINATION "bin/plugins/CxQuick")
-install(FILES ${QUICK_FILES} DESTINATION "bin/plugins/CxQuick/Quick")
-install(FILES ${JS_FILES} DESTINATION "bin/plugins/CxQuick/Scripts")
+add_custom_target(Controls
+  SOURCES
+    ${src}
+)
+
+install(FILES ${src} DESTINATION "bin/plugins/CxQuick/Controls")

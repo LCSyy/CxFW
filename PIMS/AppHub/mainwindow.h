@@ -23,7 +23,7 @@ private slots:
     void onTrayIconActivated(QSystemTrayIcon::ActivationReason reason);
 
 private:
-    QQuickWidget *m_view;
+    QQuickWidget *m_view {nullptr};
 };
 
 #endif // MAINWINDOW_H

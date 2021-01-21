@@ -10,14 +10,14 @@ T.ToolSeparator {
 
     padding: 0
 
-    leftInset: Theme.baseMargin / 2
-    rightInset: Theme.baseMargin / 2
+    leftInset: BoxTheme.spacing
+    rightInset: BoxTheme.spacing
     topInset: 2
     bottomInset: 2
 
     background: Rectangle {
         implicitWidth: 1
-        implicitHeight: Theme.contentHeight
-        color: "#e2e1e4"
+        implicitHeight: BoxTheme.baseHeight
+        color: BoxTheme.backgroundInActive
     }
 }

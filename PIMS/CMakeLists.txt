@@ -14,9 +14,10 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 include_directories("${PROJECT_SOURCE_DIR}/CxFw/")
 
-set(CMAKE_INSTALL_PREFIX "${PROJECT_SOURCE_DIR}/dist/")
+set(CMAKE_INSTALL_PREFIX "${PROJECT_SOURCE_DIR}/../dist/")
+set(CXFW_ROOT "F:/Applications/CxFw/sdk")
 
 add_subdirectory(CxFw)
 add_subdirectory(Writer)
-# add_subdirectory(AppHub)
+add_subdirectory(AppHub)
 # add_subdirectory(Todos)

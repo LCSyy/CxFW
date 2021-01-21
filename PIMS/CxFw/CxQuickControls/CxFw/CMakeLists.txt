@@ -1,16 +1,14 @@
-set(CXFW_FILES
+set(src
     qmldir
     Button.qml
     ComboBox.qml
     Menu.qml
     MenuSeparator.qml
+    TextField.qml
     ToolBar.qml
     ToolSeparator.qml
 )
 
-add_custom_target(CxFwStyle
-    SOURCES
-        ${CXFW_FILES}
-)
+add_custom_target(CxFwStyle SOURCES ${src})
 
-install(FILES ${CXFW_FILES} DESTINATION "bin/plugins/CxQuick/CxFw")
+install(FILES ${src} DESTINATION "bin/plugins/CxQuick/Controls/CxFw")

@@ -6,15 +6,10 @@ import CxQuick 0.1
 T.Button {
     id: button
 
-    leftInset: 0
-    topInset: 0
-    rightInset: 0
-    bottomInset: 0
-
-    leftPadding: Theme.baseMargin
-    rightPadding: Theme.baseMargin
-    topPadding: Theme.baseMargin
-    bottomPadding: Theme.baseMargin
+    leftPadding: BoxTheme.leftPadding
+    rightPadding: BoxTheme.rightPadding
+    topPadding: BoxTheme.topPadding
+    bottomPadding: BoxTheme.bottomPadding
 
     implicitWidth: Math.max(implicitBackgroundWidth + leftInset + rightInset,
                             implicitContentWidth + leftPadding + rightPadding)
@@ -25,7 +20,7 @@ T.Button {
         radius: 2
         implicitWidth: 30
         implicitHeight: 25
-        color: button.pressed ? Theme.bgNormalColor : "#e2e1e4"
+        color: button.pressed ? BoxTheme.backgroundFocus : BoxTheme.backgroundInActive
     }
 
     contentItem: Text {

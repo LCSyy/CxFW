@@ -3,6 +3,9 @@
 #include <QMenu>
 #include <QProcess>
 #include <QQuickWidget>
+#include <QDir>
+#include <QQmlEngine>
+#include <QQuickStyle>
 
 namespace {
 const char *STYLE_SHEETS = R"(
@@ -18,12 +21,15 @@ QMenu::item:selected {
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
-    , m_view(new QQuickWidget(QUrl("qrc:/main.qml"), this))
+    , m_view(new QQuickWidget(this))
 {
+    qDebug() << QDir::currentPath();
+    QQuickStyle::addStylePath(QDir::current().absoluteFilePath("plugins/CxQuick/Controls/CxFw"));
+    m_view->engine()->addImportPath(QDir::current().absoluteFilePath("plugins"));
     m_view->setResizeMode(QQuickWidget::SizeRootObjectToView);
     setCentralWidget(m_view);
-
     resize(800,600);
+    m_view->setSource(QUrl("qrc:/main.qml"));
 }
 
 MainWindow::~MainWindow()

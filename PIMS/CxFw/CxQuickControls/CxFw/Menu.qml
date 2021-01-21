@@ -13,7 +13,7 @@ T.Menu {
 
     background: Rectangle {
         implicitWidth: control.fixdWidth
-        implicitHeight: Theme.contentHeight
+        implicitHeight: BoxTheme.baseHeight
         color: "white"
         radius: 2
     }
@@ -21,7 +21,7 @@ T.Menu {
     delegate: MenuItem {
             id: menuItem
             implicitWidth: control.fixdWidth
-            implicitHeight: Theme.contentHeight
+            implicitHeight: BoxTheme.baseHeight
 
             contentItem: Text {
                 leftPadding: menuItem.indicator.width
@@ -36,9 +36,9 @@ T.Menu {
 
             background: Rectangle {
                 implicitWidth: control.fixdWidth
-                implicitHeight: Theme.contentHeight
+                implicitHeight: BoxTheme.baseHeight
                 opacity: enabled ? 1 : 0.3
-                color: menuItem.highlighted ? Theme.bgNormalColor : "transparent"
+                color: menuItem.highlighted ? BoxTheme.backgroundFocus : "transparent"
                 radius: 2
             }
         }

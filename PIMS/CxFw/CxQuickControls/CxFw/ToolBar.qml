@@ -11,18 +11,22 @@ T.ToolBar {
     implicitWidth: implicitBackgroundWidth
     implicitHeight: implicitBackgroundHeight
 
+    Component.onCompleted: {
+        console.log(implicitContentHeight+topPadding+bottomPadding)
+    }
+
     background: Rectangle {
         radius: control.upRadius
         implicitWidth: control.parent.width
-        implicitHeight: Theme.toolBarHeight
-        color: Theme.bgNormalColor
+        implicitHeight: BoxTheme.baseHeight + BoxTheme.topPadding + BoxTheme.bottomPadding
+        color: BoxTheme.backgroundFocus
 
         Rectangle {
             anchors.bottom: parent !== undefined ? parent.bottom : undefined
             anchors.bottomMargin: 0
             width: parent.width
             height: parent.height - 4
-            color: Theme.bgNormalColor
+            color: BoxTheme.backgroundFocus
             radius: control.bottomRadius
         }
     }

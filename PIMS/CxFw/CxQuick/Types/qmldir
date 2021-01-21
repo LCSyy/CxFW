@@ -1,7 +1,0 @@
-module CxQuick.Types
-CxJs 0.1 CxQuick.js
-LinkItem 0.1 LinkItem.qml
-ListViewHighlighter 0.1 ListViewHighlighter.qml
-Mask 0.1 Mask.qml
-OneColumnTreeView 0.1 OneColumnTreeView.qml
-

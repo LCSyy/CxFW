@@ -1,57 +1,21 @@
 import QtQuick 2.15
+import QtQuick.Layouts 1.15
 import QtQuick.Controls 2.15
-import CxQuick 0.1 as Cx
+import CxQuick 0.1
 
 Item {
-
-    Component.onCompleted: {
-        Cx.Network.enableHttps();
-    }
-
-    QtObject {
-        id: types
-        readonly property color mask: "#894689"
-        readonly property color unmask: "#000"
-    }
-
-    Column {
-        anchors.centerIn: parent
-
-        Text {
-            id: msgText
-        }
-
-        Button {
-            onClicked: {
-                mask.showMask(true);
-                Cx.Network.get("https://192.168.1.6:8100/api/posts/1",{},(resp)=>{
-                    try{
-                                       console.log("try 1 try");
-                        const body = JSON.parse(resp).body;
-                        msgText.text = body.content;
-                                       console.log(JSON.stringify(body));
-                    }catch(e){
-                         console.log(JSON.stringify(e));
-                    }
-                    mask.showMask(false);
-                })
-            }
-        }
-    }
-
-    Rectangle {
-        id: mask
+    Grid {
         anchors.fill: parent
-        visible: false
-
-        function showMask(s) {
-            if (s === true) {
-                color = types.mask;
-                visible = true;
-            } else {
-                color = types.unmask;
-                visible = false;
-            }
+        anchors.margins: 16
+        columns: 4
+        spacing: 16
+        Button {
+            text: qsTr("Click")
+        }
+        TextField {
+        }
+        ComboBox {
+            model: [1,3,4,5,6,7]
         }
     }
 }
