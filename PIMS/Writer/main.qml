@@ -190,6 +190,7 @@ ApplicationWindow {
             id: actionRefresh
             text: qsTr("Refresh")
             onTriggered: {
+                console.log('-- start refresh')
                 tagsView.update();
             }
         }
@@ -238,7 +239,6 @@ ApplicationWindow {
 
             function update(tags) {
                 mask.showMask();
-
                 var tagQuery = "?";
                 if (tags !== undefined) {
                     for (var i in tags) {
@@ -366,7 +366,7 @@ ApplicationWindow {
                 id: navi
                 SplitView.preferredWidth: uiConf.naviSize
                 SplitView.maximumWidth: parent.width * 0.8
-                 SplitView.minimumWidth: tagsView.contentWidth
+                SplitView.minimumWidth: tagsView.contentWidth
                 SplitView.fillHeight: true
 
                 Rectangle {
@@ -378,7 +378,6 @@ ApplicationWindow {
                         id: tagsView
                         clip: true
                         anchors.fill: parent
-                        currentIndex: 0
                         boundsBehavior: Flickable.DragOverBounds
 
                         onCurrentIndexChanged: {
@@ -399,17 +398,21 @@ ApplicationWindow {
                         function update() {
                             mask.showMask();
                             Cx.Network.get(urls.tagsUrl(),appSettings.basicAuth(),(resp)=>{
-                                               const oldIdx = tagsView.currentIndex
-                                               tagsView.model.clear();
-                                               tagsView.currentIndex = -1;
                                                try {
+                                                   const oldIdx = tagsView.currentIndex
+
                                                    const res = JSON.parse(resp);
                                                    const body = res.body;
                                                    tagsView.load(body);
+
+                                                   if (oldIdx === -1) {
+                                                       tagsView.currentIndex = 0
+                                                   } else {
+                                                       tagsView.currentIndex = oldIdx
+                                                   }
                                                } catch(e) {
                                                    console.log(e,'; Response:',resp);
                                                }
-                                               tagsView.currentIndex = oldIdx
                                                mask.hideMask();
                                            });
                         }
