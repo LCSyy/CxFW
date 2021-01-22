@@ -696,21 +696,31 @@ ApplicationWindow {
                     ScrollView {
                         Layout.fillWidth: true
                         Layout.fillHeight: true
-                        TextArea {
-                            id: textArea
-                            readOnly: !popup.editable
-                            wrapMode: appSettings.contentLineWrap === true ? TextArea.WrapAnywhere : TextArea.NoWrap
-                            selectByMouse: true
-                            font.pointSize: appSettings.contentFontPointSize
-                            leftPadding: Cx.Theme.baseMargin * 2
-                            rightPadding: Cx.Theme.baseMargin * 2
+                        Flickable {
+                            anchors.fill: parent
+                            contentWidth: parent.width
+                            contentHeight: textArea.contentHeight
+                            boundsBehavior: Flickable.StopAtBounds
+                            boundsMovement: Flickable.FollowBoundsBehavior
 
-                            Cx.SyntaxHighlighter {
-                                target: textArea.textDocument
-                            }
+                            TextArea {
+                                id: textArea
+                                width: parent.width
+                                readOnly: !popup.editable
+                                tabStopDistance: 40
+                                wrapMode: appSettings.contentLineWrap === true ? TextArea.WrapAnywhere : TextArea.NoWrap
+                                selectByMouse: true
+                                font.pointSize: appSettings.contentFontPointSize
+                                leftPadding: Cx.Theme.baseMargin * 2
+                                rightPadding: Cx.Theme.baseMargin * 2
 
-                            onTextChanged: {
-                                popup.changed = true
+                                Cx.SyntaxHighlighter {
+                                    target: textArea.textDocument
+                                }
+
+                                onTextChanged: {
+                                    popup.changed = true
+                                }
                             }
                         }
                     }
@@ -719,7 +729,6 @@ ApplicationWindow {
 
             footer: Text {
                 id: createdAtField
-//                height: 25 + padding * 2
                 padding: Cx.Theme.baseMargin
                 horizontalAlignment: Qt.AlignRight
             }
