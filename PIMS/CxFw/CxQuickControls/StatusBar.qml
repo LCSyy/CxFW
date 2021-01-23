@@ -3,7 +3,7 @@ import CxQuick 0.1
 
 Rectangle {
     width: parent.width
-    height: Theme.toolBarHeight / 2 + 10
-    color: Theme.bgNormalColor
+    height: CxTheme.toolBarHeight / 2 + 10
+    color: CxTheme.bgNormalColor
 }
 

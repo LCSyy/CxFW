@@ -1,10 +1,13 @@
 #include <QQmlApplicationEngine>
-#include <CxApp/cxapp.h>
 #include <QQuickStyle>
 #include <QDir>
 #include <QDialog>
 #include <QLabel>
 #include <QDebug>
+#include <QQmlContext>
+#include <CxCore/cxurls.h>
+#include <CxCore/cxsettings.h>
+#include <CxApp/cxapp.h>
 
 int main(int argc, char *argv[])
 {
@@ -17,6 +20,13 @@ int main(int argc, char *argv[])
         QQuickStyle::addStylePath(dir.absoluteFilePath("plugins/CxQuick/Controls/CxFw"));
         QQmlApplicationEngine engine;
         engine.addImportPath(dir.absoluteFilePath("plugins"));
+
+        CxSettings s;
+        const QString host = s.get("host").toString();
+        const int port = s.get("port").toInt();
+        QQmlContext *ctx = engine.rootContext();
+        ctx->setContextProperty("URLs", new CxUrls("https", host, port, "writer", ctx));
+
         const QUrl url(QStringLiteral("qrc:/main.qml"));
         QObject::connect(&engine, &QQmlApplicationEngine::objectCreated,
                          &app, [url](QObject *obj, const QUrl &objUrl) {

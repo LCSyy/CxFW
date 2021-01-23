@@ -39,6 +39,8 @@ add_library(CxQuickPlugin SHARED
     cxquickplugin.h
     theme.cpp
     theme.h
+    cxqmlsettings.cpp
+    cxqmlsettings.h
 )
 
 set(CXFW_LIBS CxCore CxNetwork MarkdownSyntaxHighlighter QGlobalShortcut)

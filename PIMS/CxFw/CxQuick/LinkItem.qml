@@ -25,7 +25,7 @@ Item {
     Text {
         id: text
         anchors.fill: parent
-        anchors.leftMargin: Theme.baseMargin * 2
+        anchors.leftMargin: CxTheme.baseMargin * 2
         anchors.bottomMargin: 1
         textFormat: Text.RichText
         verticalAlignment: Qt.AlignVCenter
@@ -38,9 +38,9 @@ Item {
 
     Rectangle {
         anchors.bottom: parent.bottom
-        width: parent.width - Theme.baseMargin * 2
+        width: parent.width - CxTheme.baseMargin * 2
         height: (root.badges || null) === null ? 1 : 2
-        x: Theme.baseMargin
+        x: CxTheme.baseMargin
         color: (root.badges || null) === null ? BoxTheme.backgroundFocus : BoxTheme.color7
     }
 

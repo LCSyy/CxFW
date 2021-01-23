@@ -20,6 +20,8 @@ add_library(CxCore
     cxlistmodel.h
     cxurls.cpp
     cxurls.h
+    cxsettings.cpp
+    cxsettings.h
 )
 
 target_link_libraries(CxCore

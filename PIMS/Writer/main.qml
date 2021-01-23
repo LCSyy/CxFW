@@ -6,16 +6,10 @@ import QtQuick.Layouts 1.15
 // import QtQuick.LocalStorage 2.15
 import Qt.labs.settings 1.1
 
-import CxQuick 0.1 as Cx
+import CxQuick 0.1
 import CxQuick.Controls 0.1 as Cx
 import CxQuick.App 0.1 as CxApp
-
-// status:
-//   trash
-//   draft
-//   release
-//   protect
-//   ...
+import "qml/AppConfigs.js" as AppConfig
 
 ApplicationWindow {
     id: app
@@ -31,67 +25,13 @@ ApplicationWindow {
     }
 
     Component.onCompleted: {
-        Cx.Network.enableHttps(true);
+        CxNetwork.enableHttps(true);
     }
 
     function showWindow() {
         app.showNormal()
         app.raise()
         app.requestActivate()
-    }
-
-    Settings {
-        id: appSettings
-        property bool contentLineWrap: true
-        property int contentFontPointSize: app.font.pointSize
-        property string host: "localhost"
-        property int port: 80
-        property string basicAuthKey: ""
-        property string basicAuthValue: ""
-
-        function basicAuth() {
-            var auth = {
-                "Authorization": basicAuthKey + ":" + basicAuthValue,
-            };
-            return auth;
-        }
-    }
-
-    QtObject {
-        id: status
-
-        readonly property int stActive: 0 // 激活
-        readonly property int stInActive: 1 // 未激活
-        readonly property int stInValid: 2 // 失效
-        readonly property int stTrash: 3 // 删除
-    }
-
-    QtObject {
-        id: badges
-
-        readonly property int rank: 0 // 置顶排序
-    }
-
-    QtObject {
-        id: urls
-
-        function postsUrl() {
-            return "https://<host>:<port>/api/writer/posts/"
-            .replace("<host>",appSettings.host)
-            .replace("<port>", appSettings.port)
-        }
-
-        function tagsUrl() {
-            return "https://<host>:<port>/api/writer/tags/"
-            .replace("<host>",appSettings.host)
-            .replace("<port>", appSettings.port)
-        }
-
-        function postBadgesUrl() {
-            return "https://<host>:<port>/api/writer/badges/"
-            .replace("<host>",appSettings.host)
-            .replace("<port>", appSettings.port)
-        }
     }
 
     Connections {
@@ -119,8 +59,8 @@ ApplicationWindow {
             bottomRadius: 0
             RowLayout {
                 anchors.fill: parent
-                anchors.leftMargin: Cx.Theme.baseMargin
-                anchors.rightMargin: Cx.Theme.baseMargin
+                anchors.leftMargin: CxTheme.baseMargin
+                anchors.rightMargin: CxTheme.baseMargin
                 anchors.bottomMargin: 2
 
                 Button { action: actionBacktoHome }
@@ -138,7 +78,7 @@ ApplicationWindow {
                 width: parent.width
                 anchors.bottom: parent.bottom
                 height:1
-                color: Cx.Theme.bgDeepColor
+                color: CxTheme.bgDeepColor
             }
         }
 
@@ -190,7 +130,6 @@ ApplicationWindow {
             id: actionRefresh
             text: qsTr("Refresh")
             onTriggered: {
-                console.log('-- start refresh')
                 tagsView.update();
             }
         }
@@ -221,7 +160,7 @@ ApplicationWindow {
             }
         }
 
-        Cx.ListModel {
+        CxListModel {
             id: contentsModel
             roleNames: ["id","title","created_at","updated_at","badges"]
 
@@ -239,13 +178,13 @@ ApplicationWindow {
 
             function update(tags) {
                 mask.showMask();
-                var tagQuery = "?";
+                var tagQuery = "";
                 if (tags !== undefined) {
                     for (var i in tags) {
                         tagQuery += ("tag=" + tags[i] + "&")
                     }
                 }
-                Cx.Network.get(urls.postsUrl() + tagQuery, appSettings.basicAuth(), (resp)=>{
+                CxNetwork.get(URLs.url("posts/", tagQuery), AppConfig.basicAuth(), (resp)=>{
                                    contentsModel.clear();
                                    try {
                                        const res = JSON.parse(resp);
@@ -277,7 +216,7 @@ ApplicationWindow {
 
                 model: contentsModel
 
-                delegate: Cx.LinkItem {
+                delegate: LinkItem {
                     width: parent !== null ? parent.width : 0
                     height: 40
 
@@ -303,7 +242,7 @@ ApplicationWindow {
                         const idx = CxFw.mouseClickMapToListViewIndex(this, contentListView, mouse);
                         contentListView.currentIndex = idx;
                         if (idx !== -1) {
-                            pinAction.pinned = contentsModel.hasBadge(idx, badges.rank)
+                            pinAction.pinned = contentsModel.hasBadge(idx, AppConfig.badges.Rank)
                             contentMenu.popup();
                             mouse.accepted = true;
                         }
@@ -328,12 +267,13 @@ ApplicationWindow {
 
                             const data = {
                                 post_id: curItem.id,
-                                badge_name: badges.rank,
+                                badge_name: AppConfig.badges.Rank,
                                 badge_value: "",
                             };
 
                             if (pinAction.pinned === true) {
-                                Cx.Network.del2(urls.postBadgesUrl(), appSettings.basicAuth(), data, (resp)=>{
+                                // urls.postBadgesUrl()
+                                CxNetwork.del2(URLs.url("badges/"), AppConfig.basicAuth(), data, (resp)=>{
                                                     try {
                                                         contentConnection.onOk(0);
                                                     } catch(e) {
@@ -342,7 +282,8 @@ ApplicationWindow {
                                                     mask.hideMask();
                                                 })
                             } else {
-                                Cx.Network.post(urls.postBadgesUrl(), appSettings.basicAuth(), data, (resp)=>{
+                                // urls.postBadgesUrl()
+                                CxNetwork.post(URLs.url("badges/"), AppConfig.basicAuth(), data, (resp)=>{
                                                     try {
                                                         contentConnection.onOk(0);
                                                     } catch(e) {
@@ -364,21 +305,26 @@ ApplicationWindow {
 
             Column {
                 id: navi
-                SplitView.preferredWidth: uiConf.naviSize
+                SplitView.preferredWidth: CxSettings.get(AppConfig.settings.naviSizeName) === undefined ? AppConfig.settings.naviSize : CxSettings.get(AppConfig.settings.naviSizeName)
                 SplitView.maximumWidth: parent.width * 0.8
                 SplitView.minimumWidth: tagsView.contentWidth
                 SplitView.fillHeight: true
 
+                Component.onDestruction: {
+                    CxSettings.set(AppConfig.settings.naviSizeName, navi.SplitView.preferredWidth)
+                }
+
                 Rectangle {
-                    color: "#e2e1e4" // 芡食白
+                    color: BoxTheme.backgroundInActive
                     width: parent.width
                     height: parent.height
 
-                    Cx.OneColumnTreeView {
+                    OneColumnTreeView {
                         id: tagsView
                         clip: true
                         anchors.fill: parent
                         boundsBehavior: Flickable.DragOverBounds
+                        currentIndex: (CxSettings.get(AppConfig.settings.defaultNavi) || -1)
 
                         onCurrentIndexChanged: {
                             if (tagsView.currentIndex !== -1) {
@@ -395,9 +341,22 @@ ApplicationWindow {
                             }
                         }
 
+                        Component.onDestruction: {
+                            const c = tagsView.model.count();
+                            CxSettings.beginWriteArray(AppConfig.settings.naviExpandArray);
+                            for (var i = 0; i < c; ++i) {
+                                const item = tagsView.model.get(i);
+                                CxSettings.setArrayIndex(i);
+                                CxSettings.set(AppConfig.settings.naviItemExpand,item.expand);
+                            }
+                            CxSettings.endArray();
+                            CxSettings.set(AppConfig.settings.defaultNavi, tagsView.currentIndex)
+                        }
+
                         function update() {
                             mask.showMask();
-                            Cx.Network.get(urls.tagsUrl(),appSettings.basicAuth(),(resp)=>{
+                            // urls.tagsUrl()
+                            CxNetwork.get(URLs.url("tags/"), AppConfig.basicAuth(), (resp)=>{
                                                try {
                                                    const oldIdx = tagsView.currentIndex
 
@@ -405,11 +364,22 @@ ApplicationWindow {
                                                    const body = res.body;
                                                    tagsView.load(body);
 
-                                                   if (oldIdx === -1) {
-                                                       tagsView.currentIndex = 0
-                                                   } else {
-                                                       tagsView.currentIndex = oldIdx
-                                                   }
+                                                  CxSettings.beginReadArray(AppConfig.settings.naviExpandArray);
+                                                  const c = tagsView.model.count();
+                                                  for (var i = 0; i < c; ++i) {
+                                                      CxSettings.setArrayIndex(i);
+                                                      const expand = CxSettings.get(AppConfig.settings.naviItemExpand) === "true" ? true : false;
+                                                      if (expand === true) {
+                                                          tagsView.expandIndex(i, expand);
+                                                      }
+                                                  }
+                                                  CxSettings.endArray();
+
+                                                  if (oldIdx === -1) {
+                                                    tagsView.currentIndex = 0;
+                                                  } else {
+                                                      tagsView.currentIndex = oldIdx
+                                                  }
                                                } catch(e) {
                                                    console.log(e,'; Response:',resp);
                                                }
@@ -433,7 +403,7 @@ ApplicationWindow {
                                         tagMenu.popup()
                                     }
                                 } else {
-                                    tagsView.currentIndex = -1;
+                                    // tagsView.currentIndex = -1;
                                 }
                             }
 
@@ -467,7 +437,8 @@ ApplicationWindow {
                                     onTriggered: {
                                         mask.showMask();
                                         const m = tagsView.model.get(tagsView.currentIndex);
-                                        Cx.Network.del(urls.tagsUrl() + m.id, appSettings.basicAuth(), (resp)=>{
+                                        // urls.tagsUrl() + m.id
+                                        CxNetwork.del(URLs.url("tags/"+m.id), AppConfig.basicAuth(), (resp)=>{
                                                            try {
                                                                tagsView.update();
                                                            } catch(e) {
@@ -522,7 +493,8 @@ ApplicationWindow {
 
             function edit(postID) {
                 mask.showMask();
-                Cx.Network.get(urls.postsUrl() + postID, appSettings.basicAuth(), (resp)=>{
+                // urls.postsUrl() + postID
+                CxNetwork.get(URLs.url("posts/"+postID), AppConfig.basicAuth(), (resp)=>{
                                    try {
                                        const res = JSON.parse(resp);
                                        const body = res.body;
@@ -585,8 +557,8 @@ ApplicationWindow {
             header: ToolBar {
                 RowLayout {
                     anchors.fill: parent
-                    anchors.leftMargin: Cx.Theme.baseMargin
-                    anchors.rightMargin: Cx.Theme.baseMargin
+                    anchors.leftMargin: CxTheme.baseMargin
+                    anchors.rightMargin: CxTheme.baseMargin
 
                     Button {
                         visible: popup.editable
@@ -607,7 +579,8 @@ ApplicationWindow {
                         text: qsTr("Remove")
                         onClicked: {
                             mask.showMask();
-                            Cx.Network.del(urls.postsUrl() + popup.postID, appSettings.basicAuth(), (resp)=>{
+                            // urls.postsUrl() + popup.postID
+                            CxNetwork.del(URLs.url("posts/"+popup.postID), AppConfig.basicAuth(), (resp)=>{
                                                popup.postID = 0;
                                                popup.ok(0);
                                                popup.close();
@@ -622,7 +595,8 @@ ApplicationWindow {
                         text: qsTr("Recovery")
                         onClicked: {
                             mask.showMask();
-                            Cx.Network.put(urls.postsUrl() + "status/" + popup.postID + "?status=0", appSettings.basicAuth(), null, (resp)=>{
+                            // urls.postsUrl() + "status/" + popup.postID + "?status=0"
+                            CxNetwork.put(URLs.url("posts/status/"+popup.postID, "status=0"), AppConfig.basicAuth(), null, (resp)=>{
                                                post.postID = 0;
                                                popup.ok(0);
                                                popup.close();
@@ -636,7 +610,8 @@ ApplicationWindow {
                         text: qsTr("Delete")
                         onClicked: {
                             mask.showMask();
-                            Cx.Network.del(urls.postsUrl() + popup.postID + "?del=1", appSettings.basicAuth(), (resp)=>{
+                            // urls.postsUrl() + popup.postID + "?del=1"
+                            CxNetwork.del(URLs.url("posts/"+popup.postID,"del=1"), AppConfig.basicAuth(), (resp)=>{
                                                popup.postID = 0;
                                                popup.ok(0);
                                                popup.close();
@@ -672,13 +647,13 @@ ApplicationWindow {
                     anchors.fill: parent
                     Flow {
                         Layout.fillWidth: true
-                        Layout.topMargin: Cx.BoxTheme.topPadding
+                        Layout.topMargin: BoxTheme.topPadding
                         spacing: 0
-                        leftPadding: Cx.BoxTheme.leftPadding
+                        leftPadding: BoxTheme.leftPadding
 
                         Repeater {
                             id: tagRepeater
-                            model: Cx.ListModel {
+                            model: CxListModel {
                                 roleNames: ["id","title"]
                             }
                             delegate: Button {
@@ -690,12 +665,13 @@ ApplicationWindow {
                     Rectangle {
                         Layout.fillWidth: true
                         height: 1
-                        color: Cx.Theme.bgDeepColor
+                        color: CxTheme.bgDeepColor
                     }
 
                     ScrollView {
                         Layout.fillWidth: true
                         Layout.fillHeight: true
+                        clip: true
                         Flickable {
                             anchors.fill: parent
                             contentWidth: parent.width
@@ -708,13 +684,13 @@ ApplicationWindow {
                                 width: parent.width
                                 readOnly: !popup.editable
                                 tabStopDistance: 40
-                                wrapMode: appSettings.contentLineWrap === true ? TextArea.WrapAnywhere : TextArea.NoWrap
+                                wrapMode: CxSettings.get(AppConfig.settings.contentLineWrap) === true ? TextArea.WrapAnywhere : TextArea.NoWrap
                                 selectByMouse: true
-                                font.pointSize: appSettings.contentFontPointSize
-                                leftPadding: Cx.Theme.baseMargin * 2
-                                rightPadding: Cx.Theme.baseMargin * 2
+                                font.pointSize: CxSettings.get(AppConfig.settings.contentFontPointSize)
+                                leftPadding: CxTheme.baseMargin * 2
+                                rightPadding: CxTheme.baseMargin * 2
 
-                                Cx.SyntaxHighlighter {
+                                CxSyntaxHighlighter {
                                     target: textArea.textDocument
                                 }
 
@@ -729,7 +705,7 @@ ApplicationWindow {
 
             footer: Text {
                 id: createdAtField
-                padding: Cx.Theme.baseMargin
+                padding: CxTheme.baseMargin
                 horizontalAlignment: Qt.AlignRight
             }
 
@@ -752,7 +728,8 @@ ApplicationWindow {
 
                     mask.showMask();
                     if (popup.postID <= 0) {
-                        Cx.Network.post(urls.postsUrl(), appSettings.basicAuth(), obj,(resp)=>{
+                        // urls.postsUrl()
+                        CxNetwork.post(URLs.url("posts/"), AppConfig.basicAuth(), obj,(resp)=>{
                                             try {
                                                 const res = JSON.parse(resp);
                                                 const body = res.body;
@@ -767,7 +744,8 @@ ApplicationWindow {
                                             banner.show('Data saved .')
                                         });
                     } else {
-                        Cx.Network.put(urls.postsUrl(), appSettings.basicAuth(), obj,(resp)=>{
+                        // urls.postsUrl()
+                        CxNetwork.put(URLs.url("posts/"), AppConfig.basicAuth(), obj,(resp)=>{
                                            try {
                                                const res = JSON.parse(resp);
                                                const body = res.body;
@@ -831,7 +809,7 @@ ApplicationWindow {
                 clip: true
                 boundsBehavior: Flickable.DragOverBounds
 
-                model: Cx.ListModel {
+                model: CxListModel {
                     id: tagModel
                     roleNames: ["id","title","created_at"]
                     Component.onCompleted: {
@@ -840,7 +818,8 @@ ApplicationWindow {
 
                     function update() {
                         mask.showMask();
-                        Cx.Network.get(urls.tagsUrl(), appSettings.basicAuth(), (resp)=>{
+                        // urls.tagsUrl()
+                        CxNetwork.get(URLs.url("tags/"), AppConfig.basicAuth(), (resp)=>{
                                            clear();
                                            try {
                                                const res = JSON.parse(resp);
@@ -889,7 +868,7 @@ ApplicationWindow {
                         width: parent.width - 16
                         height: 1
                         x: 8
-                        color: Cx.Theme.bgNormalColor
+                        color: CxTheme.bgNormalColor
                     }
                 }
             }
@@ -923,8 +902,8 @@ ApplicationWindow {
             header: ToolBar {
                 RowLayout {
                     anchors.fill: parent
-                    anchors.leftMargin: Cx.Theme.baseMargin
-                    anchors.rightMargin: Cx.Theme.baseMargin
+                    anchors.leftMargin: CxTheme.baseMargin
+                    anchors.rightMargin: CxTheme.baseMargin
 
                     Item {
                         Layout.fillWidth: true
@@ -942,7 +921,7 @@ ApplicationWindow {
                 clip: true
                 boundsBehavior: Flickable.DragOverBounds
 
-                model: Cx.ListModel {
+                model: CxListModel {
                     id: trashModel
                     roleNames: ["id","title","created_at","updated_at"]
 
@@ -953,13 +932,14 @@ ApplicationWindow {
                     function update(tags) {
 
                         mask.showMask();
-                        var tagQuery = "?";
+                        var tagQuery = "";
                         if (tags !== undefined) {
                             for (var i in tags) {
                                 tagQuery += ("tag=" + tags[i] + "&")
                             }
                         }
-                        Cx.Network.get(urls.postsUrl() + tagQuery + "status=" + status.stTrash, appSettings.basicAuth(), (resp)=>{
+                        // urls.postsUrl() + tagQuery + "status=" + status.stTrash
+                        CxNetwork.get(URLs.url("posts/", tagQuery + "status=" + AppConfig.status.Trash), AppConfig.basicAuth(), (resp)=>{
                                            trashModel.clear();
                                            try {
                                                const res = JSON.parse(resp);
@@ -989,11 +969,11 @@ ApplicationWindow {
 
                 delegate: Item {
                     width: trashView.contentItem !== null ? trashView.contentItem.width : 0
-                    height: Cx.Theme.contentHeight
+                    height: CxTheme.contentHeight
 
                     Text {
                         anchors.fill: parent
-                        anchors.leftMargin: Cx.Theme.baseMargin * 2
+                        anchors.leftMargin: CxTheme.baseMargin * 2
                         anchors.bottomMargin: 1
                         font.pointSize: app.font.pointSize + 2
                         textFormat: Text.RichText
@@ -1015,10 +995,10 @@ ApplicationWindow {
 
                     Rectangle {
                         anchors.bottom: parent.bottom
-                        width: parent.width - Cx.Theme.baseMargin * 2
+                        width: parent.width - CxTheme.baseMargin * 2
                         height: 1
-                        x: Cx.Theme.baseMargin
-                        color: Cx.Theme.bgNormalColor
+                        x: CxTheme.baseMargin
+                        color: CxTheme.bgNormalColor
                     }
                 }
             }
@@ -1050,8 +1030,8 @@ ApplicationWindow {
             header: ToolBar {
                 RowLayout {
                     anchors.fill: parent
-                    anchors.leftMargin: Cx.Theme.baseMargin
-                    anchors.rightMargin: Cx.Theme.baseMargin
+                    anchors.leftMargin: CxTheme.baseMargin
+                    anchors.rightMargin: CxTheme.baseMargin
 
                     Button {
                         text: qsTr("Save")
@@ -1075,12 +1055,12 @@ ApplicationWindow {
                 GridLayout {
                     anchors.fill: parent
                     columns: 2
-                    columnSpacing: Cx.Theme.baseMargin
-                    rowSpacing: Cx.Theme.baseMargin
+                    columnSpacing: CxTheme.baseMargin
+                    rowSpacing: CxTheme.baseMargin
 
                     Label {
                         Layout.fillWidth: true
-                        Layout.margins: Cx.Theme.baseMargin
+                        Layout.margins: CxTheme.baseMargin
                         Layout.columnSpan: 2
                         // horizontalAlignment: Qt.AlignHCenter
                         text: qsTr("Content Editor")
@@ -1090,30 +1070,30 @@ ApplicationWindow {
 
                     CheckBox {
                         Layout.columnSpan: 2
-                        Layout.margins: Cx.Theme.baseMargin
+                        Layout.margins: CxTheme.baseMargin
                         text: qsTr("Line Wrap")
                         onCheckStateChanged: {
-                            appSettings.contentLineWrap = (checkState === Qt.Checked);
+                            CxSettings.set(AppConfig.settings.contentLineWrap, (checkState === Qt.Checked));
                         }
                         Component.onCompleted: {
-                            checkState = appSettings.contentLineWrap === true ? Qt.Checked : Qt.Unchecked;
+                            checkState = CxSettings.get(AppConfig.settings.contentLineWrap) === "true" ? Qt.Checked : Qt.Unchecked;
                         }
                     }
 
                     Label {
                         text: qsTr("Font Point Size")
-                        Layout.margins: Cx.Theme.baseMargin
+                        Layout.margins: CxTheme.baseMargin
                     }
 
                     ComboBox {
                         model: [9,10,11,12,13,14]
                         currentIndex: 0
                         onCurrentIndexChanged: {
-                             appSettings.contentFontPointSize = parseInt(textAt(currentIndex))
+                             CxSettings.set(AppConfig.settings.contentFontPointSize, parseInt(textAt(currentIndex)))
                         }
 
                         Component.onCompleted: {
-                            const curVal = appSettings.contentFontPointSize
+                            const curVal = CxSettings.get(AppConfig.settings.contentFontPointSize)
                             for (var i = 0; i < count; ++i) {
                                 if (textAt(i) === curVal.toString()) {
                                     currentIndex = i;
@@ -1125,7 +1105,7 @@ ApplicationWindow {
 
                     Label {
                         Layout.fillWidth: true
-                        Layout.margins: Cx.Theme.baseMargin
+                        Layout.margins: CxTheme.baseMargin
                         Layout.columnSpan: 2
                         // horizontalAlignment: Qt.AlignHCenter
                         text: qsTr("Server")
@@ -1135,57 +1115,57 @@ ApplicationWindow {
 
                     Label {
                         text: qsTr("Host")
-                        Layout.margins: Cx.Theme.baseMargin
+                        Layout.margins: CxTheme.baseMargin
                     }
 
                     TextField {
                         onEditingFinished: {
-                            appSettings.host = text.trim();
+                            CxSettings.set(AppConfig.settings.host,text.trim());
                         }
                         Component.onCompleted: {
-                            text = appSettings.host;
+                            text = CxSettings.get(AppConfig.settings.host);
                         }
                     }
 
                     Label {
                         text: qsTr("Port")
-                        Layout.margins: Cx.Theme.baseMargin
+                        Layout.margins: CxTheme.baseMargin
                     }
 
                     TextField {
                         onEditingFinished: {
-                            appSettings.port = parseInt(text.trim());
+                            CxSettings.set(AppConfig.settings.port, parseInt(text.trim()));
                         }
                         Component.onCompleted: {
-                            text = appSettings.port;
+                            text = CxSettings.get(AppConfig.settings.port);
                         }
                     }
 
                     Label {
                         text: qsTr("Auth key")
-                        Layout.margins: Cx.Theme.baseMargin
+                        Layout.margins: CxTheme.baseMargin
                     }
 
                     TextField {
                         onEditingFinished: {
-                            appSettings.basicAuthKey = text.trim();
+                            CxSettings.set(AppConfig.settings.basicAuthKey, text.trim());
                         }
                         Component.onCompleted: {
-                            text = appSettings.basicAuthKey;
+                            text = CxSettings.get(AppConfig.settings.basicAuthKey);
                         }
                     }
 
                     Label {
                         text: qsTr("Auth value")
-                        Layout.margins: Cx.Theme.baseMargin
+                        Layout.margins: CxTheme.baseMargin
                     }
 
                     TextField {
                         onEditingFinished: {
-                            appSettings.basicAuthValue = text.trim();
+                            CxSettings.set(AppConfig.settings.basicAuthValue, text.trim());
                         }
                         Component.onCompleted: {
-                            text = appSettings.basicAuthValue;
+                            text = CxSettings.get(AppConfig.settings.basicAuthValue);
                         }
                     }
 
@@ -1225,8 +1205,8 @@ ApplicationWindow {
             header: ToolBar {
                 RowLayout {
                     anchors.fill: parent
-                    anchors.leftMargin: Cx.Theme.baseMargin
-                    anchors.rightMargin: Cx.Theme.baseMargin
+                    anchors.leftMargin: CxTheme.baseMargin
+                    anchors.rightMargin: CxTheme.baseMargin
 
                     Button {
                         text: qsTr("Save")
@@ -1240,7 +1220,8 @@ ApplicationWindow {
                             };
 
                             if (popup.tagID === 0) {
-                                Cx.Network.post(urls.tagsUrl(), appSettings.basicAuth(), obj, (resp)=>{
+                                // urls.tagsUrl()
+                                CxNetwork.post(URLs.url("tags/"), AppConfig.basicAuth(), obj, (resp)=>{
                                                     try {
                                                         const res = JSON.parse(resp);
                                                         const body = res.body;
@@ -1253,7 +1234,8 @@ ApplicationWindow {
                                                     mask.hideMask();
                                                 });
                             } else {
-                                Cx.Network.put(urls.tagsUrl(), appSettings.basicAuth(), obj, (resp)=>{
+                                // urls.tagsUrl()
+                                CxNetwork.put(URLs.url("tags/"), AppConfig.basicAuth(), obj, (resp)=>{
                                                     try {
                                                         const res = JSON.parse(resp);
                                                         const body = res.body;
@@ -1272,7 +1254,8 @@ ApplicationWindow {
                     Button {
                         text: qsTr("Remove")
                         onClicked: {
-                            Cx.Network.del(urls.tagsUrl() + popup.tagID, appSettings.basicAuth(), (resp)=>{
+                            // urls.tagsUrl() + popup.tagID
+                            CxNetwork.del(URLs.url("tags/"+popup.tagID), AppConfig.basicAuth(), (resp)=>{
                                                popup.tagID = 0;
                                                tagTitleField.text = "";
                                                popup.close();
@@ -1300,7 +1283,7 @@ ApplicationWindow {
                 implicitHeight: 100
                 Row {
                     anchors.centerIn: parent
-                    spacing: Cx.Theme.baseMargin
+                    spacing: CxTheme.baseMargin
                     Label { text: qsTr("Tag") }
                     TextField { id: tagTitleField }
                 }
@@ -1332,8 +1315,8 @@ ApplicationWindow {
             header: ToolBar {
                 RowLayout {
                     anchors.fill: parent
-                    anchors.leftMargin: Cx.Theme.baseMargin
-                    anchors.rightMargin: Cx.Theme.baseMargin
+                    anchors.leftMargin: CxTheme.baseMargin
+                    anchors.rightMargin: CxTheme.baseMargin
 
                     Button {
                         text: qsTr("Ok")
@@ -1371,12 +1354,13 @@ ApplicationWindow {
                     return checked;
                 }
 
-                model: Cx.ListModel {
+                model: CxListModel {
                     id: tagsModel
                     roleNames: ["id","title","check"]
                     Component.onCompleted: {
                         mask.showMask();
-                        Cx.Network.get(urls.tagsUrl(), appSettings.basicAuth(), (resp)=>{
+                        // urls.tagsUrl()
+                        CxNetwork.get(URLs.url("tags/"), AppConfig.basicAuth(), (resp)=>{
                                            try {
                                                const res = JSON.parse(resp);
                                                const body = res.body;
@@ -1397,7 +1381,7 @@ ApplicationWindow {
                     checkState: model.check ? Qt.Checked : Qt.Unchecked
                     text: model.title
                     onCheckStateChanged: {
-                        tagsModel.set(model.index,"check", (checkState === Qt.Checked ? true : false))
+                        tagsModel.set(model.index, "check", (checkState === Qt.Checked ? true : false))
                     }
                 }
             }
@@ -1418,8 +1402,8 @@ ApplicationWindow {
             header: ToolBar {
                 RowLayout {
                     anchors.fill: parent
-                    anchors.leftMargin: Cx.Theme.baseMargin
-                    anchors.rightMargin: Cx.Theme.baseMargin
+                    anchors.leftMargin: CxTheme.baseMargin
+                    anchors.rightMargin: CxTheme.baseMargin
 
                     Button {
                         text: qsTr("Save")
@@ -1468,7 +1452,7 @@ ApplicationWindow {
         y: app.height - implicitHeight - 4
     }
 
-    Cx.Mask {
+    Mask {
         id: mask
         anchors.fill: parent
         maskItem: mainPage

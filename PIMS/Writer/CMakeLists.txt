@@ -46,6 +46,7 @@ target_link_libraries(Writer
     Qt${QT_VERSION_MAJOR}::Widgets
     Qt${QT_VERSION_MAJOR}::Sql
     Qt${QT_VERSION_MAJOR}::QuickControls2
+    CxCore
     CxApp
 )
 

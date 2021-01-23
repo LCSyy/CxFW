@@ -3,5 +3,7 @@
         <file>main.qml</file>
         <file>qtquickcontrols2.conf</file>
         <file>icons/Writer-logo.png</file>
+        <file>qml/ContentPage.qml</file>
+        <file>qml/AppConfigs.js</file>
     </qresource>
 </RCC>
