@@ -130,7 +130,11 @@ ApplicationWindow {
             id: actionRefresh
             text: qsTr("Refresh")
             onTriggered: {
+                const idx = tagsView.currentIndex;
                 tagsView.update();
+                if (idx === 0) {
+                    contentsModel.update();
+                }
             }
         }
 
@@ -147,7 +151,8 @@ ApplicationWindow {
             target: null
 
             function onOk(id) {
-                tagsView.update();
+                // tagsView.update();
+                contentsModel.update();
             }
         }
 
@@ -182,6 +187,12 @@ ApplicationWindow {
                 if (tags !== undefined) {
                     for (var i in tags) {
                         tagQuery += ("tag=" + tags[i] + "&")
+                    }
+                } else {
+                    // get current tag index.
+                    const tagID = tagsView.model.get(tagsView.currentIndex).id;
+                    if (tagID > 0) {
+                        tagQuery = "tag=" + tagID;
                     }
                 }
                 CxNetwork.get(URLs.url("posts/", tagQuery), AppConfig.basicAuth(), (resp)=>{
@@ -327,21 +338,16 @@ ApplicationWindow {
                         currentIndex: (CxSettings.get(AppConfig.settings.defaultNavi) || -1)
 
                         onCurrentIndexChanged: {
-                            if (tagsView.currentIndex !== -1) {
-                                const row = tagsView.model.get(tagsView.currentIndex);
-                                if (row !== undefined) {
-                                    if (row.id <= 0) {
-                                        contentsModel.update([]);
-                                    } else {
-                                        contentsModel.update([row.id]);
-                                    }
-                                }
+                            if (tagsView.currentIndex !== -1 && tagsView.model.count() > currentIndex) {
+                                contentsModel.update();
                             } else {
                                 contentsModel.clear();
                             }
                         }
 
-                        Component.onDestruction: {
+                        Component.onDestruction: saveState()
+
+                        function saveState() {
                             const c = tagsView.model.count();
                             CxSettings.beginWriteArray(AppConfig.settings.naviExpandArray);
                             for (var i = 0; i < c; ++i) {
@@ -355,10 +361,11 @@ ApplicationWindow {
 
                         function update() {
                             mask.showMask();
+                            saveState();
                             // urls.tagsUrl()
                             CxNetwork.get(URLs.url("tags/"), AppConfig.basicAuth(), (resp)=>{
                                                try {
-                                                   const oldIdx = tagsView.currentIndex
+                                                   const oldIdx = tagsView.currentIndex;
 
                                                    const res = JSON.parse(resp);
                                                    const body = res.body;
@@ -369,9 +376,7 @@ ApplicationWindow {
                                                   for (var i = 0; i < c; ++i) {
                                                       CxSettings.setArrayIndex(i);
                                                       const expand = CxSettings.get(AppConfig.settings.naviItemExpand) === "true" ? true : false;
-                                                      if (expand === true) {
-                                                          tagsView.expandIndex(i, expand);
-                                                      }
+                                                      tagsView.expandIndex(i, expand);
                                                   }
                                                   CxSettings.endArray();
 
@@ -681,10 +686,10 @@ ApplicationWindow {
 
                             TextArea {
                                 id: textArea
-                                width: parent.width
+                                anchors.fill: parent
                                 readOnly: !popup.editable
                                 tabStopDistance: 40
-                                wrapMode: CxSettings.get(AppConfig.settings.contentLineWrap) === true ? TextArea.WrapAnywhere : TextArea.NoWrap
+                                wrapMode: CxSettings.get(AppConfig.settings.contentLineWrap) === "true" ? TextArea.WrapAnywhere : TextArea.NoWrap
                                 selectByMouse: true
                                 font.pointSize: CxSettings.get(AppConfig.settings.contentFontPointSize)
                                 leftPadding: CxTheme.baseMargin * 2

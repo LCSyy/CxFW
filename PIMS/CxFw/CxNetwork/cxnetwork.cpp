@@ -98,6 +98,7 @@ void CxNetwork::onReply()
 
 //    qDebug() << "STATUS:" << reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
 
+    qDebug() << "REPLY:" << reply->operation() << reply->url().toString();
     QJSValue handler = m_responseHanlders.take(reply);
     if (handler.isCallable()) {
         handler.call(QJSValueList() << QJSValue(QString(reply->readAll())));

@@ -29,7 +29,6 @@ const settings = {
     naviSize: 300,
 };
 
-
 function basicAuth() {
     var auth = {
         "Authorization": Cx.CxSettings.get(settings.basicAuthKey) + ":" + Cx.CxSettings.get(settings.basicAuthValue),
