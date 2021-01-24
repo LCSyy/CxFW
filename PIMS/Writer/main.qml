@@ -676,32 +676,23 @@ ApplicationWindow {
                     ScrollView {
                         Layout.fillWidth: true
                         Layout.fillHeight: true
-                        clip: true
-                        Flickable {
-                            anchors.fill: parent
-                            contentWidth: parent.width
-                            contentHeight: textArea.contentHeight
-                            boundsBehavior: Flickable.StopAtBounds
-                            boundsMovement: Flickable.FollowBoundsBehavior
 
-                            TextArea {
-                                id: textArea
-                                anchors.fill: parent
-                                readOnly: !popup.editable
-                                tabStopDistance: 40
-                                wrapMode: CxSettings.get(AppConfig.settings.contentLineWrap) === "true" ? TextArea.WrapAnywhere : TextArea.NoWrap
-                                selectByMouse: true
-                                font.pointSize: CxSettings.get(AppConfig.settings.contentFontPointSize)
-                                leftPadding: CxTheme.baseMargin * 2
-                                rightPadding: CxTheme.baseMargin * 2
+                        TextArea {
+                            id: textArea
+                            readOnly: !popup.editable
+                            tabStopDistance: 40
+                            wrapMode: CxSettings.get(AppConfig.settings.contentLineWrap) === "true" ? TextArea.WrapAnywhere : TextArea.NoWrap
+                            selectByMouse: true
+                            font.pointSize: CxSettings.get(AppConfig.settings.contentFontPointSize)
+                            leftPadding: CxTheme.baseMargin * 2
+                            rightPadding: CxTheme.baseMargin * 2
 
-                                CxSyntaxHighlighter {
-                                    target: textArea.textDocument
-                                }
+                            CxSyntaxHighlighter {
+                                target: textArea.textDocument
+                            }
 
-                                onTextChanged: {
-                                    popup.changed = true
-                                }
+                            onTextChanged: {
+                                popup.changed = true
                             }
                         }
                     }
