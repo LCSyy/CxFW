@@ -217,99 +217,98 @@ ApplicationWindow {
             anchors.fill: parent
             orientation: Qt.Horizontal
 
-            ListView {
-                id: contentListView
+            ScrollView {
                 SplitView.fillWidth: true
                 SplitView.fillHeight: true
-                boundsBehavior: Flickable.DragOverBounds
+                ScrollBar.horizontal.policy: ScrollBar.AlwaysOff
 
-                clip: true
+                ListView {
+                    id: contentListView
+                    width: parent.width
+                    boundsBehavior: Flickable.DragOverBounds
+                    clip: true
+                    model: contentsModel
 
-                model: contentsModel
+                    delegate: LinkItem {
+                        width: parent !== null ? parent.width : 0
 
-                delegate: LinkItem {
-                    width: parent !== null ? parent.width : 0
-                    height: 40
+                        text: '<a href="%1" style="color:black">%2</a>'.replace('%1',model.id).replace('%2',model.title)
+                        dateTime: '<small>%1</small>'.replace('%1',model.updated_at)
 
-                    text: {
-                        var str = '<a href="%1" style="color:black">%2</a>'.replace('%1',model.id)
-                        str = str.replace('%2',model.title)
-                        return '<small>%1 - </small>'.replace('%1',model.updated_at) + '<b>%1</b>'.replace('%1',str)
-                    }
+                        badges: model.badges
 
-                    badges: model.badges
-
-                    onLinkClicked: {
-                        var pp = contentComponent.createObject(mainPage);
-                        contentConnection.target = pp;
-                        pp.edit(link);
-                    }
-                }
-
-                MouseArea {
-                    acceptedButtons: Qt.RightButton
-                    anchors.fill: parent
-                    onClicked: {
-                        const idx = CxFw.mouseClickMapToListViewIndex(this, contentListView, mouse);
-                        contentListView.currentIndex = idx;
-                        if (idx !== -1) {
-                            pinAction.pinned = contentsModel.hasBadge(idx, AppConfig.badges.Rank)
-                            contentMenu.popup();
-                            mouse.accepted = true;
+                        onLinkClicked: {
+                            var pp = contentComponent.createObject(mainPage);
+                            contentConnection.target = pp;
+                            pp.edit(link);
                         }
                     }
-                }
 
-                Menu {
-                    id: contentMenu
-                    Action {
-                        id: pinAction
-                        text: pinned ? qsTr("Unpin") : qsTr("Pin")
-
-                        property bool pinned: false
-
-                        onTriggered: {
-                            mask.showMask();
-
-                            const curItem = contentsModel.get(contentListView.currentIndex);
-                            if ((curItem.id || 0) === 0) {
-                                return;
-                            }
-
-                            const data = {
-                                post_id: curItem.id,
-                                badge_name: AppConfig.badges.Rank,
-                                badge_value: "",
-                            };
-
-                            if (pinAction.pinned === true) {
-                                // urls.postBadgesUrl()
-                                CxNetwork.del2(URLs.url("badges/"), AppConfig.basicAuth(), data, (resp)=>{
-                                                    try {
-                                                        contentConnection.onOk(0);
-                                                    } catch(e) {
-                                                        console.log(e);
-                                                    }
-                                                    mask.hideMask();
-                                                })
-                            } else {
-                                // urls.postBadgesUrl()
-                                CxNetwork.post(URLs.url("badges/"), AppConfig.basicAuth(), data, (resp)=>{
-                                                    try {
-                                                        contentConnection.onOk(0);
-                                                    } catch(e) {
-                                                        console.log(e);
-                                                    }
-                                                    mask.hideMask();
-                                                })
+                    MouseArea {
+                        acceptedButtons: Qt.RightButton
+                        anchors.fill: parent
+                        onClicked: {
+                            const idx = CxFw.mouseClickMapToListViewIndex(this, contentListView, mouse);
+                            contentListView.currentIndex = idx;
+                            if (idx !== -1) {
+                                pinAction.pinned = contentsModel.hasBadge(idx, AppConfig.badges.Rank)
+                                contentMenu.popup();
+                                mouse.accepted = true;
                             }
                         }
                     }
 
-                    MenuSeparator {}
+                    Menu {
+                        id: contentMenu
+                        Action {
+                            id: pinAction
+                            text: pinned ? qsTr("Unpin") : qsTr("Pin")
 
-                    Action {
-                        text: qsTr("Remove")
+                            property bool pinned: false
+
+                            onTriggered: {
+                                mask.showMask();
+
+                                const curItem = contentsModel.get(contentListView.currentIndex);
+                                if ((curItem.id || 0) === 0) {
+                                    return;
+                                }
+
+                                const data = {
+                                    post_id: curItem.id,
+                                    badge_name: AppConfig.badges.Rank,
+                                    badge_value: "",
+                                };
+
+                                if (pinAction.pinned === true) {
+                                    // urls.postBadgesUrl()
+                                    CxNetwork.del2(URLs.url("badges/"), AppConfig.basicAuth(), data, (resp)=>{
+                                                        try {
+                                                            contentConnection.onOk(0);
+                                                        } catch(e) {
+                                                            console.log(e);
+                                                        }
+                                                        mask.hideMask();
+                                                    })
+                                } else {
+                                    // urls.postBadgesUrl()
+                                    CxNetwork.post(URLs.url("badges/"), AppConfig.basicAuth(), data, (resp)=>{
+                                                        try {
+                                                            contentConnection.onOk(0);
+                                                        } catch(e) {
+                                                            console.log(e);
+                                                        }
+                                                        mask.hideMask();
+                                                    })
+                                }
+                            }
+                        }
+
+                        MenuSeparator {}
+
+                        Action {
+                            text: qsTr("Remove")
+                        }
                     }
                 }
             }
@@ -430,7 +429,6 @@ ApplicationWindow {
                                     text: qsTr("Edit")
                                     onTriggered: {
                                         const m = tagsView.model.get(tagsView.currentIndex);
-                                        console.log('Edit tag:',JSON.stringify(m));
                                         var tag = tagEditComponent.createObject(mainPage);
                                          tagNewConnection.target = tag;
                                         tag.edit({id: m.id, title: m.title, parent: m.parent});
@@ -800,75 +798,6 @@ ApplicationWindow {
                 }
             }
 
-            body: ListView {
-                id: tagList
-                clip: true
-                boundsBehavior: Flickable.DragOverBounds
-
-                model: CxListModel {
-                    id: tagModel
-                    roleNames: ["id","title","created_at"]
-                    Component.onCompleted: {
-                        update();
-                    }
-
-                    function update() {
-                        mask.showMask();
-                        // urls.tagsUrl()
-                        CxNetwork.get(URLs.url("tags/"), AppConfig.basicAuth(), (resp)=>{
-                                           clear();
-                                           try {
-                                               const res = JSON.parse(resp);
-                                               const body = res.body;
-                                               for (var i in body) {
-                                                   var row = body[i];
-                                                   tagModel.append(row);
-                                               }
-                                           } catch(e) {
-                                               console.log(e);
-                                           }
-                                           mask.hideMask();
-                                       });
-                    }
-                }
-
-                delegate:  Item {
-                    width: parent === null ? 0 : parent.width
-                    height: 25
-
-                    Text {
-                        anchors.fill: parent
-                        anchors.leftMargin: 16
-                        anchors.bottomMargin: 1
-                        font.pointSize: app.font.pointSize + 2
-                        textFormat: Qt.RichText
-                        verticalAlignment: Qt.AlignVCenter
-                        text: '<a href="%1">%2</a>'.replace("%1",model.id).replace("%2",model.title)
-
-                        onLinkActivated: {
-                            var tag = tagEditComponent.createObject(popup.contentItem);
-                            tagEditConn.target = tag;
-                            var row = {};
-                            for (var i = 0; i < tagModel.count(); ++i) {
-                                row = tagModel.get(i);
-                                if (row.id === model.id) {
-                                    break;
-                                }
-                            }
-                            tag.edit(row);
-                        }
-                    }
-
-                    Rectangle {
-                        anchors.bottom: parent.bottom
-                        width: parent.width - 16
-                        height: 1
-                        x: 8
-                        color: CxTheme.bgNormalColor
-                    }
-                }
-            }
-
             Connections {
                 id: tagEditConn
                 target: null
@@ -876,6 +805,89 @@ ApplicationWindow {
                 function onOk(tagID, tagTitle) {
                     tagModel.update();
                     popup.ok(tagID,tagTitle);
+                }
+            }
+
+            body: ScrollView {
+                anchors.fill: parent.contentItem
+                Flow {
+                    width: popup.width
+                    id: tags
+                    padding: BoxTheme.padding
+
+                    Repeater {
+                        anchors.fill: parent
+                        model: CxListModel {
+                            id: tagModel
+                            roleNames: ["id","title","created_at"]
+                            Component.onCompleted: {
+                                update();
+                            }
+
+                            function update() {
+                                mask.showMask();
+                                // urls.tagsUrl()
+                                CxNetwork.get(URLs.url("tags/"), AppConfig.basicAuth(), (resp)=>{
+                                                   clear();
+                                                   try {
+                                                       const res = JSON.parse(resp);
+                                                       const body = res.body;
+                                                       for (var i in body) {
+                                                           var row = body[i];
+                                                           tagModel.append(row);
+                                                       }
+                                                   } catch(e) {
+                                                       console.log(e);
+                                                   }
+                                                   mask.hideMask();
+                                               });
+                            }
+                        }
+
+                        delegate: Button {
+                            text: model.title
+                            onClicked: {
+                                var tag = tagEditComponent.createObject(popup.contentItem);
+                                tagEditConn.target = tag;
+                                var row = {};
+                                for (var i = 0; i < tagModel.count(); ++i) {
+                                    row = tagModel.get(i);
+                                    if (row.id === model.id) {
+                                        break;
+                                    }
+                                }
+                                tag.edit(row);
+                            }
+                        }
+
+                        /*
+                        Item {
+                            width: tag.contentWidth + tag.anchors.leftMargin + tag.anchors.rightMargin
+                            height: 25
+
+                            Text {
+                                id: tag
+                                font.pointSize: app.font.pointSize + 2
+                                textFormat: Qt.RichText
+                                verticalAlignment: Qt.AlignVCenter
+                                text: '<a href="%1">%2</a>'.replace("%1",model.id).replace("%2",model.title)
+
+                                onLinkActivated: {
+                                    var tag = tagEditComponent.createObject(popup.contentItem);
+                                    tagEditConn.target = tag;
+                                    var row = {};
+                                    for (var i = 0; i < tagModel.count(); ++i) {
+                                        row = tagModel.get(i);
+                                        if (row.id === model.id) {
+                                            break;
+                                        }
+                                    }
+                                    tag.edit(row);
+                                }
+                            }
+                        }
+                        */
+                    }
                 }
             }
         }
@@ -1317,7 +1329,7 @@ ApplicationWindow {
                     Button {
                         text: qsTr("Ok")
                         onClicked: {
-                            const checkedTags = listView.checkedTags();
+                            const checkedTags = tagsModel.checkedTags();
                             popup.ok(checkedTags);
                         }
                     }
@@ -1335,7 +1347,63 @@ ApplicationWindow {
                 }
             }
 
-            body: ListView {
+            body: ScrollView {
+                Flow {
+                    width: popup.width
+                    padding: BoxTheme.padding
+                    spacing: BoxTheme.spacing
+                    Repeater {
+                        model: CxListModel {
+                            id: tagsModel
+                            roleNames: ["id","title","check"]
+
+                            function checkedTags() {
+                                var checked = [];
+                                for (var i = 0; i < tagsModel.count(); ++i) {
+                                    const obj = tagsModel.get(i);
+                                    if (obj.check === true) {
+                                        checked.push({id:obj.id, name: obj.name, title: obj.title });
+                                    }
+                                }
+                                return checked;
+                            }
+
+                            Component.onCompleted: {
+                                mask.showMask();
+                                // urls.tagsUrl()
+                                CxNetwork.get(URLs.url("tags/"), AppConfig.basicAuth(), (resp)=>{
+                                                   try {
+                                                       const res = JSON.parse(resp);
+                                                       const body = res.body;
+                                                       for (var i in body) {
+                                                           var tag = body[i];
+                                                           tag["check"] = false;
+                                                           tagsModel.append(tag);
+                                                       }
+                                                   } catch(e) {
+                                                       console.log(e);
+                                                   }
+                                                   popup.loaded();
+                                                   mask.hideMask();
+                                               });
+                            }
+                        }
+
+                        delegate: Button {
+                            text: model.title
+                            checkable: true
+                            checked: model.check
+                            down: model.check
+                            onToggled: {
+                                tagsModel.set(model.index, "check", checked)
+                            }
+                        }
+                    }
+                }
+            }
+
+            /*
+            ListView {
                 id: listView
                 clip: true
 
@@ -1381,6 +1449,7 @@ ApplicationWindow {
                     }
                 }
             }
+            */
         }
     }
 

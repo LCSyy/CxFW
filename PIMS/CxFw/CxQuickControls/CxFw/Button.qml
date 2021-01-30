@@ -19,7 +19,7 @@ T.Button {
         radius: 2
         implicitWidth: 30
         implicitHeight: 25
-        color: button.pressed ? BoxTheme.backgroundFocus : BoxTheme.backgroundInActive
+        color: button.down ? BoxTheme.backgroundFocus : BoxTheme.backgroundInActive
     }
 
     contentItem: Text {

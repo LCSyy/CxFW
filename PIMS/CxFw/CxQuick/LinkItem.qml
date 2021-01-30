@@ -6,10 +6,15 @@ import CxQuick.Controls 0.1
 Item {
     id: root
 
-    property alias text: text.text
+    property alias text: title.text
+    property alias dateTime: dateTime.text
     property var badges: undefined
 
     signal linkClicked(url link)
+
+    implicitHeight: title.height + title.anchors.topMargin + title.anchors.bottomMargin
+                    + dateTime.height + dateTime.anchors.topMargin + dateTime.anchors.bottomMargin
+                    + line.height + line.anchors.topMargin + line.anchors.bottomMargin
 
 //    onBadgesChanged: {
 //        for (var i in badges) {
@@ -23,21 +28,36 @@ Item {
 //    }
 
     Text {
-        id: text
-        anchors.fill: parent
+        id: title
+        anchors.top: parent.top
+        anchors.topMargin: CxTheme.baseMargin
+        anchors.left: parent.left
         anchors.leftMargin: CxTheme.baseMargin * 2
-        anchors.bottomMargin: 1
         textFormat: Text.RichText
         verticalAlignment: Qt.AlignVCenter
         font.pointSize: Qt.application.font.pointSize + 2
+        font.bold: true
 
         onLinkActivated: {
             root.linkClicked(link);
         }
     }
 
+    Text {
+        id: dateTime
+        anchors.top: title.bottom
+        anchors.topMargin: CxTheme.baseMargin + BoxTheme.spacing
+        anchors.left: parent.left
+        anchors.leftMargin: CxTheme.baseMargin * 2
+        textFormat: Text.RichText
+        verticalAlignment: Qt.AlignVCenter
+        font.pointSize: Qt.application.font.pointSize + 2
+    }
+
     Rectangle {
-        anchors.bottom: parent.bottom
+        id: line
+        anchors.top: dateTime.bottom
+        anchors.topMargin: BoxTheme.spacing
         width: parent.width - CxTheme.baseMargin * 2
         height: (root.badges || null) === null ? 1 : 2
         x: CxTheme.baseMargin

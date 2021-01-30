@@ -12,6 +12,7 @@ QtObject {
     readonly property int leftInset: 0
     readonly property int rightInset: 0
 
+    readonly property int padding: 8
     readonly property int topPadding: 4
     readonly property int bottomPadding: 4
     readonly property int leftPadding: 8
