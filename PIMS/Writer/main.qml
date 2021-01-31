@@ -221,6 +221,7 @@ ApplicationWindow {
                 SplitView.fillWidth: true
                 SplitView.fillHeight: true
                 ScrollBar.horizontal.policy: ScrollBar.AlwaysOff
+                SplitView.minimumWidth: 300
 
                 ListView {
                     id: contentListView
@@ -230,7 +231,7 @@ ApplicationWindow {
                     model: contentsModel
 
                     delegate: LinkItem {
-                        width: parent !== null ? parent.width : 0
+                        width: parent !== null ? parent.width - BoxTheme.rightPadding : 0
 
                         text: '<a href="%1" style="color:black">%2</a>'.replace('%1',model.id).replace('%2',model.title)
                         dateTime: '<small>%1</small>'.replace('%1',model.updated_at)

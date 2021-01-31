@@ -33,10 +33,12 @@ Item {
         anchors.topMargin: CxTheme.baseMargin
         anchors.left: parent.left
         anchors.leftMargin: CxTheme.baseMargin * 2
+        anchors.right: parent.right
         textFormat: Text.RichText
         verticalAlignment: Qt.AlignVCenter
         font.pointSize: Qt.application.font.pointSize + 2
         font.bold: true
+        wrapMode: Text.WrapAtWordBoundaryOrAnywhere
 
         onLinkActivated: {
             root.linkClicked(link);
