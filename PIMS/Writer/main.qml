@@ -191,9 +191,7 @@ ApplicationWindow {
                 } else {
                     // get current tag index.
                     const tagID = tagsView.model.get(tagsView.currentIndex).id;
-                    if (tagID > 0) {
-                        tagQuery = "tag=" + tagID;
-                    }
+                    tagQuery = "tag=" + tagID;
                 }
                 CxNetwork.get(URLs.url("posts/", tagQuery), AppConfig.basicAuth(), (resp)=>{
                                    contentsModel.clear();
@@ -364,12 +362,16 @@ ApplicationWindow {
                             saveState();
                             // urls.tagsUrl()
                             CxNetwork.get(URLs.url("tags/"), AppConfig.basicAuth(), (resp)=>{
-                                               try {
-                                                   const oldIdx = tagsView.currentIndex;
+                                              try {
+                                                  const oldIdx = tagsView.currentIndex;
 
-                                                   const res = JSON.parse(resp);
-                                                   const body = res.body;
-                                                   tagsView.load(body);
+                                                  const res = JSON.parse(resp);
+                                                  const body = res.body;
+                                                  var tmp = [
+                                                      {id: -1, title: "所有", created_at: "", parent: 0, expand: false, visible: true, level: 0, hasChildren: false },
+                                                      {id: -2, title: "未分类", created_at: "", parent: 0, expand: false, visible: true, level: 0, hasChildren: false }
+                                                  ];
+                                                  tagsView.load(tmp.concat(body));
 
                                                   CxSettings.beginReadArray(AppConfig.settings.naviExpandArray);
                                                   const c = tagsView.model.count();
@@ -718,7 +720,8 @@ ApplicationWindow {
                     };
 
                     for (var i = 0; i < tagRepeater.model.count(); ++i) {
-                        obj.tags.push(tagRepeater.model.get(i).id);
+                        const tagID = tagRepeater.model.get(i).id;
+                        obj.tags.push(tagID > 0 ? tagID : 0);
                     }
 
                     mask.showMask();

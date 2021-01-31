@@ -13,8 +13,7 @@ ListView {
 
     function load(treeItems) {
         treeModel.clear();
-        treeModel.append({id: 0, title: "所有", created_at: "", parent: -1, expand: false, visible: true, level: 0, hasChildren: false });
-        treeModel.loadTree(treeItems, -1, 0)
+        treeModel.loadTree(treeItems, 0, 0)
     }
 
     // @param: index int "条目索引"
@@ -73,7 +72,7 @@ ListView {
                         created_at: item.created_at,
                         parent: item.parent,
                         expand: false,
-                        visible: parentID === -1 ? true : false,
+                        visible: parentID === 0 ? true : false,
                         level: level,
                         hasChildren: false,
                     }
