@@ -96,6 +96,15 @@ void CxListModel::insert(int idx, const QVariantMap &map)
     endInsertRows();
 }
 
+void CxListModel::remove(int idx)
+{
+    if (idx < 0 || count() <= idx) { return; }
+
+    beginRemoveRows(QModelIndex(),idx, idx);
+    m_datas.removeAt(idx);
+    endRemoveRows();
+}
+
 void CxListModel::move(int from, int to)
 {
     Q_UNUSED(from)

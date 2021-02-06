@@ -58,9 +58,9 @@ ApplicationWindow {
         Component.onCompleted: update();
 
         function update() {
-            msgsModel.clear();
             CxNetwork.get(URLs.url(""),  Config.basicAuth(), (resp)=>{
                               try {
+                                  msgsModel.clear();
                                   const reply = JSON.parse(resp);
                                   const body = reply.body || [];
                                   for (var i in body) {
@@ -131,12 +131,13 @@ ApplicationWindow {
             Action {
                 text: qsTr("Remove")
                 onTriggered: {
-                    const m = msgsModel.get(msgView.currentIndex) || null;
+                    const idx = msgView.currentIndex;
+                    const m = msgsModel.get(idx) || null;
                     if (m === null) { return; }
 
                     CxNetwork.del(URLs.url("/"+m.id), Config.basicAuth(), (resp)=>{
                                        try {
-                                           msgsModel.update();
+                                          msgsModel.remove(idx);
                                        } catch(e) {
                                            console.log('[ERROR] Remove tag:'+JSON.stringify(e));
                                        }
