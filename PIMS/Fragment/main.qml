@@ -12,8 +12,8 @@ import "./qml/Config.js" as Config
 
 ApplicationWindow {
     id: app
-    width: 640
-    height: 480
+    width: 920
+    height: 580
     visible: true
     title: qsTr("Fragments")
     color: theme.background
@@ -94,105 +94,117 @@ ApplicationWindow {
         }
     }
 
-    ListView {
-        id: msgView
-        spacing: theme.spacing
-        anchors.top: parent.top
-        anchors.bottom: msgBlock.top
-        anchors.margins: 16
-        width: app.messageBlockSize + theme.padding * 2
-        anchors.horizontalCenter: parent.horizontalCenter
-        model: msgsModel
+    SplitView {
+        anchors.fill: parent
+        orientation: Qt.Horizontal
 
-        delegate: App.MessageItem {
-            anchors.right: parent === null ? undefined : parent.right
-            anchors.rightMargin: theme.padding
-            text: model.content
-            fontSize: theme.bodyContentPointSize
-            textWidth: app.messageBlockSize
+        Rectangle {
+            SplitView.fillHeight: true
+            SplitView.preferredWidth: 200
+            SplitView.maximumWidth: 240
+            SplitView.minimumWidth: 200
         }
 
-        MouseArea {
-            acceptedButtons: Qt.RightButton
-            anchors.fill: parent
-            onClicked: {
-                const idx = CxFw.mouseClickMapToListViewIndex(this, msgView, mouse);
-                msgView.currentIndex = idx;
-                if (idx !== -1) {
-                    msgMenu.popup();
-                    mouse.accepted = true;
+        Column {
+            SplitView.fillWidth: true
+            SplitView.fillHeight: true
+            padding: 4
+            topPadding: 16
+
+            ListView {
+                id: msgView
+                width: parent.width - (parent.leftPadding + parent.rightPadding)
+                spacing: theme.spacing
+                height: parent.height - (parent.topPadding + parent.bottomPadding) - msgBlock.height
+                model: msgsModel
+
+                delegate: App.MessageItem {
+                    anchors.right: parent === null ? undefined : parent.right
+                    anchors.rightMargin: theme.padding
+                    text: model.content
+                    fontSize: theme.bodyContentPointSize
+                    textWidth: app.messageBlockSize
                 }
-            }
-        }
 
-        Menu {
-            id: msgMenu
-
-            Action {
-                text: qsTr("Remove")
-                onTriggered: {
-                    const idx = msgView.currentIndex;
-                    const m = msgsModel.get(idx) || null;
-                    if (m === null) { return; }
-
-                    CxNetwork.del(URLs.url("/"+m.id), Config.basicAuth(), (resp)=>{
-                                       try {
-                                          msgsModel.remove(idx);
-                                       } catch(e) {
-                                           console.log('[ERROR] Remove tag:'+JSON.stringify(e));
-                                       }
-                                   })
-                }
-            }
-        }
-
-    }
-
-    RowLayout {
-        id: msgBlock
-        anchors.bottom: parent.bottom
-        anchors.left: parent.left
-        anchors.right: parent.right
-        anchors.margins: 4
-
-        function sendMsg() {
-            const msg = msgArea.text.trim()
-            if (msg.length > 0) {
-                msgsModel.pushMessage(msg)
-            }
-            msgArea.text = ""
-        }
-
-        Button {
-            text: qsTr("Settings")
-            Layout.alignment: Qt.AlignBottom
-            onClicked: app.openSettings()
-        }
-
-        ScrollView {
-            Layout.fillWidth: true
-
-            contentHeight: Math.min(msgArea.contentHeight + msgArea.topPadding + msgArea.bottomPadding, 300)
-
-            ScrollBar.horizontal.policy: ScrollBar.AlwaysOff
-
-            TextArea {
-                id: msgArea
-                width: parent.width
-                wrapMode: TextEdit.WrapAnywhere
-                background: Rectangle { }
-                Keys.onPressed: {
-                    if ((event.key === Qt.Key_Return) && (event.modifiers & Qt.ControlModifier)) {
-                        msgBlock.sendMsg()
+                MouseArea {
+                    acceptedButtons: Qt.RightButton
+                    anchors.fill: parent
+                    onClicked: {
+                        const idx = CxFw.mouseClickMapToListViewIndex(this, msgView, mouse);
+                        msgView.currentIndex = idx;
+                        if (idx !== -1) {
+                            msgMenu.popup();
+                            mouse.accepted = true;
+                        }
                     }
                 }
-            }
-        }
 
-        Button {
-            text: qsTr("Send")
-            Layout.alignment: Qt.AlignBottom
-            onClicked: msgBlock.sendMsg()
+                Menu {
+                    id: msgMenu
+
+                    Action {
+                        text: qsTr("Remove")
+                        onTriggered: {
+                            const idx = msgView.currentIndex;
+                            const m = msgsModel.get(idx) || null;
+                            if (m === null) { return; }
+
+                            CxNetwork.del(URLs.url("/"+m.id), Config.basicAuth(), (resp)=>{
+                                               try {
+                                                  msgsModel.remove(idx);
+                                               } catch(e) {
+                                                   console.log('[ERROR] Remove tag:'+JSON.stringify(e));
+                                               }
+                                           })
+                        }
+                    }
+                }
+
+            }
+
+            RowLayout {
+                id: msgBlock
+                width: parent.width - (parent.leftPadding + parent.rightPadding)
+                function sendMsg() {
+                    const msg = msgArea.text.trim()
+                    if (msg.length > 0) {
+                        msgsModel.pushMessage(msg)
+                    }
+                    msgArea.text = ""
+                }
+
+                Button {
+                    text: qsTr("Settings")
+                    Layout.alignment: Qt.AlignBottom
+                    onClicked: app.openSettings()
+                }
+
+                ScrollView {
+                    Layout.fillWidth: true
+
+                    contentHeight: Math.min(msgArea.contentHeight + msgArea.topPadding + msgArea.bottomPadding, 300)
+
+                    ScrollBar.horizontal.policy: ScrollBar.AlwaysOff
+
+                    TextArea {
+                        id: msgArea
+                        width: parent.width
+                        wrapMode: TextEdit.WrapAnywhere
+                        background: Rectangle { }
+                        Keys.onPressed: {
+                            if ((event.key === Qt.Key_Return) && (event.modifiers & Qt.ControlModifier)) {
+                                msgBlock.sendMsg()
+                            }
+                        }
+                    }
+                }
+
+                Button {
+                    text: qsTr("Send")
+                    Layout.alignment: Qt.AlignBottom
+                    onClicked: msgBlock.sendMsg()
+                }
+            }
         }
     }
 }
