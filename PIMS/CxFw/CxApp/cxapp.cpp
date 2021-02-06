@@ -23,13 +23,6 @@ CxApp::CxApp(QApplication *app)
     : m_app(app)
 {
     Q_ASSERT_X(m_app, "CxApp::init", "app is null");
-#if !defined(QT_DEBUG)
-    m_app->setQuitOnLastWindowClosed(false);
-#endif
-
-    initTrayIcon();
-    initShortcut();
-
      qmlRegisterSingletonInstance("CxQuick.App", 0, 1,
                                   "Sys", this);
 }
@@ -43,7 +36,10 @@ CxApp::~CxApp()
 
 void CxApp::setGlobalShortcut(const QKeySequence &keyseq)
 {
-    m_shortcut->setKey(keyseq);
+    m_shortcut = new QGlobalShortcut(keyseq, this);
+     connect(m_shortcut,&QGlobalShortcut::activated, this, [this](){
+         emit systemNotify(GlobalShorcut, QPrivateSignal{});
+     });
 }
 
 bool CxApp::setupSingleInstance()
@@ -54,10 +50,12 @@ bool CxApp::setupSingleInstance()
     const QString name = QString("%1.cxfw.liu").arg(QCoreApplication::applicationName());
     QSharedMemory *lock = new QSharedMemory(name, this);
     if (!lock->create(1)) {
+        srv->deleteLater();
         QObject::connect(sock, &QLocalSocket::connected, m_app, &QApplication::quit, Qt::QueuedConnection);
         sock->connectToServer(name);
         return false;
     } else {
+        sock->deleteLater();
         QObject::connect(srv,&QLocalServer::newConnection, m_app, [this, srv](){
             QLocalSocket *sock = srv->nextPendingConnection();
             if (sock) {
@@ -75,8 +73,10 @@ bool CxApp::setupSingleInstance()
     return true;
 }
 
-void CxApp::initTrayIcon()
+void CxApp::initTrayIcon(bool quitOnClose)
 {
+    m_app->setQuitOnLastWindowClosed(quitOnClose);
+
     m_trayIcon = new QSystemTrayIcon(QIcon(QString(":/icons/%1-logo.png").arg(QCoreApplication::applicationName())),m_app);
     m_trayMenu = new QMenu;
 
@@ -95,14 +95,6 @@ void CxApp::initTrayIcon()
     QObject::connect(actionQuit, SIGNAL(triggered()), m_app, SLOT(quit()), Qt::QueuedConnection);
 
     m_trayIcon->show();
-}
-
-void CxApp::initShortcut()
-{
-    m_shortcut = new QGlobalShortcut(QKeySequence(Qt::CTRL + Qt::Key_T), this);
-    connect(m_shortcut,&QGlobalShortcut::activated, this, [this](){
-        emit systemNotify(GlobalShorcut, QPrivateSignal{});
-    });
 }
 
 // do nothing yet.

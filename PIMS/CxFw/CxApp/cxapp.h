@@ -32,9 +32,7 @@ public:
     void setGlobalShortcut(const QKeySequence& keyseq);
     bool setupSingleInstance();
 
-private:
-    void initTrayIcon();
-    void initShortcut();
+    void initTrayIcon(bool quitOnClose);
 
 private slots:
     void onTrayActivated(QSystemTrayIcon::ActivationReason reason);

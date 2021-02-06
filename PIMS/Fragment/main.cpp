@@ -1,8 +1,6 @@
 #include <QQmlApplicationEngine>
 #include <QQuickStyle>
 #include <QDir>
-#include <QDialog>
-#include <QLabel>
 #include <QDebug>
 #include <QQmlContext>
 #include <CxCore/cxurls.h>
@@ -11,11 +9,9 @@
 
 int main(int argc, char *argv[])
 {
-    CxApp::setup("Writer","0.0.1");
+    CxApp::setup("Fragments","0.0.1");
     QApplication app(argc, argv);
     CxApp a(&app);
-    a.initTrayIcon(false);
-    a.setGlobalShortcut(QKeySequence(Qt::CTRL + Qt::Key_T));
 
     if(a.setupSingleInstance()) {
         QDir dir = QDir::current();
@@ -27,7 +23,7 @@ int main(int argc, char *argv[])
         const QString host = s.get("host").toString();
         const int port = s.get("port").toInt();
         QQmlContext *ctx = engine.rootContext();
-        ctx->setContextProperty("URLs", new CxUrls("https", host, port, "writer", ctx));
+        ctx->setContextProperty("URLs", new CxUrls("https", host, port, "fragments", ctx));
 
         const QUrl url(QStringLiteral("qrc:/main.qml"));
         QObject::connect(&engine, &QQmlApplicationEngine::objectCreated,
