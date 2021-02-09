@@ -120,10 +120,9 @@ ApplicationWindow {
 
                 delegate: App.MessageItem {
                     anchors.right: parent === null ? undefined : parent.right
-                    anchors.rightMargin: theme.padding
                     text: model.content
                     fontSize: theme.bodyContentPointSize
-                    textWidth: app.messageBlockSize
+                    textWidth: msgView.width
                 }
 
                 MouseArea {

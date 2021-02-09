@@ -8,6 +8,24 @@
 #include "syntaxdefinitions.h"
 #include <QDebug>
 
+struct TagInfo {
+    md::Tag tag{md::Tag::None};
+    int start;
+    int stop;
+};
+
+struct DocFormat {
+    QFont font;
+    QVector<TagInfo> tags;
+
+    TagInfo top() {
+        if (!tags.isEmpty()) {
+            return *tags.end();
+        }
+        return TagInfo{};
+    }
+};
+
 SyntaxHighlighter::SyntaxHighlighter(QObject *parent)
     : QSyntaxHighlighter(parent)
     , m_timer(new QBasicTimer())
@@ -64,8 +82,9 @@ void SyntaxHighlighter::timerEvent(QTimerEvent *ev)
 // text to html
 void SyntaxHighlighter::highlightBlock(const QString &text)
 {
+    using namespace md;
     qDebug() << "block text: " << text;
-    // QRegularExpression regex;
+    QRegularExpression regex{R"(\*\*|\`)"};
 
     // parseToken();
 
@@ -73,6 +92,22 @@ void SyntaxHighlighter::highlightBlock(const QString &text)
 
     if (text.startsWith(md::Head)) {
         formatHead(text);
+    } else {
+        DocFormat fs;
+        QRegularExpressionMatchIterator it = regex.globalMatch(text);
+        while (it.hasNext()) {
+            QRegularExpressionMatch m = it.next();
+            if (m.hasMatch()) {
+                TagInfo tag;
+                if (m.captured(1) == "**") {
+                    tag.tag = Tag::Bold;
+                }
+                tag.start = m.capturedStart(1);
+                tag.stop = m.capturedEnd(1);
+
+                fs.tags.push_back(tag);
+            }
+        }
     }
 }
 
