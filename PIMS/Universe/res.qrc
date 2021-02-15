@@ -1,0 +1,23 @@
+<RCC>
+    <qresource prefix="/">
+        <file>icons/Universe-logo.png</file>
+        <file>icons/home.svg</file>
+        <file>icons/pen-nib.svg</file>
+        <file>icons/comments.svg</file>
+        <file>icons/th-list.svg</file>
+        <file>main.qml</file>
+        <file>icons/cog.svg</file>
+        <file>icons/box-open.svg</file>
+        <file>icons/question-circle.svg</file>
+        <file>icons/question.svg</file>
+        <file>ui/FileBoxPage.qml</file>
+        <file>ui/FragsPage.qml</file>
+        <file>ui/HomePage.qml</file>
+        <file>ui/NaviBar.qml</file>
+        <file>ui/SettingsPage.qml</file>
+        <file>ui/TodosPage.qml</file>
+        <file>ui/WriterPage.qml</file>
+        <file>qml/AppConfigs.js</file>
+        <file>ui/MessageItem.qml</file>
+    </qresource>
+</RCC>
