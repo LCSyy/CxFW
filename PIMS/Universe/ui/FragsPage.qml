@@ -6,23 +6,12 @@ import Universe 0.1
 import "../qml" as Universe
 import "../qml/AppConfigs.js" as Config
 import "../qml/CxFw.js" as CxFw
-import "../qml/BoxTheme.js"
+import "../qml/BoxTheme.js" as BoxTheme
 
 Pane {
     id: pane
     padding: 0
     background: Rectangle { color: "white" }
-
-    QtObject {
-        id: theme
-        readonly property int radius: 4
-        readonly property int padding: 16
-        readonly property int spacing: 16
-        readonly property int bodyContentPointSize: Qt.application.font.pointSize + 2
-        readonly property color background: "#ECECEC"
-        readonly property color foreground: "#FAFAFA"
-        readonly property color blockBorder: "#AAA"
-    }
 
     CxListModel {
         id: msgsModel
@@ -69,19 +58,19 @@ Pane {
 
     ColumnLayout {
         anchors.fill: parent
-        spacing: 8
+        spacing: BoxTheme.spacing * 4
 
         ListView {
             id: msgView
             Layout.fillHeight: true
             Layout.fillWidth: true
-            spacing: theme.spacing
+            spacing: BoxTheme.spacing * 4
             model: msgsModel
 
             delegate: MessageItem {
                 anchors.right: parent === null ? undefined : parent.right
                 text: model.content
-                fontSize: theme.bodyContentPointSize
+                fontSize:  Qt.application.font.pointSize + 2
                 textWidth: msgView.width
             }
 

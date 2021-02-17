@@ -71,6 +71,10 @@ else()
     endif()
 endif()
 
+if(WIN32)
+  target_link_options(Universe PRIVATE -mwindows)
+endif()
+
 target_link_libraries(Universe
     PRIVATE
         Qt${QT_VERSION_MAJOR}::Widgets
