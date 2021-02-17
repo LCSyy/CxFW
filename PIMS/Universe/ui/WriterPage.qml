@@ -7,6 +7,7 @@ import Universe 0.1
 import CxQuick 0.1
 import CxQuick.Controls 0.1 as Cx
 //import CxQuick.App 0.1 as CxApp
+import "../qml" as Universe
 import "../qml/AppConfigs.js" as AppConfig
 
 Pane {
@@ -65,11 +66,11 @@ Pane {
                     anchors.rightMargin: CxTheme.baseMargin
                     anchors.bottomMargin: 2
 
-                    Button { action: actionNew }
-                    Button { action: actionTags }
-                    Button { action: actionTrash }
+                    Universe.Button { action: actionNew }
+                    Universe.Button { action: actionTags }
+                    Universe.Button { action: actionTrash }
                     Item { Layout.fillWidth: true }
-                    Button { action: actionRefresh }
+                    Universe.Button { action: actionRefresh }
                 }
 
                 Rectangle {
@@ -546,12 +547,12 @@ Pane {
                         anchors.leftMargin: CxTheme.baseMargin
                         anchors.rightMargin: CxTheme.baseMargin
 
-                        Button {
+                        Universe.Button {
                             visible: popup.editable
                             action: actionSave
                         }
 
-                        Button {
+                        Universe.Button {
                             visible: popup.editable
                             text: qsTr("Edit tags")
                             onClicked: {
@@ -560,7 +561,7 @@ Pane {
                             }
                         }
 
-                        Button {
+                        Universe.Button {
                             visible: popup.editable
                             text: qsTr("Remove")
                             onClicked: {
@@ -576,7 +577,7 @@ Pane {
                             }
                         }
 
-                        Button {
+                        Universe.Button {
                             visible: !popup.editable
                             text: qsTr("Recovery")
                             onClicked: {
@@ -591,7 +592,7 @@ Pane {
                             }
                         }
 
-                        Button {
+                        Universe.Button {
                             visible: !popup.editable
                             text: qsTr("Delete")
                             onClicked: {
@@ -611,7 +612,7 @@ Pane {
                             Layout.fillWidth: true
                         }
 
-                        Button {
+                        Universe.Button {
                             text: qsTr("Close")
                             onClicked: {
                                 if (popup.changed) {
@@ -642,7 +643,7 @@ Pane {
                                 model: CxListModel {
                                     roleNames: ["id","title"]
                                 }
-                                delegate: Button {
+                                delegate: Universe.Button {
                                     text: model.title
                                 }
                             }
@@ -762,7 +763,7 @@ Pane {
                         anchors.leftMargin: 8
                         anchors.rightMargin: 8
 
-                        Button {
+                        Universe.Button {
                             text: qsTr("New")
                             onClicked: {
                                 var tag = tagEditComponent.createObject(popup.contentItem);
@@ -775,7 +776,7 @@ Pane {
                             Layout.fillWidth: true
                         }
 
-                        Button {
+                        Universe.Button {
                             text: qsTr("Close")
                             onClicked: popup.close()
                         }
@@ -828,7 +829,7 @@ Pane {
                                 }
                             }
 
-                            delegate: Button {
+                            delegate: Universe.Button {
                                 text: model.title
                                 onClicked: {
                                     var tag = tagEditComponent.createObject(popup.contentItem);
@@ -901,7 +902,7 @@ Pane {
                             Layout.fillWidth: true
                         }
 
-                        Button {
+                        Universe.Button {
                             text: qsTr("Close")
                             onClicked: popup.close()
                         }
@@ -1037,7 +1038,7 @@ Pane {
                         anchors.leftMargin: CxTheme.baseMargin
                         anchors.rightMargin: CxTheme.baseMargin
 
-                        Button {
+                        Universe.Button {
                             text: qsTr("Save")
                             onClicked: {
                                 mask.showMask();
@@ -1080,7 +1081,7 @@ Pane {
                             }
                         }
 
-                        Button {
+                        Universe.Button {
                             text: qsTr("Remove")
                             onClicked: {
                                 // URLs.service("writer").tagsUrl() + popup.tagID
@@ -1098,7 +1099,7 @@ Pane {
                             Layout.fillWidth: true
                         }
 
-                        Button {
+                        Universe.Button {
                             text: qsTr("Close")
                             onClicked: {
                                 popup.close();
@@ -1147,7 +1148,7 @@ Pane {
                         anchors.leftMargin: CxTheme.baseMargin
                         anchors.rightMargin: CxTheme.baseMargin
 
-                        Button {
+                        Universe.Button {
                             text: qsTr("Ok")
                             onClicked: {
                                 const checkedTags = tagsModel.checkedTags();
@@ -1159,7 +1160,7 @@ Pane {
                             Layout.fillWidth: true
                         }
 
-                        Button {
+                        Universe.Button {
                             text: qsTr("Close")
                             onClicked: {
                                 popup.close();
@@ -1210,7 +1211,7 @@ Pane {
                                 }
                             }
 
-                            delegate: Button {
+                            delegate: Universe.Button {
                                 text: model.title
                                 checkable: true
                                 checked: model.check
@@ -1291,7 +1292,7 @@ Pane {
                         anchors.leftMargin: CxTheme.baseMargin
                         anchors.rightMargin: CxTheme.baseMargin
 
-                        Button {
+                        Universe.Button {
                             text: qsTr("Save")
                             onClicked: {
                                 popup.accept();
@@ -1299,7 +1300,7 @@ Pane {
                             }
                         }
 
-                        Button {
+                        Universe.Button {
                             text: qsTr("Not Save")
                             onClicked: {
                                 popup.reject();
@@ -1311,7 +1312,7 @@ Pane {
                             Layout.fillWidth: true
                         }
 
-                        Button {
+                        Universe.Button {
                             text: qsTr("Close")
                             onClicked: {
                                 popup.close();

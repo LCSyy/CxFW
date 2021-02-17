@@ -8,6 +8,7 @@
 #include "cxsettings.h"
 #include "cxlistmodel.h"
 #include "cxurls.h"
+#include "cxnetwork.h"
 
 static void setSystemTrayIcon(QObject *w, QMenu *menu);
 static void registerTypes(QObject *parent);
@@ -70,11 +71,13 @@ void registerTypes(QObject *parent) {
     qmlRegisterType<CxListModel>("Universe", 0, 1, "CxListModel");
 
     CxSettings *s = new CxSettings(parent);
+    qmlRegisterSingletonInstance("Universe", 0, 1, "CxSettings", s);
+
     const QString host = s->get("host").toString();
     const int port = s->get("port").toInt();
-
     CxUrls *url = new CxUrls("https", host, port, "writer", parent);
-
-    qmlRegisterSingletonInstance("Universe", 0, 1, "CxSettings", s);
     qmlRegisterSingletonInstance("Universe", 0, 1, "URLs", url);
+
+    CxNetwork *network = new CxNetwork(parent);
+    qmlRegisterSingletonInstance("Universe", 0, 1, "CxNetwork", network);
 }

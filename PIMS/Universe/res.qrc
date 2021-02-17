@@ -19,5 +19,7 @@
         <file>ui/WriterPage.qml</file>
         <file>qml/AppConfigs.js</file>
         <file>ui/MessageItem.qml</file>
+        <file>qml/Button.qml</file>
+        <file>qml/CxFw.js</file>
     </qresource>
 </RCC>

@@ -39,6 +39,8 @@ set(PROJECT_SOURCES
         cxurls.h
         cxlistmodel.cpp
         cxlistmodel.h
+        cxnetwork.cpp
+        cxnetwork.h
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
