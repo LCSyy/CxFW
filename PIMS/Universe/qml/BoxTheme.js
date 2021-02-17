@@ -41,6 +41,7 @@ const color4 = "#a61b29" // 苋菜红
 const color5 = "#495c69" // 战舰灰
 const color6 = "#74787a" // 嫩灰
 const color7 = "#f1939c" // 春梅红
+const color8 = "#baccd9" // 云水蓝
 
 const toolBarHeight = 40
 const contentHeight = 25

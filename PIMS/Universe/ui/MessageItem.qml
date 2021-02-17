@@ -1,6 +1,6 @@
 import QtQuick 2.15
 import QtQuick.Controls 2.15
-import CxQuick 0.1
+import "../qml/BoxTheme.js" as BoxTheme
 
 Item {
     property alias text: msg.text
@@ -12,7 +12,7 @@ Item {
 
     Rectangle {
         anchors.fill: parent
-        color: "#baccd9" // 云水蓝
+        color: BoxTheme.color8
         radius: 4
     }
 

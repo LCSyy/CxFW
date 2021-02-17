@@ -18,6 +18,29 @@ ApplicationWindow {
         requestActivate()
     }
 
+    function loadPage(name) {
+        loginPageConnection.target = null;
+        if ("login" === name || Sys.getData("login") !== true) {
+            pages.source = "qrc:/ui/LoginPage.qml"
+            loginPageConnection.target = pages.item
+        } else {
+            if ("home" === name) {
+                pages.source = "qrc:/ui/HomePage.qml"
+                homePageConnection.target = pages.item
+            } else if ("writer" === name) {
+                pages.source = "qrc:/ui/WriterPage.qml"
+            } else if ("frags" === name) {
+                pages.source = "qrc:/ui/FragsPage.qml"
+            } else if ("todos" === name) {
+                pages.source = "qrc:/ui/TodosPage.qml"
+            } else if ("file-box" === name) {
+                pages.source = "qrc:/ui/FileBoxPage.qml"
+            }
+        }
+    }
+
+    Component.onCompleted: CxNetwork.enableHttps(true)
+
     Connections {
         target: Sys
 
@@ -29,29 +52,36 @@ ApplicationWindow {
         }
     }
 
+    Connections {
+        id: loginPageConnection
+        target: null
+        function onLogin(ok) {
+            window.loadPage(naviBar.currentPageName)
+        }
+    }
+
+    Connections {
+        id: homePageConnection
+        target: null
+
+        function onBackToLogin() {
+            window.loadPage("login")
+        }
+    }
+
+
     Ui.NaviBar {
         id: naviBar
         height: window.height
 
-        onCurrentPageNameChanged: loadPage(currentPageName)
+        onCurrentPageNameChanged: {
+            // check login
+            window.loadPage(currentPageName)
+        }
 
         onOtherButtonClicked: {
             if ("settings" === name) {
                 settings.open()
-            }
-        }
-
-        function loadPage(name) {
-            if ("home" === name) {
-                pages.source = "qrc:/ui/HomePage.qml"
-            } else if ("writer" === name) {
-                pages.source = "qrc:/ui/WriterPage.qml"
-            } else if ("frags" === name) {
-                pages.source = "qrc:/ui/FragsPage.qml"
-            } else if ("todos" === name) {
-                pages.source = "qrc:/ui/TodosPage.qml"
-            } else if ("file-box" === name) {
-                pages.source = "qrc:/ui/FileBoxPage.qml"
             }
         }
     }
@@ -65,6 +95,7 @@ ApplicationWindow {
         Loader {
             id: pages
             anchors.fill: parent
+            source: "qrc:/ui/HomePage.qml"
         }
 
 

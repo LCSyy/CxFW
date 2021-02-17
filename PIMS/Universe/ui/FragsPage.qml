@@ -14,6 +14,31 @@ Pane {
     background: Rectangle { color: "white" }
 
     CxListModel {
+        id: contactsModel
+        roleNames: ["avatar", "name","msgBrief"]
+
+        Component.onCompleted: update();
+
+        function update() {
+            contactsModel.append({avatar: "#897946", name: "Chat Bot", msgBrief: "Chat Bot"})
+            contactsModel.append({avatar: "#ABCDAB", name: "HeMengling", msgBrief: "He Mengling"})
+//            CxNetwork.get(URLs.service("fragments").url(""),  Config.basicAuth(), (resp)=>{
+//                              try {
+//                                  msgsModel.clear();
+//                                  const reply = JSON.parse(resp);
+//                                  const body = reply.body || [];
+//                                  for (var i in body) {
+//                                    msgsModel.append(body[i]);
+//                                  }
+//                              } catch(e) {
+//                                  console.log(e.toString());
+//                              }
+//                              msgView.positionViewAtEnd()
+//                          })
+        }
+    }
+
+    CxListModel {
         id: msgsModel
         roleNames: ["id","content","created_at"]
 
@@ -56,108 +81,176 @@ Pane {
         }
     }
 
-    ColumnLayout {
+    SplitView {
         anchors.fill: parent
-        spacing: BoxTheme.spacing * 4
 
-        ListView {
-            id: msgView
-            Layout.fillHeight: true
-            Layout.fillWidth: true
-            spacing: BoxTheme.spacing * 4
-            model: msgsModel
+        ColumnLayout {
+            SplitView.minimumWidth: 200
+            SplitView.maximumWidth: 300
+            SplitView.fillHeight: true
+            ListView{
+                id: contactsView
+                Layout.fillWidth: true
+                Layout.fillHeight: true
+                model: contactsModel
 
-            delegate: MessageItem {
-                anchors.right: parent === null ? undefined : parent.right
-                text: model.content
-                fontSize:  Qt.application.font.pointSize + 2
-                textWidth: msgView.width
+                delegate: contactComponent
             }
-
-            MouseArea {
-                acceptedButtons: Qt.RightButton
-                anchors.fill: parent
-                onClicked: {
-                    const idx = CxFw.mouseClickMapToListViewIndex(this, msgView, mouse);
-                    msgView.currentIndex = idx;
-                    if (idx !== -1) {
-                        msgMenu.popup();
-                        mouse.accepted = true;
-                    }
-                }
-            }
-
-            Menu {
-                id: msgMenu
-
-                Action {
-                    text: qsTr("Remove")
-                    onTriggered: {
-                        const idx = msgView.currentIndex;
-                        const m = msgsModel.get(idx) || null;
-                        if (m === null) { return; }
-
-                        CxNetwork.del(URLs.service("fragments").url("/"+m.id), Config.basicAuth(), (resp)=>{
-                                           try {
-                                              msgsModel.remove(idx);
-                                           } catch(e) {
-                                               console.log('[ERROR] Remove tag:'+JSON.stringify(e));
-                                           }
-                                       })
-                    }
-                }
-            }
-
         }
 
-        Rectangle {
-            Layout.fillWidth: true
-            Layout.minimumHeight: msgBlock.height + 16
-            color: "#baccd9"
-            RowLayout {
-                id: msgBlock
-                anchors.margins: 0
-                anchors.left: parent.left
-                anchors.right: parent.right
-                anchors.verticalCenter: parent.verticalCenter
-                anchors.leftMargin: 8
-                anchors.rightMargin: 8
+        ColumnLayout {
+            SplitView.fillWidth: true
+            SplitView.fillHeight: true
+            SplitView.minimumWidth: 400
+            spacing: BoxTheme.spacing * 4
 
-                function sendMsg() {
-                    const msg = msgArea.text.trim()
-                    if (msg.length > 0) {
-                        msgsModel.pushMessage(msg)
-                    }
-                    msgArea.text = ""
+            ListView {
+                id: msgView
+                Layout.fillHeight: true
+                Layout.fillWidth: true
+                spacing: BoxTheme.spacing * 4
+                model: msgsModel
+
+                delegate: MessageItem {
+                    anchors.right: parent === null ? undefined : parent.right
+                    text: model.content
+                    fontSize:  Qt.application.font.pointSize + 2
+                    textWidth: Math.min(msgView.width, 540)
                 }
 
-                ScrollView {
-                    Layout.fillWidth: true
-
-                    contentHeight: Math.min(msgArea.contentHeight + msgArea.topPadding + msgArea.bottomPadding, 300)
-
-                    ScrollBar.horizontal.policy: ScrollBar.AlwaysOff
-
-                    TextArea {
-                        id: msgArea
-                        width: parent.width
-                        wrapMode: TextEdit.WrapAnywhere
-                        background: Rectangle { }
-                        Keys.onPressed: {
-                            if ((event.key === Qt.Key_Return) && (event.modifiers & Qt.ControlModifier)) {
-                                msgBlock.sendMsg()
-                            }
+                MouseArea {
+                    acceptedButtons: Qt.RightButton
+                    anchors.fill: parent
+                    onClicked: {
+                        const idx = CxFw.mouseClickMapToListViewIndex(this, msgView, mouse);
+                        msgView.currentIndex = idx;
+                        if (idx !== -1) {
+                            msgMenu.popup();
+                            mouse.accepted = true;
                         }
                     }
                 }
 
-                Universe.Button {
-                    text: qsTr("Send")
-                    Layout.alignment: Qt.AlignBottom
-                    onClicked: msgBlock.sendMsg()
+                Menu {
+                    id: msgMenu
+
+                    Action {
+                        text: qsTr("Remove")
+                        onTriggered: {
+                            const idx = msgView.currentIndex;
+                            const m = msgsModel.get(idx) || null;
+                            if (m === null) { return; }
+
+                            CxNetwork.del(URLs.service("fragments").url("/"+m.id), Config.basicAuth(), (resp)=>{
+                                               try {
+                                                  msgsModel.remove(idx);
+                                               } catch(e) {
+                                                   console.log('[ERROR] Remove tag:'+JSON.stringify(e));
+                                               }
+                                           })
+                        }
+                    }
+                }
+
+            }
+
+            Rectangle {
+                Layout.fillWidth: true
+                Layout.minimumHeight: msgBlock.height + BoxTheme.margins * 2
+                color: BoxTheme.color8
+
+                RowLayout {
+                    id: msgBlock
+                    anchors.left: parent.left
+                    anchors.right: parent.right
+                    anchors.verticalCenter: parent.verticalCenter
+                    anchors.leftMargin:BoxTheme.leftMargin
+                    anchors.rightMargin: BoxTheme.rightMargin
+                    spacing: BoxTheme.spacing
+
+                    function sendMsg() {
+                        const msg = msgArea.text.trim()
+                        if (msg.length > 0) {
+                            msgsModel.pushMessage(msg)
+                        }
+                        msgArea.text = ""
+                    }
+
+                    ScrollView {
+                        Layout.fillWidth: true
+                        contentHeight: Math.min(msgArea.contentHeight + msgArea.topPadding + msgArea.bottomPadding, 300)
+
+                        ScrollBar.horizontal.policy: ScrollBar.AlwaysOff
+
+                        TextArea {
+                            id: msgArea
+                            width: parent.width
+                            wrapMode: TextEdit.WrapAnywhere
+                            background: Rectangle { }
+                            Keys.onPressed: {
+                                if ((event.key === Qt.Key_Return) && (event.modifiers & Qt.ControlModifier)) {
+                                    msgBlock.sendMsg()
+                                }
+                            }
+                        }
+                    }
+
+                    Universe.Button {
+                        text: qsTr("Send")
+                        Layout.alignment: Qt.AlignBottom
+                        onClicked: msgBlock.sendMsg()
+                    }
                 }
             }
         }
     }
 
+    Component {
+        id: contactComponent
+
+        Column {
+            width: parent.width
+            height: bodyRow.height + border.height
+            spacing: 0
+
+            Row {
+                id: bodyRow
+                x: BoxTheme.leftMargin
+                width: parent.width
+                height: avatar.height + BoxTheme.margins * 2
+                spacing: BoxTheme.spacing
+
+                Rectangle {
+                    id: avatar
+                    width: 40
+                    height: 40
+                    anchors.verticalCenter: parent.verticalCenter
+                    color: model.avatar
+                    radius: width / 2
+                }
+
+                Column {
+                    spacing: BoxTheme.spacing
+                    anchors.verticalCenter: parent.verticalCenter
+
+                    Text {
+                        text: model.name
+                        font.bold: true
+                        font.pointSize: Qt.application.font.pointSize + 2
+                    }
+
+                    Text {
+                        text: model.msgBrief
+                    }
+                }
+            }
+
+            Rectangle {
+                id: border
+                width: parent.width
+                height: 1
+                color: BoxTheme.backgroundDeep
+            }
+        }
+    }
 }

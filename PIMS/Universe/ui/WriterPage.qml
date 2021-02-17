@@ -21,7 +21,6 @@ Pane {
     }
 
     Component.onCompleted: {
-        CxNetwork.enableHttps(true);
         actionRefresh.trigger();
     }
 

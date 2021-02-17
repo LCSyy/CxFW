@@ -59,7 +59,7 @@ Container {
             ListElement { name: "frags"; icon: "qrc:/icons/comments.svg"; text: qsTr("Frags") }
             ListElement { name: "todos"; icon: "qrc:/icons/th-list.svg"; text: qsTr("Todos") }
             ListElement { name: "file-box"; icon: "qrc:/icons/box-open.svg"; text: qsTr("Box") }
-            ListElement { name: "help"; icon: "qrc:/icons/question-circle.svg"; text: qsTr("Help") }
+            // ListElement { name: "help"; icon: "qrc:/icons/question-circle.svg"; text: qsTr("Help") }
         }
 
         Button {

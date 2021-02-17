@@ -30,5 +30,6 @@
         <file>qml/MainPage.qml</file>
         <file>qml/Popup.qml</file>
         <file>qml/BoxTheme.js</file>
+        <file>ui/LoginPage.qml</file>
     </qresource>
 </RCC>

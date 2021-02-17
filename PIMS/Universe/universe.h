@@ -2,6 +2,7 @@
 #define UNIVERSE_H
 
 #include <QObject>
+#include <QVariantMap>
 
 class Universe : public QObject
 {
@@ -15,8 +16,14 @@ public:
         ActiveByRun,
     };
 
+    Q_INVOKABLE void setData(const QString &key, const QVariant &data);
+    Q_INVOKABLE QVariant getData(const QString &key) const;
+
 signals:
     void notify(int reason);
+
+private:
+    QVariantMap m_datas;
 };
 
 #endif // UNIVERSE_H
