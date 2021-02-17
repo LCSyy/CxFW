@@ -21,5 +21,14 @@
         <file>ui/MessageItem.qml</file>
         <file>qml/Button.qml</file>
         <file>qml/CxFw.js</file>
+        <file>qml/Banner.qml</file>
+        <file>qml/LinkItem.qml</file>
+        <file>qml/Mask.qml</file>
+        <file>qml/OneColumnTreeView.qml</file>
+        <file>qml/Badge.qml</file>
+        <file>qml/HomePage.qml</file>
+        <file>qml/MainPage.qml</file>
+        <file>qml/Popup.qml</file>
+        <file>qml/BoxTheme.js</file>
     </qresource>
 </RCC>

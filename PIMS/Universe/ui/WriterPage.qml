@@ -4,24 +4,15 @@ import QtQuick.Layouts 1.15
 import Qt.labs.settings 1.1
 
 import Universe 0.1
-import CxQuick 0.1
-import CxQuick.Controls 0.1 as Cx
-//import CxQuick.App 0.1 as CxApp
 import "../qml" as Universe
 import "../qml/AppConfigs.js" as AppConfig
+import "../qml/BoxTheme.js" as BoxTheme
+import "../qml/CxFw.js" as CxFw
 
 Pane {
     id: app
     padding: 0
-
-    implicitWidth: Math.max(implicitBackgroundWidth + leftInset + rightInset,
-                            implicitContentWidth + leftPadding + rightPadding)
-    implicitHeight: Math.max(implicitBackgroundHeight + topInset + bottomInset,
-                             implicitContentHeight + topPadding + bottomPadding)
-
-    background: Rectangle {
-        color: "white"
-    }
+    background: Rectangle { color: "white" }
 
     QtObject {
         id: uiConf
@@ -34,36 +25,19 @@ Pane {
         actionRefresh.trigger();
     }
 
-    function showWindow() {
-        app.showNormal()
-        app.raise()
-        app.requestActivate()
-    }
-
-//        Connections {
-//            target: CxApp.Sys
-
-//            function onSystemNotify(reason) {
-//                // double clicked & global shortcut & active by run
-//                if (reason === 2 || reason === 5 || reason === 6) {
-//                    app.showWindow()
-//                }
-//            }
-//        }
-
-        Cx.MainPage {
+        Universe.MainPage {
             id: mainPage
             anchors.fill: parent
 
-            background: Rectangle {
-                 color: "#e2e1e4" // 芡食白
-            }
+//            background: Rectangle {
+//                 color: "#e2e1e4" // 芡食白
+//            }
 
             header: ToolBar {
                 RowLayout {
                     anchors.fill: parent
-                    anchors.leftMargin: CxTheme.baseMargin
-                    anchors.rightMargin: CxTheme.baseMargin
+                    anchors.leftMargin: BoxTheme.leftMargin
+                    anchors.rightMargin: BoxTheme.rightMargin
                     anchors.bottomMargin: 2
 
                     Universe.Button { action: actionNew }
@@ -77,7 +51,7 @@ Pane {
                     width: parent.width
                     anchors.bottom: parent.bottom
                     height:1
-                    color: CxTheme.bgDeepColor
+                    color: BoxTheme.backgroundDeep
                 }
             }
 
@@ -200,7 +174,7 @@ Pane {
                     id: navi
                     SplitView.preferredWidth: CxSettings.get(AppConfig.settings.naviSizeName) === undefined ? AppConfig.settings.naviSize : CxSettings.get(AppConfig.settings.naviSizeName)
                     SplitView.maximumWidth: parent.width * 0.8
-                    SplitView.minimumWidth: tagsView.contentWidth
+                    SplitView.minimumWidth: 200
                     SplitView.fillHeight: true
 
                     Component.onDestruction: {
@@ -208,11 +182,10 @@ Pane {
                     }
 
                     Rectangle {
-                        color: BoxTheme.backgroundInActive
                         width: parent.width
                         height: parent.height
 
-                        OneColumnTreeView {
+                        Universe.OneColumnTreeView {
                             id: tagsView
                             clip: true
                             anchors.fill: parent
@@ -372,7 +345,7 @@ Pane {
                         clip: true
                         model: contentsModel
 
-                        delegate: LinkItem {
+                        delegate: Universe.LinkItem {
                             width: parent !== null ? parent.width - BoxTheme.rightPadding : 0
 
                             text: '<a href="%1" style="color:black">%2</a>'.replace('%1',model.id).replace('%2',model.title)
@@ -461,14 +434,14 @@ Pane {
         Component {
             id: contentComponent
 
-            Cx.Popup {
+            Universe.Popup {
                 id: popup
 
                 signal ok(int id)
                 property int postID: 0
                 property bool editable: true
                 property bool changed: false
-                property Cx.Popup tagEditor: null
+                property Universe.Popup tagEditor: null
 
                 closePolicy: Popup.NoAutoClose
                 implicitWidth: {
@@ -544,8 +517,8 @@ Pane {
                 header: ToolBar {
                     RowLayout {
                         anchors.fill: parent
-                        anchors.leftMargin: CxTheme.baseMargin
-                        anchors.rightMargin: CxTheme.baseMargin
+                        anchors.leftMargin: BoxTheme.leftMargin
+                        anchors.rightMargin: BoxTheme.rightMargin
 
                         Universe.Button {
                             visible: popup.editable
@@ -652,7 +625,7 @@ Pane {
                         Rectangle {
                             Layout.fillWidth: true
                             height: 1
-                            color: CxTheme.bgDeepColor
+                            color: BoxTheme.backgroundDeep
                         }
 
                         ScrollView {
@@ -666,8 +639,8 @@ Pane {
                                 wrapMode: CxSettings.get(AppConfig.settings.contentLineWrap) === "true" ? TextArea.WrapAnywhere : TextArea.NoWrap
                                 selectByMouse: true
                                 font.pointSize: CxSettings.get(AppConfig.settings.contentFontPointSize)
-                                leftPadding: CxTheme.baseMargin * 2
-                                rightPadding: CxTheme.baseMargin * 2
+                                leftPadding: BoxTheme.leftPadding * 2
+                                rightPadding: BoxTheme.rightPadding * 2
 
                                 CxSyntaxHighlighter {
                                     target: textArea.textDocument
@@ -683,7 +656,7 @@ Pane {
 
                 footer: Text {
                     id: createdAtField
-                    padding: CxTheme.baseMargin
+                    padding: BoxTheme.padding
                     horizontalAlignment: Qt.AlignRight
                 }
 
@@ -746,7 +719,7 @@ Pane {
         Component {
             id: tagsComponent
 
-            Cx.Popup {
+            Universe.Popup {
                 id: popup
                 implicitWidth: {
                     var dw = parent.width * 0.8;
@@ -881,7 +854,7 @@ Pane {
         Component {
             id: trashComponent
 
-            Cx.Popup {
+            Universe.Popup {
                 id: popup
                 implicitWidth: {
                     var dw = parent.width * 0.8;
@@ -895,8 +868,8 @@ Pane {
                 header: ToolBar {
                     RowLayout {
                         anchors.fill: parent
-                        anchors.leftMargin: CxTheme.baseMargin
-                        anchors.rightMargin: CxTheme.baseMargin
+                        anchors.leftMargin: BoxTheme.leftMargin
+                        anchors.rightMargin: BoxTheme.rightMargin
 
                         Item {
                             Layout.fillWidth: true
@@ -962,11 +935,11 @@ Pane {
 
                     delegate: Item {
                         width: trashView.contentItem !== null ? trashView.contentItem.width : 0
-                        height: CxTheme.contentHeight
+                        height: BoxTheme.contentHeight
 
                         Text {
                             anchors.fill: parent
-                            anchors.leftMargin: CxTheme.baseMargin * 2
+                            anchors.leftMargin: BoxTheme.leftMargin * 2
                             anchors.bottomMargin: 1
                             font.pointSize: app.font.pointSize + 2
                             textFormat: Text.RichText
@@ -988,10 +961,10 @@ Pane {
 
                         Rectangle {
                             anchors.bottom: parent.bottom
-                            width: parent.width - CxTheme.baseMargin * 2
+                            width: parent.width - BoxTheme.margins * 2
                             height: 1
-                            x: CxTheme.baseMargin
-                            color: CxTheme.bgNormalColor
+                            x: BoxTheme.margins
+                            color: BoxTheme.backgroundNormal
                         }
                     }
                 }
@@ -1011,7 +984,7 @@ Pane {
         Component {
             id: tagEditComponent
 
-            Cx.Popup {
+            Universe.Popup {
                 id: popup
                 implicitWidth: 300
                 implicitHeight: 200
@@ -1035,8 +1008,8 @@ Pane {
                 header: ToolBar {
                     RowLayout {
                         anchors.fill: parent
-                        anchors.leftMargin: CxTheme.baseMargin
-                        anchors.rightMargin: CxTheme.baseMargin
+                        anchors.leftMargin: BoxTheme.leftMargin
+                        anchors.rightMargin: BoxTheme.rightMargin
 
                         Universe.Button {
                             text: qsTr("Save")
@@ -1113,7 +1086,7 @@ Pane {
                     implicitHeight: 100
                     Row {
                         anchors.centerIn: parent
-                        spacing: CxTheme.baseMargin
+                        spacing: BoxTheme.spacing
                         Label { text: qsTr("Tag") }
                         TextField { id: tagTitleField }
                     }
@@ -1124,7 +1097,7 @@ Pane {
         Component {
             id: contentTagEditComponent
 
-            Cx.Popup {
+            Universe.Popup {
                 id: popup
 
                 signal ok(var tags)
@@ -1145,8 +1118,8 @@ Pane {
                 header: ToolBar {
                     RowLayout {
                         anchors.fill: parent
-                        anchors.leftMargin: CxTheme.baseMargin
-                        anchors.rightMargin: CxTheme.baseMargin
+                        anchors.leftMargin: BoxTheme.leftMargin
+                        anchors.rightMargin: BoxTheme.rightMargin
 
                         Universe.Button {
                             text: qsTr("Ok")
@@ -1278,7 +1251,7 @@ Pane {
         Component {
             id: changeAlertComponent
 
-            Cx.Popup {
+            Universe.Popup {
                 id: popup
                 implicitWidth: 300
                 implicitHeight: 200
@@ -1289,8 +1262,7 @@ Pane {
                 header: ToolBar {
                     RowLayout {
                         anchors.fill: parent
-                        anchors.leftMargin: CxTheme.baseMargin
-                        anchors.rightMargin: CxTheme.baseMargin
+                        anchors.rightMargin: BoxTheme.rightMargin
 
                         Universe.Button {
                             text: qsTr("Save")
@@ -1333,13 +1305,13 @@ Pane {
             }
         }
 
-        Cx.Banner {
+        Universe.Banner {
             id: banner
             x: visible ? app.width - implicitWidth - 4 : app.width + 4
             y: app.height - implicitHeight - 4
         }
 
-        Mask {
+        Universe.Mask {
             id: mask
             anchors.fill: parent
             maskItem: mainPage

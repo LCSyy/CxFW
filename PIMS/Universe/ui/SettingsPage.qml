@@ -6,12 +6,6 @@ import Universe 0.1
 import "../qml/AppConfigs.js" as AppConfig
 
 Pane {
-
-    implicitWidth: Math.max(implicitBackgroundWidth + leftInset + rightInset,
-                            implicitContentWidth + leftPadding + rightPadding)
-    implicitHeight: Math.max(implicitBackgroundHeight + topInset + bottomInset,
-                             implicitContentHeight + topPadding + bottomPadding)
-
     background: Rectangle {
         color: "white"
     }

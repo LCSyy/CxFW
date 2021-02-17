@@ -8,9 +8,26 @@ import "./ui" as Ui
 ApplicationWindow {
     id: window
     title: qsTr("Universe")
-    width: 800
-    height:580
+    width: 900
+    height: 640
     visible: true
+
+    function showWindow() {
+        showNormal()
+        raise()
+        requestActivate()
+    }
+
+    Connections {
+        target: Sys
+
+        function onNotify(reason) {
+            // double clicked & global shortcut & active by run
+            if (reason === 2 || reason === 5 || reason === 6) {
+                window.showWindow()
+            }
+        }
+    }
 
     Ui.NaviBar {
         id: naviBar
@@ -54,8 +71,8 @@ ApplicationWindow {
         Popup {
             id: settings
 
-            width: mainItem.width * 0.9
-            height: mainItem.height * 0.9
+            width: Math.min(mainItem.width * 0.9, 800)
+            height: Math.min(mainItem.height * 0.9, 600)
             anchors.centerIn: mainItem
             dim: true
 

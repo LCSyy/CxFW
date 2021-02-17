@@ -32,6 +32,8 @@ set(PROJECT_SOURCES
         res.qrc
         logo.rc
         consts.h
+        universe.cpp
+        universe.h
 
         cxsettings.cpp
         cxsettings.h
@@ -41,6 +43,16 @@ set(PROJECT_SOURCES
         cxlistmodel.h
         cxnetwork.cpp
         cxnetwork.h
+
+        MarkdownSyntaxHighlighter/cxquicksyntaxhighlighter.cpp
+        MarkdownSyntaxHighlighter/cxquicksyntaxhighlighter.h
+        MarkdownSyntaxHighlighter/markdownhighlighter.cpp
+        MarkdownSyntaxHighlighter/markdownhighlighter.h
+        MarkdownSyntaxHighlighter/qownlanguagedata.cpp
+        MarkdownSyntaxHighlighter/qownlanguagedata.h
+
+        QGlobalShortcut/qglobalshortcut.cc
+        QGlobalShortcut/qglobalshortcut.h
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)

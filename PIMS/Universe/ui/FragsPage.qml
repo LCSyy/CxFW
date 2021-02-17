@@ -6,14 +6,11 @@ import Universe 0.1
 import "../qml" as Universe
 import "../qml/AppConfigs.js" as Config
 import "../qml/CxFw.js" as CxFw
+import "../qml/BoxTheme.js"
 
 Pane {
     id: pane
     padding: 0
-    topInset: 0
-    bottomInset: 0
-    leftInset: 0
-    rightInset: 0
     background: Rectangle { color: "white" }
 
     QtObject {
