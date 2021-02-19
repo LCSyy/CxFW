@@ -159,7 +159,7 @@ Pane {
                                                contentsModel.append(body[i]);
                                            }
                                        } catch(e) {
-                                           console.log(e,'; Response:',resp);
+                                           console.log(e, '; Response:', resp);
                                        }
                                        mask.hideMask();
                                    });

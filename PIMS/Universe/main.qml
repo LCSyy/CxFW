@@ -69,7 +69,6 @@ ApplicationWindow {
         }
     }
 
-
     Ui.NaviBar {
         id: naviBar
         height: window.height
@@ -95,7 +94,7 @@ ApplicationWindow {
         Loader {
             id: pages
             anchors.fill: parent
-            source: "qrc:/ui/HomePage.qml"
+            source: "qrc:/ui/LoginPage.qml"
         }
 
 
