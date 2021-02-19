@@ -10,6 +10,10 @@ Item {
 
     Component.onCompleted: {
         Sys.setData("login", false)
+
+        CxNetwork.del(URLs.service("login").url(""), Config.basicAuth(), (resp)=>{
+                          // ...
+                      })
     }
 
     Column {

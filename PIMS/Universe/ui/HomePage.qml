@@ -29,6 +29,8 @@ Pane {
         anchors.bottom: parent.bottom
         anchors.margins: BoxTheme.margins
         text: qsTr("Go to Login.")
-        onClicked: page.backToLogin()
+        onClicked:  {
+            page.backToLogin()
+        }
     }
 }
