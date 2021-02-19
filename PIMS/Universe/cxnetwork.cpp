@@ -3,9 +3,12 @@
 #include <QNetworkReply>
 #include <QNetworkRequest>
 #include <QJsonDocument>
+#include <QHttpMultiPart>
+#include <QHttpPart>
 #include <QJsonObject>
 #include <QJSValueIterator>
 #include <QFile>
+#include <QFileInfo>
 
 namespace {
 QString verbString(const CxNetwork::Verbs verb) {
@@ -87,6 +90,37 @@ void CxNetwork::del(const QUrl &url, const QJSValue &header, const QJSValue &han
 void CxNetwork::del2(const QUrl &url, const QJSValue &header, const QJSValue &body, const QJSValue &handler)
 {
     request(Verbs::DELETE2, url, header, body, handler);
+}
+
+void CxNetwork::upload(const QUrl &url, const QJSValue &header, const QStringList &resList, const QJSValue &handler)
+{
+    qDebug() << QString("[%1]").arg(::verbString(Verbs::POST)) << url.toString();
+    QNetworkRequest req = newRequest(url, header);
+
+    QFile f;
+    for (const QString &res: resList) {
+        if (!QFileInfo::exists(res)) { continue; }
+
+        f.setFileName(res);
+        if (!f.open(QFile::ReadOnly)) { continue; }
+
+        QHttpPart part;
+        part.setHeader(QNetworkRequest::ContentTypeHeader, QVariant("application/"));
+        part.setHeader(QNetworkRequest::ContentDispositionHeader, QVariant("form-data; name=\"uploads\""));
+        part.setBodyDevice(&f);
+
+        f.close();
+    }
+
+    QHttpMultiPart *multiParty = new QHttpMultiPart(QHttpMultiPart::FormDataType);
+
+    QNetworkReply *reply = m_networkAccessMgr->post(req, multiParty);
+    multiParty->setParent(reply);
+
+    if (reply && handler.isCallable()) {
+        m_responseHanlders.insert(reply, handler);
+        connect(reply, SIGNAL(finished()), this, SLOT(onReply()));
+    }
 }
 
 void CxNetwork::onReply()

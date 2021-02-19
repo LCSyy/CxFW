@@ -25,7 +25,7 @@ SplitView {
     }
 
     Item {
-        width: 300
+        SplitView.fillWidth: true
         SplitView.fillHeight: true
         SplitView.minimumWidth: 160
         Image {
