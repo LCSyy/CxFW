@@ -39,7 +39,7 @@ public slots:
     void del(const QUrl &url, const QJSValue &header, const QJSValue &handler=QJSValue());
     void del2(const QUrl &url, const QJSValue &header, const QJSValue &body=QJSValue(), const QJSValue &handler=QJSValue());
     void upload(const QUrl &url, const QJSValue &header, const QStringList &resList, const QJSValue &handler=QJSValue());
-    void download(const QUrl &url, const QJSValue &header, const QString &res, const QJSValue &handler=QJSValue());
+    void download(const QUrl &url, const QJSValue &header, const QString &query = QString("name"), const QJSValue &handler=QJSValue());
 
 private slots:
     void onReply();

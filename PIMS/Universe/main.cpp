@@ -38,7 +38,9 @@ int main(int argc, char *argv[])
     QCoreApplication::setApplicationVersion("0.0.1");
 
     QApplication a(argc, argv);
+#if !defined(QT_DEBUG)
     a.setQuitOnLastWindowClosed(false);
+#endif
 
     Universe *sys = new Universe(&a);
     if (!setupSingletonApp(sys)) {

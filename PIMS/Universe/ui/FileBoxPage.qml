@@ -2,9 +2,37 @@ import QtQuick 2.15
 import QtQuick.Controls 2.15
 
 import Universe 0.1
+import "../qml" as Universe
+import "../qml/AppConfigs.js" as Config
 
 SplitView {
+    id: page
     orientation: Qt.Horizontal
+
+    CxListModel {
+        id: filesModel
+        roleNames: ["fileName"]
+        Component.onCompleted: update()
+
+        function update() {
+            CxNetwork.get(URLs.service("sys").url("/fs/all/"), Config.basicAuth(), (resp) => {
+                              try {
+                                  filesModel.clear();
+                                  const res = JSON.parse(resp);
+                                  if (res.err === null) {
+                                      for (var i in res.body) {
+                                          const fileName = res.body[i] || "";
+                                          if (fileName.length > 0) {
+                                              filesModel.append({fileName:fileName});
+                                          }
+                                      }
+                                  }
+                              } catch(e) {
+                                  console.log('FileBoxPage.qml - CxListModel::update',JSON.stringify(e));
+                              }
+                          });
+        }
+    }
 
     ScrollView {
         SplitView.fillWidth: true
@@ -12,15 +40,8 @@ SplitView {
         ListView {
             boundsBehavior: ListView.StopAtBounds
             boundsMovement: ListView.FollowBoundsBehavior
-
-            model: CxListModel {
-                id: filesModel
-                roleNames: ["url"]
-            }
-
-            delegate: Text {
-                text: model.url
-            }
+            model: filesModel
+            delegate: fileComponent
         }
     }
 
@@ -38,11 +59,82 @@ SplitView {
         }
         DropArea {
             anchors.fill: parent
-
             onDropped: {
                 if (drop.hasUrls) {
                     for (var i in drop.urls) {
-                        filesModel.append({url:drop.urls[i]})
+                        filesModel.append({fileName:Sys.fileName(drop.urls[i])})
+                        CxNetwork.upload(URLs.service("sys").url("/fs/"), Config.basicAuth(), [drop.urls[i]], (resp)=>{
+                                             console.log('[upload reply] ' + JSON.stringify(resp));
+                                         })
+                    }
+                }
+            }
+        }
+    }
+
+    Component {
+        id: fileComponent
+        Item {
+            width: parent.width
+            height: 34
+            Text {
+                text: "<a href=\"{0}\">{1}</a>".replace("{0}", model.fileName).replace("{1}", model.fileName)
+                anchors.fill: parent
+                anchors.bottomMargin: 1
+                color: "black"
+                leftPadding: 8
+                verticalAlignment: Qt.AlignVCenter
+                font.pointSize: Qt.application.font.pointSize + 2
+
+                onLinkActivated: {
+                    var pp = optionComponent.createObject(page)
+                    pp.fileName = link
+                    pp.open()
+                }
+            }
+
+            Rectangle {
+                width: parent.width
+                anchors.bottom: parent.bottom
+                height: 1
+                color: "black"
+            }
+        }
+    }
+
+    Component {
+        id: optionComponent
+
+        Universe.Popup {
+            id: popup
+            implicitWidth: 300
+            implicitHeight: 200
+            property string fileName: ""
+
+            body: Item {
+                Row {
+                    anchors.centerIn: parent
+                    Button {
+                        text: qsTr("Download")
+                        onClicked: {
+                            if (popup.fileName.length > 0) {
+                                CxNetwork.download(URLs.service("sys").url("/fs/", "name="+popup.fileName), Config.basicAuth(), "name", (resp)=>{
+                                                       console.log('[download reply] ' + resp);
+                                                   });
+                            }
+                        }
+                    }
+                    Button {
+                        text: qsTr("Delete")
+                        onClicked: {
+                            if (popup.fileName.length > 0) {
+                                CxNetwork.del(URLs.service("sys").url("/fs/", "name="+popup.fileName), Config.basicAuth(), (resp)=>{
+                                                  console.log('[del file reply] ' + resp);
+                                                  filesModel.update();
+                                                  popup.close();
+                                              });
+                            }
+                        }
                     }
                 }
             }

@@ -19,6 +19,8 @@ public:
     Q_INVOKABLE void setData(const QString &key, const QVariant &data);
     Q_INVOKABLE QVariant getData(const QString &key) const;
 
+    Q_INVOKABLE QString fileName(const QUrl &url) const;
+
 signals:
     void notify(int reason);
 

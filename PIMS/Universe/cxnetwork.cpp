@@ -7,8 +7,12 @@
 #include <QHttpPart>
 #include <QJsonObject>
 #include <QJSValueIterator>
+#include <QUrlQuery>
 #include <QFile>
 #include <QFileInfo>
+#include <QMimeDatabase>
+#include <QDir>
+#include <QStandardPaths>
 
 namespace {
 QString verbString(const CxNetwork::Verbs verb) {
@@ -96,30 +100,85 @@ void CxNetwork::upload(const QUrl &url, const QJSValue &header, const QStringLis
 {
     qDebug() << QString("[%1]").arg(::verbString(Verbs::POST)) << url.toString();
     QNetworkRequest req = newRequest(url, header);
+    QHttpMultiPart *multiPart = new QHttpMultiPart(QHttpMultiPart::FormDataType);
+    req.setHeader(QNetworkRequest::ContentTypeHeader, QString("multipart/form-data; boundary=%1").arg(QString(multiPart->boundary())));
 
     QFile f;
+    QMimeDatabase mimeDB;
     for (const QString &res: resList) {
-        if (!QFileInfo::exists(res)) { continue; }
-
-        f.setFileName(res);
+        QUrl url(res);
+#if defined(Q_OS_WIN32)
+        QString resPath = url.path();
+        if (resPath.startsWith("/")) {
+            resPath.remove(0,1);
+        }
+#else
+        const QString resPath = url.path();
+#endif
+        if (!QFileInfo::exists(resPath)) { continue; }
+        f.setFileName(resPath);
         if (!f.open(QFile::ReadOnly)) { continue; }
 
-        QHttpPart part;
-        part.setHeader(QNetworkRequest::ContentTypeHeader, QVariant("application/"));
-        part.setHeader(QNetworkRequest::ContentDispositionHeader, QVariant("form-data; name=\"uploads\""));
-        part.setBodyDevice(&f);
+        QFileInfo info(f);
+        QMimeType mime = mimeDB.mimeTypeForFile(info);
+        qDebug() << resPath << info.fileName() << ":" << mime.name();
 
+        QHttpPart part;
+        part.setHeader(QNetworkRequest::ContentTypeHeader, mime.name());
+        part.setHeader(QNetworkRequest::ContentDispositionHeader,
+                       QVariant(QString(R"(form-data; name="uploads"; filename="%1")").arg(info.fileName())));
+        part.setBodyDevice(nullptr);
+        part.setBody(f.readAll());
         f.close();
+
+        multiPart->append(part);
     }
 
-    QHttpMultiPart *multiParty = new QHttpMultiPart(QHttpMultiPart::FormDataType);
+    QNetworkReply *reply = m_networkAccessMgr->post(req, multiPart);
+    if (reply) {
+        multiPart->setParent(reply);
 
-    QNetworkReply *reply = m_networkAccessMgr->post(req, multiParty);
-    multiParty->setParent(reply);
+        if (handler.isCallable()) {
+            m_responseHanlders.insert(reply, handler);
+            connect(reply, SIGNAL(finished()), this, SLOT(onReply()));
+        }
+    } else {
+        multiPart->deleteLater();
+    }
+}
 
-    if (reply && handler.isCallable()) {
-        m_responseHanlders.insert(reply, handler);
-        connect(reply, SIGNAL(finished()), this, SLOT(onReply()));
+void CxNetwork::download(const QUrl &url, const QJSValue &header, const QString &query, const QJSValue &handler)
+{
+    qDebug() << QString("[%1]").arg(::verbString(Verbs::GET)) << url.toString();
+
+    QUrlQuery urlQuery(url);
+    const QString value = QFileInfo(urlQuery.queryItemValue(query)).fileName();
+
+    QNetworkRequest req = newRequest(url, header);
+    QNetworkReply *reply = m_networkAccessMgr->get(req);
+    if (reply) {
+        QObject::connect(reply, &QNetworkReply::finished, this, [&reply, handler, value](){
+            QDir dir(QStandardPaths::displayName(QStandardPaths::AppDataLocation));
+            if (!dir.exists()) {
+                dir.mkpath("res");
+            }
+
+            const QString filePath = dir.absoluteFilePath(value);
+            QFile f(filePath);
+
+            if (f.open(QFile::WriteOnly)) {
+                f.write(reply->readAll());
+                f.flush();
+                f.close();
+            }
+
+            QJSValue h = handler;
+            if (h.isCallable()) {
+                h.call(QJSValueList() << QJSValue(filePath));
+            }
+
+            reply->deleteLater();
+        });
     }
 }
 
@@ -130,9 +189,10 @@ void CxNetwork::onReply()
         return;
     }
 
-//    qDebug() << "STATUS:" << reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
+    qDebug() << "REPLY:"
+    << reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt()
+    << reply->url().toString();
 
-    qDebug() << "REPLY:" << reply->operation() << reply->url().toString();
     QJSValue handler = m_responseHanlders.take(reply);
     if (handler.isCallable()) {
         handler.call(QJSValueList() << QJSValue(QString(reply->readAll())));
