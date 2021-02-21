@@ -1,11 +1,16 @@
 import QtQuick.Window 2.15
 import QtQuick 2.15
+import QtQuick.Controls 2.15
 
-Rectangle {
-    id: mask
-    color: "#74787a"
-    opacity: 0.6
-    visible: false
+import "." as Universe
+
+Universe.Popup {
+    id: popup
+    width: 300
+    height: 200
+    destroyOnHide: false
+    modal: true
+    closePolicy: Popup.NoAutoClose
 
     property Item maskItem: null
 
@@ -26,12 +31,23 @@ Rectangle {
         visible = false;
     }
 
-    Text {
-        anchors.centerIn: parent
-        text: "Loading ..."
-        font.pointSize: 18
-        font.bold: true
+    body: Item {
+        Text {
+            anchors.centerIn: parent
+            text: "Loading ..."
+            font.pointSize: 18
+            font.bold: true
+        }
+
+        Button {
+            text: qsTr("Cancel")
+            anchors.right: parent.right
+            anchors.bottom: parent.bottom
+            anchors.margins: 16
+            onClicked: popup.hideMask()
+        }
     }
+
 
     Timer {
         id: timer
@@ -47,4 +63,3 @@ Rectangle {
         }
     }
 }
-

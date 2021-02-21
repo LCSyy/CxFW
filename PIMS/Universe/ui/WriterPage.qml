@@ -1312,7 +1312,6 @@ Pane {
 
         Universe.Mask {
             id: mask
-            anchors.fill: parent
             maskItem: mainPage
         }
 }

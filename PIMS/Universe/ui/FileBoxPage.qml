@@ -61,12 +61,19 @@ SplitView {
             anchors.fill: parent
             onDropped: {
                 if (drop.hasUrls) {
+                    var pp = maskComponent.createObject(page);
+                    pp.showMask();
+                    var ress = [];
                     for (var i in drop.urls) {
-                        filesModel.append({fileName:Sys.fileName(drop.urls[i])})
-                        CxNetwork.upload(URLs.service("sys").url("/fs/"), Config.basicAuth(), [drop.urls[i]], (resp)=>{
-                                             console.log('[upload reply] ' + JSON.stringify(resp));
-                                         })
+                        const res = drop.urls[i]
+                        ress.push(res);
+                        filesModel.append({fileName:Sys.fileName(res)});
                     }
+                    CxNetwork.upload(URLs.service("sys").url("/fs/"), Config.basicAuth(), ress, (resp)=>{
+                                         console.log('[upload reply] ' + JSON.stringify(resp));
+                                         filesModel.update();
+                                         pp.hideMask();
+                                     })
                 }
             }
         }
@@ -75,7 +82,7 @@ SplitView {
     Component {
         id: fileComponent
         Item {
-            width: parent.width
+            width: parent !== null ? parent.width : 100
             height: 34
             Text {
                 text: "<a href=\"{0}\">{1}</a>".replace("{0}", model.fileName).replace("{1}", model.fileName)
@@ -139,5 +146,11 @@ SplitView {
                 }
             }
         }
+    }
+
+    Component {
+        id: maskComponent
+
+        Universe.Mask {}
     }
 }

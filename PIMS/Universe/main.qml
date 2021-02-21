@@ -39,7 +39,9 @@ ApplicationWindow {
         }
     }
 
-     Component.onCompleted: CxNetwork.enableHttps(true)
+     Component.onCompleted: {
+         CxNetwork.enableHttps(true)
+     }
 
     Connections {
         target: Sys
@@ -116,5 +118,4 @@ ApplicationWindow {
             }
         }
     }
-
 }

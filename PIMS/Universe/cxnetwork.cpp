@@ -96,16 +96,26 @@ void CxNetwork::del2(const QUrl &url, const QJSValue &header, const QJSValue &bo
     request(Verbs::DELETE2, url, header, body, handler);
 }
 
-void CxNetwork::upload(const QUrl &url, const QJSValue &header, const QStringList &resList, const QJSValue &handler)
+void CxNetwork::upload(const QUrl &url, const QJSValue &header, const QJSValue &resList, const QJSValue &handler)
 {
+    qDebug() << "param:" << resList.toVariant();
     qDebug() << QString("[%1]").arg(::verbString(Verbs::POST)) << url.toString();
+    const QStringList ress = resList.toVariant().toStringList();
+    if (ress.length() <= 0) {
+        if (handler.isCallable()) {
+            QJSValue calle(handler);
+            calle.call(QJSValueList{QJSValue()});
+        }
+        return;
+    }
+
     QNetworkRequest req = newRequest(url, header);
     QHttpMultiPart *multiPart = new QHttpMultiPart(QHttpMultiPart::FormDataType);
     req.setHeader(QNetworkRequest::ContentTypeHeader, QString("multipart/form-data; boundary=%1").arg(QString(multiPart->boundary())));
 
     QFile f;
     QMimeDatabase mimeDB;
-    for (const QString &res: resList) {
+    for (const QString &res: ress) {
         QUrl url(res);
 #if defined(Q_OS_WIN32)
         QString resPath = url.path();
