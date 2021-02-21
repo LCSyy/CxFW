@@ -1,9 +1,0 @@
-<RCC>
-    <qresource prefix="/">
-        <file>main.qml</file>
-        <file>icons/Fragments-logo.png</file>
-        <file>qml/MessageItem.qml</file>
-        <file>qml/Config.js</file>
-        <file>qml/SettingsPage.qml</file>
-    </qresource>
-</RCC>

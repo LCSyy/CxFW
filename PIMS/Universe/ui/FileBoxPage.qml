@@ -61,8 +61,7 @@ SplitView {
             anchors.fill: parent
             onDropped: {
                 if (drop.hasUrls) {
-                    var pp = maskComponent.createObject(page);
-                    pp.showMask();
+                    mask.showMask(0)
                     var ress = [];
                     for (var i in drop.urls) {
                         const res = drop.urls[i]
@@ -72,7 +71,7 @@ SplitView {
                     CxNetwork.upload(URLs.service("sys").url("/fs/"), Config.basicAuth(), ress, (resp)=>{
                                          console.log('[upload reply] ' + JSON.stringify(resp));
                                          filesModel.update();
-                                         pp.hideMask();
+                                         mask.hideMask();
                                      })
                 }
             }
@@ -148,9 +147,8 @@ SplitView {
         }
     }
 
-    Component {
-        id: maskComponent
-
-        Universe.Mask {}
+    Universe.Mask {
+        id: mask
+        msg: "Uploading ..."
     }
 }

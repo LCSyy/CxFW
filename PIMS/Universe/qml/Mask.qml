@@ -13,6 +13,7 @@ Universe.Popup {
     closePolicy: Popup.NoAutoClose
 
     property Item maskItem: null
+    property alias msg: label.text
 
     function showMask(time) { // milliseconds
         if (time === undefined) {
@@ -25,18 +26,19 @@ Universe.Popup {
 
     function hideMask() {
         timer.stop();
-        if (mask.maskItem !== null) {
-            mask.maskItem.enabled = true;
+        if (popup.maskItem !== null) {
+            popup.maskItem.enabled = true;
         }
         visible = false;
     }
 
     body: Item {
         Text {
+            id: label
             anchors.centerIn: parent
-            text: "Loading ..."
             font.pointSize: 18
             font.bold: true
+            text: qsTr("Loading ...")
         }
 
         Button {
@@ -48,7 +50,6 @@ Universe.Popup {
         }
     }
 
-
     Timer {
         id: timer
         repeat: false
@@ -56,9 +57,9 @@ Universe.Popup {
         running: false
 
         onTriggered: {
-            mask.visible = true
-            if (mask.maskItem !== null) {
-                mask.maskItem.enabled = false;
+            popup.visible = true
+            if (popup.maskItem !== null) {
+                popup.maskItem.enabled = false;
             }
         }
     }
