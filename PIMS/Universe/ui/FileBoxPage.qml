@@ -61,6 +61,7 @@ SplitView {
             anchors.fill: parent
             onDropped: {
                 if (drop.hasUrls) {
+                    mask.msg = "Uploading ..."
                     mask.showMask(0)
                     var ress = [];
                     for (var i in drop.urls) {
@@ -120,12 +121,17 @@ SplitView {
             body: Item {
                 Row {
                     anchors.centerIn: parent
+                    spacing: 8
                     Button {
                         text: qsTr("Download")
                         onClicked: {
                             if (popup.fileName.length > 0) {
+                                mask.msg = "Downloading ..."
+                                mask.showMask(0);
                                 CxNetwork.download(URLs.service("sys").url("/fs/", "name="+popup.fileName), Config.basicAuth(), "name", (resp)=>{
+                                                       mask.close();
                                                        console.log('[download reply] ' + resp);
+                                                       popup.close();
                                                    });
                             }
                         }
@@ -149,6 +155,6 @@ SplitView {
 
     Universe.Mask {
         id: mask
-        msg: "Uploading ..."
+        msg: "Waiting ..."
     }
 }

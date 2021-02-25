@@ -113,7 +113,6 @@ void CxNetwork::upload(const QUrl &url, const QJSValue &header, const QJSValue &
     QHttpMultiPart *multiPart = new QHttpMultiPart(QHttpMultiPart::FormDataType);
     req.setHeader(QNetworkRequest::ContentTypeHeader, QString("multipart/form-data; boundary=%1").arg(QString(multiPart->boundary())));
 
-    QFile f;
     QMimeDatabase mimeDB;
     for (const QString &res: ress) {
         QUrl url(res);
@@ -126,10 +125,11 @@ void CxNetwork::upload(const QUrl &url, const QJSValue &header, const QJSValue &
         const QString resPath = url.path();
 #endif
         if (!QFileInfo::exists(resPath)) { continue; }
-        f.setFileName(resPath);
-        if (!f.open(QFile::ReadOnly)) { continue; }
 
-        QFileInfo info(f);
+        QFile *f = new QFile(resPath, multiPart);
+        if (!f->open(QFile::ReadOnly)) { f->deleteLater(); continue; }
+
+        QFileInfo info(*f);
         QMimeType mime = mimeDB.mimeTypeForFile(info);
         qDebug() << resPath << info.fileName() << ":" << mime.name();
 
@@ -137,20 +137,24 @@ void CxNetwork::upload(const QUrl &url, const QJSValue &header, const QJSValue &
         part.setHeader(QNetworkRequest::ContentTypeHeader, mime.name());
         part.setHeader(QNetworkRequest::ContentDispositionHeader,
                        QVariant(QString(R"(form-data; name="uploads"; filename="%1")").arg(info.fileName())));
-        part.setBodyDevice(nullptr);
-        part.setBody(f.readAll());
-        f.close();
-
+        part.setBodyDevice(f);
         multiPart->append(part);
     }
 
     QNetworkReply *reply = m_networkAccessMgr->post(req, multiPart);
     if (reply) {
         multiPart->setParent(reply);
+        // connect(reply, &QNetworkReply::uploadProgress, this, [](qint64 bytesSent, qint64 bytesTotal){
+        //     qDebug() << "Upload:" << QString::number(100 * bytesSent / qreal(bytesTotal)) << "%";
+        // });
+
+        // connect(reply, &QNetworkReply::errorOccurred, this, [](QNetworkReply::NetworkError err){
+        //     qDebug() << err;
+        // });
 
         if (handler.isCallable()) {
             m_responseHanlders.insert(reply, handler);
-            connect(reply, SIGNAL(finished()), this, SLOT(onReply()));
+            connect(reply, &QNetworkReply::finished, this, &CxNetwork::onReply);
         }
     } else {
         multiPart->deleteLater();
@@ -167,6 +171,10 @@ void CxNetwork::download(const QUrl &url, const QJSValue &header, const QString 
     QNetworkRequest req = newRequest(url, header);
     QNetworkReply *reply = m_networkAccessMgr->get(req);
     if (reply) {
+        // QObject::connect(reply, &QNetworkReply::downloadProgress, this, [](qint64 bytesReceived, qint64 bytesTotal){
+        //     qDebug() << "Download:" << QString::number(100 * bytesReceived / qreal(bytesTotal)) << "%";
+        // });
+
         QObject::connect(reply, &QNetworkReply::finished, this, [&reply, handler, value](){
             QDir dir(QStandardPaths::displayName(QStandardPaths::AppDataLocation));
             if (!dir.exists()) {
@@ -207,6 +215,8 @@ void CxNetwork::onReply()
     if (handler.isCallable()) {
         handler.call(QJSValueList() << QJSValue(QString(reply->readAll())));
     }
+
+    reply->deleteLater();
 }
 
 void CxNetwork::sslErrors(QNetworkReply *reply, QList<QSslError> errs)
