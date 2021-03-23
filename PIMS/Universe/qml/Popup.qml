@@ -1,5 +1,6 @@
 import QtQuick 2.15
 import QtQuick.Controls 2.15 as C
+import QtQuick.Layouts 1.15
 
 C.Popup {
 
@@ -7,6 +8,7 @@ C.Popup {
     property alias header: page.header
     property alias footer: page.footer
     property alias body: page.contentItem
+    property alias tools: toolBarItems.children
 
     modal: true
     anchors.centerIn: parent
@@ -27,6 +29,21 @@ C.Popup {
 
     contentItem: C.Page {
         id: page
+        header: C.ToolBar {
+            RowLayout {
+                Item {
+                    id: toolBarItems
+                }
+
+                Item {
+                    Layout.fillWidth: true
+                }
+
+                C.ToolButton {}
+                C.ToolButton {}
+                C.ToolButton {}
+            }
+        }
     }
 
     onVisibleChanged: {

@@ -88,6 +88,7 @@ Pane {
         Action {
             id: actionRefresh
             text: qsTr("Refresh")
+            icon.source: "qrc:/icons/redo-alt.svg"
             onTriggered: {
                 const idx = tagsView.currentIndex;
                 tagsView.update();

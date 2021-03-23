@@ -19,7 +19,9 @@ ApplicationWindow {
     }
 
     function loadPage(name) {
-        loginPageConnection.target = null;
+//        pages.source = "qrc:/ui/Playground.qml";
+//        return;
+//        loginPageConnection.target = null;
         if ("login" === name || Sys.getData("login") !== true) {
             pages.source = "qrc:/ui/LoginPage.qml"
             loginPageConnection.target = pages.item
@@ -95,10 +97,10 @@ ApplicationWindow {
 
         Loader {
             id: pages
+
             anchors.fill: parent
             source: "qrc:/ui/LoginPage.qml"
         }
-
 
         Popup {
             id: settings

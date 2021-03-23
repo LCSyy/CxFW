@@ -31,5 +31,7 @@
         <file>qml/Popup.qml</file>
         <file>qml/BoxTheme.js</file>
         <file>ui/LoginPage.qml</file>
+        <file>ui/Playground.qml</file>
+        <file>icons/redo-alt.svg</file>
     </qresource>
 </RCC>
