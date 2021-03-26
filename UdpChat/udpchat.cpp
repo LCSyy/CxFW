@@ -8,26 +8,15 @@
 #include <QNetworkInterface>
 #include <QNetworkAddressEntry>
 
-constexpr quint16 PORT = 32213;
+constexpr quint16 PORT = 32214;
 
 UdpChat::UdpChat(QObject *parent)
     : QObject(parent)
     , mSocket(new QUdpSocket(this))
 {
-    connect(mSocket, &QUdpSocket::readyRead, this, &UdpChat::onReadyRead);
-
-//    for (const QHostAddress &addr : QNetworkInterface::allAddresses()) {
-//        qDebug() << "host:" << addr;
-//    }
-
-//    for (const QNetworkInterface &inf: QNetworkInterface::allInterfaces()) {
-//        qDebug() << QString("=== %1 ===").arg(inf.name());
-//        for (const QNetworkAddressEntry &entry: inf.addressEntries()) {
-//            qDebug() << entry.broadcast();
-//            qDebug() << entry.ip();
-//            qDebug() << entry.netmask();
-//        }
-//    }
+    mSocket->bind(QHostAddress("127.0.0.1"), 32215);
+    connect(mSocket, &QUdpSocket::readyRead,
+            this, &UdpChat::onReadyRead);
 }
 
 UdpChat::~UdpChat()
@@ -37,15 +26,18 @@ UdpChat::~UdpChat()
 
 void UdpChat::setHost(const QString &host)
 {
+    mSocket->disconnectFromHost();
     mHost.setAddress(host);
-    mSocket->bind(mHost, PORT);
 }
 
 void UdpChat::setSubnet(const QString &net)
 {
     QStringList netInfo = net.split("/");
     if (netInfo.size() > 0) {
-        mHost.setAddress(netInfo.value(0));
+        mSubnet = QHostAddress(netInfo.value(0));
+    }
+    if (netInfo.size() > 1) {
+        mSubnetMask = netInfo.value(1).toInt();
     }
 }
 
@@ -54,7 +46,7 @@ QStringList UdpChat::hostAddrs() const
     QStringList hosts;
     QHostInfo info = QHostInfo::fromName(QHostInfo::localHostName());
     for (const QHostAddress &addr: info.addresses()) {
-        if (addr.isInSubnet(mHost, mSubnetMask)) {
+        if (addr.isInSubnet(mSubnet, mSubnetMask)) {
             hosts.append(addr.toString());
         }
     }
@@ -65,18 +57,17 @@ QStringList UdpChat::hostAddrs() const
 void UdpChat::sendMsg(const QString &peer, const QString &msg)
 {
     QByteArray ba;
-    ba.append(static_cast<char>(Msg::ChatInfo));
+    ba.append(static_cast<char>(Msg::Hello));
     ba.append(msg.toUtf8());
 
-    mSocket->writeDatagram(ba,QHostAddress(peer), PORT);
+    mSocket->writeDatagram(ba, QHostAddress(peer), PORT);
 }
 
 void UdpChat::sendBroadCast()
 {
-    qDebug() << "broad cast";
     QByteArray ba;
     ba.append(static_cast<char>(Msg::Search));
-    ba.append(mHost.toString().toUtf8());
+    ba.append(QString("Hello").toUtf8());
     mSocket->writeDatagram(ba, QHostAddress::Broadcast, PORT);
 }
 
@@ -89,7 +80,15 @@ void UdpChat::onReadyRead()
         if (ba.size() > 0) {
             const char msg = ba.at(0);
             const QString info = QString::fromUtf8(ba.right(ba.size()-1));
-            emit msgReady(msg, datagram.senderAddress().toString(), info);
+            emit msgReady(msg, QHostAddress(datagram.senderAddress().toIPv4Address()).toString(), PORT, info);
         }
+    }
+}
+
+void UdpChat::onDisconnected()
+{
+    if (mHost.toString() != QString("127.0.0.1")) {
+        qDebug() << "set host addr:" << mHost << ":" << 32215;
+        mSocket->bind(mHost, 32214);
     }
 }

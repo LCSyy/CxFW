@@ -14,9 +14,20 @@ ApplicationWindow {
     Connections {
         target: UdpChat
 
-        function onMsgReady(msgType, peer, info) {
-            if (msgType === 2) { // Info
-                replyBox.text = info;
+        function onMsgReady(msgType, peerHost, peerPort, info) {
+            console.log('msg:', msgType, 'host:', peerHost, 'port:', peerPort);
+            switch (msgType) {
+            case 1: // Hello
+                replyBox.text += '<p>{0}: <span style="color:red;">{1}</span></p>'.replace("{0}", peerHost).replace('{1}',info);
+                break;
+            case 2: // Bye
+                break;
+            case 3: // Pending
+                break;
+            case 4: // Search
+                contactsModel.clear();
+                contactsModel.append({peerHost:peerHost, peerPort: peerPort});
+                break;
             }
         }
     }
@@ -37,12 +48,20 @@ ApplicationWindow {
                 }
                 ComboBox {
                     id: hostCombo
+
+                    onCurrentIndexChanged: {
+                        const info = hostModels.get(currentIndex);
+                        if (info) {
+                            UdpChat.setHost(info.host);
+                        }
+                    }
                     model: ListModel {
                         id: hostModels
                         ListElement { host: "127.0.0.1" }
 
                         function update() {
                             hostModels.clear();
+                            hostCombo.currentIndex = -1;
                             const hosts = UdpChat.hostAddrs();
                             for (let h of hosts) {
                                 hostModels.append({host:h});
@@ -108,48 +127,91 @@ ApplicationWindow {
                 }
 
                 ListView {
+                    id: contacts
                     Layout.fillWidth: true
                     Layout.fillHeight: true
+                    clip: true
+                    currentIndex: -1
+                    model: ListModel {
+                        id: contactsModel
+                        ListElement { peerHost: "Nobody"; peerPort: 0 }
+                    }
+                    delegate: Item {
+                        width: contacts.width
+                        height: 40
+                        Text {
+                            anchors.fill: parent
+                            text: model.peerHost
+                            verticalAlignment: Qt.AlignVCenter
+                            // horizontalAlignment: Qt.AlignHCenter
+                            color: model.index === contacts.currentIndex ? "#f1939c" : "black"
+                            font.bold: model.index === contacts.currentIndex ? true : false
+                            font.pointSize: model.index === contacts.currentIndex ? Qt.application.font.pointSize + 2 : Qt.application.font.pointSize
+                        }
+                        Rectangle {
+                            width: parent.width
+                            y: 38
+                            height: model.index === contacts.currentIndex ? 2 : 1
+                            color: model.index === contacts.currentIndex ? "#f1939c" : "grey"
+                        }
+                    }
+                    MouseArea {
+                        anchors.fill: parent
+                        onClicked: {
+                            const p = mapToItem(contacts, mouse.x, mouse.y);
+                            const index = contacts.indexAt(p.x + contacts.contentX, p.y + contacts.contentY);
+                            contacts.currentIndex = index;
+                        }
+                    }
                 }
             }
         }
         Item {
             SplitView.minimumWidth: 200
 
-            SplitView {
+            ColumnLayout {
                 anchors.fill: parent
-                orientation: Qt.Vertical
-                ColumnLayout {
-                    Layout.fillWidth: true
-                    Layout.fillHeight: true
-                    TextEdit {
-                        id: msgBox
-                        Layout.fillWidth: true
-                        Layout.fillHeight: true
-                    }
-
-                    RowLayout {
-                        Layout.fillWidth: true
-                        Layout.margins: 8
-                        Item {
-                            Layout.fillWidth: true
-                        }
-                        Button {
-                            text: qsTr("Send")
-                            onClicked: {
-                                UdpChat.sendMsg("192.168.1.6",msgBox.text.trim())
-                            }
-                        }
-                    }
-                }
-
 
                 TextEdit {
                     id: replyBox
                     Layout.fillWidth: true
                     Layout.fillHeight: true
-
+                    textFormat: TextEdit.RichText
                     readOnly: true
+                }
+
+                RowLayout {
+                    Layout.fillWidth: true
+                    ScrollView {
+                        Layout.fillWidth: true
+                        Layout.maximumHeight: 100
+                        Layout.minimumHeight: sendBtn.height
+                        ScrollBar.horizontal.policy: ScrollBar.AlwaysOff
+                        TextArea {
+                            id: msgBox
+                            background: Rectangle {
+                                implicitWidth: 100
+                                implicitHeight: 40
+                                border.width: 2
+                                border.color: "grey"
+                            }
+                        }
+                    }
+
+                    Button {
+                        id: sendBtn
+                        Layout.alignment: Qt.AlignBottom
+                        text: qsTr("Send")
+                        onClicked: {
+                            const peer = contactsModel.get(contacts.currentIndex) || {};
+                            const peerHost = peer.peerHost || "";
+                            const peerPort = peer.peerPort || 0;
+
+                            const newMsg = msgBox.text.trim();
+                            replyBox.text += "<p>me: {0}</p>".replace("{0}",newMsg);
+                            UdpChat.sendMsg(peerHost, newMsg);
+                        }
+                    }
                 }
             }
         }

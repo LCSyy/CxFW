@@ -10,8 +10,10 @@ QT_END_NAMESPACE
 
 enum class Msg {
     Unknown = 0,
-    Search = 1,
-    ChatInfo = 2,
+    Hello,
+    Bye,
+    Pending,
+    Search,
 };
 
 class UdpChat : public QObject
@@ -19,7 +21,7 @@ class UdpChat : public QObject
     Q_OBJECT
 
 signals:
-    void msgReady(char msgType, const QString &peer, const QString &info);
+    void msgReady(char msgType, const QString &peer, quint16 port, const QString &info);
 
 public:
     explicit UdpChat(QObject *parent = nullptr);
@@ -36,10 +38,12 @@ public slots:
 
 protected slots:
     void onReadyRead();
+    void onDisconnected();
 
 protected:
     QUdpSocket *mSocket {nullptr};
 
+    QHostAddress mSubnet;
     QHostAddress mHost;
     int mSubnetMask {24};
 };
