@@ -38,13 +38,11 @@ public slots:
 
 protected slots:
     void onReadyRead();
-    void onDisconnected();
 
 protected:
     QUdpSocket *mSocket {nullptr};
 
     QHostAddress mSubnet;
-    QHostAddress mHost;
     int mSubnetMask {24};
 };
 

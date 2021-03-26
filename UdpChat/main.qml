@@ -18,7 +18,7 @@ ApplicationWindow {
             console.log('msg:', msgType, 'host:', peerHost, 'port:', peerPort);
             switch (msgType) {
             case 1: // Hello
-                replyBox.text += '<p>{0}: <span style="color:red;">{1}</span></p>'.replace("{0}", peerHost).replace('{1}',info);
+                replyBox.text += '<p><span style="color:red;">{0}:</span> {1}</p>'.replace("{0}", peerHost).replace('{1}',info);
                 break;
             case 2: // Bye
                 break;
@@ -52,9 +52,11 @@ ApplicationWindow {
                     onCurrentIndexChanged: {
                         const info = hostModels.get(currentIndex);
                         if (info) {
+                            console.log('host list - current combo changed', JSON.stringify(info));
                             UdpChat.setHost(info.host);
                         }
                     }
+
                     model: ListModel {
                         id: hostModels
                         ListElement { host: "127.0.0.1" }
@@ -68,8 +70,6 @@ ApplicationWindow {
                             }
                             hostCombo.currentIndex = 0
                         }
-
-                        Component.onCompleted: update()
                     }
                 }
             }
@@ -172,12 +172,18 @@ ApplicationWindow {
             ColumnLayout {
                 anchors.fill: parent
 
-                TextEdit {
-                    id: replyBox
+                ScrollView {
                     Layout.fillWidth: true
                     Layout.fillHeight: true
-                    textFormat: TextEdit.RichText
-                    readOnly: true
+                    ScrollBar.horizontal.policy: ScrollBar.AlwaysOff
+                    TextArea {
+                        id: replyBox
+                        textFormat: TextEdit.RichText
+                        readOnly: true
+                        selectByMouse: true
+                        wrapMode: TextEdit.WrapAtWordBoundaryOrAnywhere
+                    }
+
                 }
 
                 RowLayout {
@@ -189,6 +195,8 @@ ApplicationWindow {
                         ScrollBar.horizontal.policy: ScrollBar.AlwaysOff
                         TextArea {
                             id: msgBox
+                            selectByMouse: true
+                            wrapMode: TextEdit.WrapAtWordBoundaryOrAnywhere
                             background: Rectangle {
                                 implicitWidth: 100
                                 implicitHeight: 40
@@ -208,7 +216,7 @@ ApplicationWindow {
                             const peerPort = peer.peerPort || 0;
 
                             const newMsg = msgBox.text.trim();
-                            replyBox.text += "<p>me: {0}</p>".replace("{0}",newMsg);
+                            replyBox.text += '<p><span style="color:#78AB98">me:</span> {0}</p>'.replace("{0}",newMsg);
                             UdpChat.sendMsg(peerHost, newMsg);
                         }
                     }
