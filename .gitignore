@@ -2,11 +2,11 @@
 *.user
 *.4.8-pre1
 *.exe
-dist/publish.sh
+packages/publish.sh
 
 # ignore path
 build-*/
-dist/bin
+dist/
 build/
 data/
 

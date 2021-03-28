@@ -1,0 +1,10 @@
+module CxFw.CxQuick
+plugin libCxQuickPlugin
+classname CxQuickPlugin
+typeinfo plugins.qmltypes
+singleton BoxTheme 0.1 BoxTheme.qml
+CxScript 0.1 cxfw.js
+LinkItem 0.1 LinkItem.qml
+ListViewHighlighter 0.1 ListViewHighlighter.qml
+Mask 0.1 Mask.qml
+OneColumnTreeView 0.1 OneColumnTreeView.qml
