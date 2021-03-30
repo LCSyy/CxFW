@@ -4,9 +4,9 @@ Item {
     id: canvasContainer
 
     function destroyUnconnectedEdge(edge) {
-        let outSlotItem = edge.outSlot;
-        if (outSlotItem !== null) {
-            let edges = outSlotItem.edges;
+        let fromSlot = edge.from;
+        if (fromSlot !== null) {
+            let edges = fromSlot.edges;
             for (let i in edges) {
                 let e = edges[i];
                 if (e !== null && e === edge) {

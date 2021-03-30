@@ -1,15 +1,15 @@
 import QtQuick 2.15
 
 Rectangle {
-    id: node
+    id: nodeItem
     width: nodeColumn.width + 4
     height: nodeColumn.height + 4
     z: dragArea.drag.active ? 2 : 0
     Drag.active: dragArea.drag.active
     border.width: 2
-    border.color: canvas.curNode === node ? "#fed71a" : "black"
+    border.color: canvas.curNode === nodeItem ? "#fed71a" : "black"
 
-    required property Item canvas
+    required property VCanvas canvas
 
     property alias nodeTitle: nodeText.text
     property alias nodeColor: titleRect.color
@@ -18,6 +18,35 @@ Rectangle {
 
     function removeSelf() {
         // ...
+    }
+
+    MouseArea {
+        id: dragArea
+        anchors.fill: parent
+        drag.target: nodeItem
+        onPressed: {
+            mouse.accepted = true;
+            canvas.curNode = nodeItem;
+        }
+
+        onPositionChanged: {
+            mouse.accepted = true;
+            for (var n in inSlotColumn.children) {
+                var slot = inSlotColumn.children[n];
+                if (slot !== null && slot.updateEdgePos !== undefined) {
+                    slot.updateEdgePos();
+                }
+            }
+
+            for (n in outSlotColumn.children) {
+                slot = outSlotColumn.children[n];
+                if (slot !== null && slot.updateEdgePos !== undefined) {
+                    slot.updateEdgePos();
+                }
+            }
+        }
+
+        onReleased: mouse.accepted = true
     }
 
     Column {
@@ -36,38 +65,11 @@ Rectangle {
                 font.pointSize: Qt.application.font.pointize + 4
                 font.bold: true
                 anchors.fill: parent
+                anchors.leftMargin: 4
                 verticalAlignment: Qt.AlignVCenter
-                horizontalAlignment: Qt.AlignHCenter
+                horizontalAlignment: Qt.AlignLeft
             }
 
-            MouseArea {
-                id: dragArea
-                anchors.fill: parent
-                drag.target: node
-                onPressed: {
-                    mouse.accepted = true;
-                    canvas.curNode = node;
-                }
-
-                onPositionChanged: {
-                    mouse.accepted = true;
-                    for (var n in inSlotColumn.children) {
-                        var slotNode = inSlotColumn.children[n];
-                        if (slotNode !== null && slotNode.updateEdgePos !== undefined) {
-                            slotNode.updateEdgePos();
-                        }
-                    }
-
-                    for (n in outSlotColumn.children) {
-                        slotNode = outSlotColumn.children[n];
-                        if (slotNode !== null && slotNode.updateEdgePos !== undefined) {
-                            slotNode.updateEdgePos();
-                        }
-                    }
-                }
-
-                onReleased: mouse.accepted = true
-            }
         }
 
         Rectangle {
@@ -84,8 +86,12 @@ Rectangle {
                 bottomPadding: 8
                 Repeater {
                     id: repeater
-                    model: node.inParams
-                    delegate: inSlotComponent
+                    model: nodeItem.inParams
+                    delegate: Slot {
+                        slotType: Slot.SlotType.SingleIn
+                        canvas: nodeItem.canvas
+                        node: nodeItem
+                    }
                 }
             }
 
@@ -96,13 +102,18 @@ Rectangle {
                 topPadding: 8
                 bottomPadding: 8
                 Repeater {
-                    model: node.outParams
-                    delegate: outSlotComponent
+                    model: nodeItem.outParams
+                    delegate: Slot {
+                        slotType: Slot.SlotType.MultiOut
+                        canvas: nodeItem.canvas
+                        node: nodeItem
+                    }
                 }
             }
         }
     }
 
+    /*
     Component {
         id: inSlotComponent
 
@@ -275,4 +286,5 @@ Rectangle {
             }
         }
     }
+    */
 }

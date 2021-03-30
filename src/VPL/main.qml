@@ -156,13 +156,7 @@ ApplicationWindow {
 
     Component {
         id: iEdgeComponent
-        EdgeItem {
-            z: 1
-            color: "#568979"
-            property bool connected: false
-            property Item outSlot: null
-            property Item inSlot: null
-        }
+        Edge { }
     }
 
     Component {
@@ -190,6 +184,8 @@ ApplicationWindow {
             header: ToolBar {
                 RowLayout {
                     anchors.fill: parent
+                    anchors.leftMargin: CxStyle.margins
+                    anchors.rightMargin: CxStyle.margins
                     Button {
                         text: qsTr("Ok")
                         onClicked: {
@@ -273,6 +269,8 @@ ApplicationWindow {
                                 RowLayout {
                                     anchors.fill: parent
                                     spacing: 8
+                                    anchors.leftMargin: 8
+                                    anchors.rightMargin: 8
                                     Button {
                                         Layout.fillWidth: true
                                         text: qsTr("+")
@@ -331,6 +329,8 @@ ApplicationWindow {
                                 RowLayout {
                                     anchors.fill: parent
                                     spacing: 8
+                                    anchors.leftMargin: 8
+                                    anchors.rightMargin: 8
                                     Button {
                                         Layout.fillWidth: true
                                         text: qsTr("+")

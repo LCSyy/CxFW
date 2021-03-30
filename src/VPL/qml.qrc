@@ -5,5 +5,7 @@
         <file>CanvasContainer.qml</file>
         <file>VCanvas.qml</file>
         <file>qtquickcontrols2.conf</file>
+        <file>Slot.qml</file>
+        <file>Edge.qml</file>
     </qresource>
 </RCC>
