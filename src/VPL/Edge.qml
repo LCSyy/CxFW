@@ -38,16 +38,19 @@ EdgeItem {
 
     function setFrom(slot) {
         console.log('setFrom', slot.node)
-        if (to !== null && to.node === slot.node) {
-            unset();
-            return;
+        if (to !== null) {
+            if (to.node === slot.node) {
+                unset();
+                return;
+            }
         }
 
-        if (slot.type === Slot.SlotType.SingleIn || slot.type === Slot.SlotType.SingleOut) {
+        console.log('from slot type:',slot.slotType)
+        if (slot.slotType === Slot.SlotType.SingleIn || slot.slotType === Slot.SlotType.SingleOut) {
             slot.clearEdges();
         }
 
-        if (slot.type === Slot.SlotType.SingleBoth) {
+        if (slot.slotType === Slot.SlotType.SingleBoth) {
             slot.clearInEdges();
         }
 
@@ -63,11 +66,12 @@ EdgeItem {
             return;
         }
 
-        if (slot.type === Slot.SlotType.SingleIn || slot.type === Slot.SlotType.SingleOut) {
+        console.log('to slot type:',slot.slotType)
+        if (slot.slotType === Slot.SlotType.SingleIn || slot.slotType === Slot.SlotType.SingleOut) {
             slot.clearEdges();
         }
 
-        if (slot.type === Slot.SlotType.SingleBoth) {
+        if (slot.slotType === Slot.SlotType.SingleBoth) {
             slot.clearOutEdges();
         }
 

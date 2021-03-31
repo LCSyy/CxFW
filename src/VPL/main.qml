@@ -116,6 +116,15 @@ ApplicationWindow {
         Item {
             SplitView.minimumWidth: 300
             SplitView.fillHeight: true
+
+            Column {
+                Repeater {
+                    id: whatFuck
+                    delegate: Text {
+                        text: modelData.name
+                    }
+                }
+            }
         }
 
         CanvasContainer {
@@ -202,7 +211,10 @@ ApplicationWindow {
                                 outParams.push(item);
                             }
 
-                            canvas.addNode(titleField.text.trim(), app.nodeColorInfo(inParams.length, outParams.length), inParams, outParams);
+                            canvas.addNode(titleField.text.trim(),
+                                           app.nodeColorInfo(inParams.length, outParams.length),
+                                           inParams,
+                                           outParams);
                             addNodePopup.close();
                         }
                     }

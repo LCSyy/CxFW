@@ -87,10 +87,19 @@ Rectangle {
                 Repeater {
                     id: repeater
                     model: nodeItem.inParams
-                    delegate: Slot {
-                        slotType: Slot.SlotType.SingleIn
-                        canvas: nodeItem.canvas
-                        node: nodeItem
+                    delegate: Row {
+                        required property var modelData
+
+                        Slot {
+                            slotType: Slot.SlotType.SingleIn
+                            canvas: nodeItem.canvas
+                            node: nodeItem
+                            dropKey: 'slot_out'
+                        }
+
+                        Text {
+                            text: modelData.name
+                        }
                     }
                 }
             }
@@ -103,10 +112,18 @@ Rectangle {
                 bottomPadding: 8
                 Repeater {
                     model: nodeItem.outParams
-                    delegate: Slot {
-                        slotType: Slot.SlotType.MultiOut
-                        canvas: nodeItem.canvas
-                        node: nodeItem
+                    delegate: Row {
+                        required property var modelData
+
+                        Text {
+                            text: modelData.name
+                        }
+                        Slot {
+                            slotType: Slot.SlotType.MultiOut
+                            canvas: nodeItem.canvas
+                            node: nodeItem
+                            dropKey: 'slot_in'
+                        }
                     }
                 }
             }

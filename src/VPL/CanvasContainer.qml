@@ -19,7 +19,7 @@ Item {
 
     DropArea {
         anchors.fill: parent
-        keys: ["edge_out", "edge_in"]
+        keys: ["slot_in", "slot_out"]
         onDropped: {
             if (drop.source && drop.source.edge !== null) {
                 canvasContainer.destroyUnconnectedEdge(drop.source.edge);

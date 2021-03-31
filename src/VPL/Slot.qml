@@ -7,6 +7,7 @@ Item {
 
     required property VCanvas canvas
     required property Item node
+    required property string dropKey
 
     enum SlotType {
         MultiIn,
@@ -19,11 +20,12 @@ Item {
 
     // property Item edge: null
     property var edges: []
-    property int slotType: 0
+    property int slotType: Slot.SlotType.MultiBoth
 
     function updateEdgePos() {
         for (let e of edges) {
             if (e !== null) {
+                console.log('e:', e)
                 e.updatePos();
             }
         }
@@ -100,7 +102,7 @@ Item {
 
         DropArea {
             anchors.fill: parent
-            keys: ['edge_out', 'edge_in']
+            keys: [slotItem.dropKey]
             onEntered: {
                 console.log('out edge entered')
             }
@@ -130,8 +132,13 @@ Item {
                     edge.startPoint = p;
                     edge.stopPoint = p;
                     edge.setFrom(slotItem);
-                    canvas.edgeOutItem.edge = edge;
-                    drag.target = canvas.edgeOutItem;
+                    if (slotItem.dropKey === "slot_in") {
+                        canvas.slotOutItem.edge = edge;
+                        drag.target = canvas.slotOutItem;
+                    } else if (slotItem.dropKey === "slot_out") {
+                        canvas.slotInItem.edge = edge;
+                        drag.target = canvas.slotInItem;
+                    }
                 }
             }
             onPositionChanged: {
@@ -139,15 +146,26 @@ Item {
                 if (canvas.curEdge !== null) {
                     const p = dragArea.mapToItem(canvas, mouse.x, mouse.y);
                     canvas.curEdge.stopPoint = p;
-                    canvas.edgeOutItem.x = p.x - canvas.edgeOutItem.width / 2;
-                    canvas.edgeOutItem.y = p.y - canvas.edgeOutItem.height / 2;
+                    if (slotItem.dropKey === "slot_in") {
+                        canvas.slotOutItem.x = p.x - canvas.slotOutItem.width / 2;
+                        canvas.slotOutItem.y = p.y - canvas.slotOutItem.height / 2;
+                    } else if (slotItem.dropKey === "slot_out") {
+                        canvas.slotInItem.x = p.x - canvas.slotInItem.width / 2;
+                        canvas.slotInItem.y = p.y - canvas.slotInItem.height / 2;
+                    }
                 }
             }
             onReleased: {
                 mouse.accepted = true
-                canvas.edgeOutItem.Drag.active = true;
-                canvas.edgeOutItem.Drag.drop();
-                canvas.edgeOutItem.Drag.active = false;
+                if (slotItem.dropKey === "slot_in") {
+                    canvas.slotOutItem.Drag.active = true;
+                    canvas.slotOutItem.Drag.drop();
+                    canvas.slotOutItem.Drag.active = false;
+                } else if (slotItem.dropKey === "slot_out") {
+                    canvas.slotInItem.Drag.active = true;
+                    canvas.slotInItem.Drag.drop();
+                    canvas.slotInItem.Drag.active = false;
+                }
             }
         }
     }

@@ -5,16 +5,13 @@ Item {
 
     required property Component edgeComponent
     required property Component nodeComponent
-
     property Item curNode: null
     property Item curEdge: null
-
     property int nodeCount: 0
+    readonly property Item slotInItem: dragSlotInItem
+    readonly property Item slotOutItem: dragSlotOutItem
 
-    readonly property Item edgeInItem: dragEdgeInItem
-    readonly property Item edgeOutItem: dragEdgeOutItem
-
-    function addNode(title, color,inParams, outParams) {
+    function addNode(title, color, inParams, outParams) {
         let node = nodeComponent.createObject(canvas,
                                               {
                                                   x: 100, y: 100,
@@ -35,20 +32,20 @@ Item {
     }
 
     Item {
-        id: dragEdgeInItem
+        id: dragSlotInItem
         width: 16
         height: 16
-        Drag.keys: ["edge_in"]
+        Drag.keys: ["slot_in"]
         Drag.hotSpot: Qt.point(8,8)
 
         property Item edge: null
     }
 
     Item {
-        id: dragEdgeOutItem
+        id: dragSlotOutItem
         width: 16
         height: 16
-        Drag.keys: ["edge_out"]
+        Drag.keys: ["slot_out"]
         Drag.hotSpot: Qt.point(8,8)
 
         property Item edge: null
