@@ -87,20 +87,7 @@ Rectangle {
                 Repeater {
                     id: repeater
                     model: nodeItem.inParams
-                    delegate: Row {
-                        required property var modelData
-
-                        Slot {
-                            slotType: Slot.SlotType.SingleIn
-                            canvas: nodeItem.canvas
-                            node: nodeItem
-                            dropKey: 'slot_out'
-                        }
-
-                        Text {
-                            text: modelData.name
-                        }
-                    }
+                    delegate: slotInComponent
                 }
             }
 
@@ -112,20 +99,50 @@ Rectangle {
                 bottomPadding: 8
                 Repeater {
                     model: nodeItem.outParams
-                    delegate: Row {
-                        required property var modelData
-
-                        Text {
-                            text: modelData.name
-                        }
-                        Slot {
-                            slotType: Slot.SlotType.MultiOut
-                            canvas: nodeItem.canvas
-                            node: nodeItem
-                            dropKey: 'slot_in'
-                        }
-                    }
+                    delegate: slotOutComponent
                 }
+            }
+        }
+    }
+
+    Component {
+        id: slotInComponent
+        Row {
+            required property var modelData
+
+            function updateEdgePos() { slot.updateEdgePos(); }
+
+            Slot {
+                id: slot
+                slotType: Slot.SlotType.SingleIn
+                canvas: nodeItem.canvas
+                node: nodeItem
+                dropKey: 'slot_out'
+            }
+
+            Text {
+                text: modelData.name
+            }
+        }
+    }
+
+    Component {
+        id: slotOutComponent
+
+        Row {
+            required property var modelData
+
+            function updateEdgePos() { slot.updateEdgePos(); }
+
+            Text {
+                text: modelData.name
+            }
+            Slot {
+                id: slot
+                slotType: Slot.SlotType.MultiOut
+                canvas: nodeItem.canvas
+                node: nodeItem
+                dropKey: 'slot_in'
             }
         }
     }

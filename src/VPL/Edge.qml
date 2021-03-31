@@ -22,6 +22,7 @@ EdgeItem {
         if (to != null) {
             stopPoint = to.slotPos();
         }
+        console.log('update edge pos:', startPoint, stopPoint)
     }
 
     function unset() {

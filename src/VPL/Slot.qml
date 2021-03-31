@@ -23,7 +23,9 @@ Item {
     property int slotType: Slot.SlotType.MultiBoth
 
     function updateEdgePos() {
+        console.log(edges)
         for (let e of edges) {
+            console.log('update edge:', e)
             if (e !== null) {
                 console.log('e:', e)
                 e.updatePos();
@@ -38,15 +40,20 @@ Item {
     function clearEdges() {
         for (let i = 0; i < edges.length; ) {
             let e = edges[i];
+            console.log('len:',edges.length, 'i: ', i)
             if (e !== null && e.to !== slotItem) {
-                e.to.removeEdge(e);
+                if (e.to !== null) {
+                    e.to.removeEdge(e);
+                }
                 edges.splice(i,1);
                 e.destroy();
             } else if (e !== null && e.from !== slotItem) {
-                e.from.removeEdge(e);
+                if (e.from !== null) {
+                    e.from.removeEdge(e);
+                }
                 edges.splice(i, 1);
                 e.destroy();
-            } else  {
+            } else {
              ++i;
             }
         }
@@ -79,7 +86,7 @@ Item {
     }
 
     function removeEdge(edge) {
-        for (let i = 0; i < edges.length; ++i) {
+        for (let i = 0; i < edges.length; ) {
             let e = edges[i];
             if (e !== null && e.from === slotItem || e.to === slotItem) {
                 edges.splice(i,1);
@@ -90,6 +97,8 @@ Item {
                 if (e.from === slotItem) {
                     e.from = null;
                 }
+            } else {
+                ++i;
             }
         }
     }
