@@ -5,7 +5,7 @@ project(CxControls)
 set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../../cmake")
 include(CxFw)
 
-set(PROJECT_INSTALL_DIR "${CXFW_BINARY_DIR}/CxFw/CxControls")
+set(PROJECT_INSTALL_DIR "${CXFW_BINARY_DIR}/CxFw/Controls")
 
 set(PROJECT_QML_SOURCES
     qmldir

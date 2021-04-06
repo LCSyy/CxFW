@@ -1,4 +1,4 @@
-module CxQuick.Controls
+module CxFw.Controls
 Badge 0.1 Badge.qml
 Banner 0.1 Banner.qml
 HomePage 0.1 HomePage.qml
