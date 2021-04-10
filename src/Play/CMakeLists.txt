@@ -18,9 +18,15 @@ set(QML_IMPORT_PATH "${CXFW_BINARY_DIR}" CACHE PATH "QML import path")
 find_package(QT NAMES Qt6 Qt5 COMPONENTS Core Quick REQUIRED)
 find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Core Quick REQUIRED)
 
+list(APPEND CONFIG qmltypes)
+set(QML_IMPORT_PATH "CxFw.Quick")
+set(QML_IMPORT_MAJOR_VERSION 1)
+
 set(PROJECT_SOURCES
         main.cpp
         qml.qrc
+        backend.cpp
+        backend.h
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)

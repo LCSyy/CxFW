@@ -3,6 +3,7 @@ import QtQuick.Window 2.15
 import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.15
 import QtGraphicalEffects 1.12
+import App 1.1
 
 Window {
     width: 800
@@ -12,9 +13,38 @@ Window {
 
     Loader {
         anchors.centerIn: parent
-        sourceComponent: glowComponent
+        sourceComponent: chatBubbleComponent
     }
 
+    Component {
+        id: chatBubbleComponent
+
+        Rectangle {
+            id: bubble
+            width: 200
+            height: 300
+            radius: 8
+            color: "#89ABCD"
+            layer.enabled: true
+            layer.effect: Glow {
+                radius: 16
+                samples: 33
+                color: "#e5e5e5"
+            }
+
+            TextEdit {
+                anchors.fill: parent
+                padding: 16
+                text: qsTr('各种文字，表情😄，图片，以及链接https://github.com。')
+                textFormat: Text.RichText
+                wrapMode: Text.WordWrap
+                selectByMouse: true
+                readOnly: true
+            }
+        }
+    }
+
+    // 演示光晕特效
     Component {
         id: glowComponent
 

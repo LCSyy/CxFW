@@ -41,7 +41,7 @@ T.ComboBox {
         contextType: "2d"
 
         Connections {
-        target: control
+            target: control
             function onPressedChanged() { canvas.requestPaint(); }
         }
 
@@ -52,7 +52,7 @@ T.ComboBox {
             context.lineTo(width, 0);
             context.lineTo(width / 2, height);
             context.closePath();
-            context.fillStyle = control.pressed ? "grey" : "white";
+            context.fillStyle = "grey";
             context.fill();
         }
     }
@@ -67,20 +67,19 @@ T.ComboBox {
             elide: Text.ElideRight
             verticalAlignment: Text.AlignVCenter
         }
-        highlighted: control.highlightedIndex === index
     }
 
     popup: Popup {
         width: control.width
         implicitHeight: contentItem.implicitHeight + 2
-        padding: 1
+        padding: 0
 
         contentItem: ListView {
             id: itemView
             clip: true
             implicitHeight: contentHeight
             model: control.popup.visible ? control.delegateModel : null
-            currentIndex: control.highlightedIndex
+            currentIndex: control.currentIndex
             ScrollIndicator.vertical: ScrollIndicator { }
         }
 

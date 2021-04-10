@@ -2,5 +2,8 @@
     <qresource prefix="/">
         <file>main.qml</file>
         <file>qtquickcontrols2.conf</file>
+        <file>qml/SendMsgArea.qml</file>
+        <file>qml/MsgItem.qml</file>
+        <file>qml/TextRect.qml</file>
     </qresource>
 </RCC>

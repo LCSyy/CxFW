@@ -16,7 +16,7 @@ T.TextField {
     background: Rectangle {
         implicitWidth: 100
         implicitHeight: 25
-        border.color: control.enabled ? "grey" : CxStyle.backgroundInActive
-        border.width: control.enabled ? 2 : 1
+        border.color: control.activeFocus ? CxStyle.controlActive : CxStyle.controlInActive
+        border.width: control.activeFocus ? 2 : 1
     }
 }

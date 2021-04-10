@@ -2,12 +2,13 @@ import QtQuick 2.15
 import QtQuick.Window 2.15
 import QtQuick.Layouts 1.15
 import QtQuick.Controls 2.15
-
+import CxFw.CxQuick 0.1
 import UChat 0.1
+import "./qml" as UChat
 
 ApplicationWindow {
-    width: 640
-    height: 480
+    width: 800
+    height: 600
     visible: true
     title: qsTr("Hello World")
 
@@ -175,54 +176,36 @@ ApplicationWindow {
 
             ColumnLayout {
                 anchors.fill: parent
-
                 ScrollView {
                     Layout.fillWidth: true
                     Layout.fillHeight: true
                     ScrollBar.horizontal.policy: ScrollBar.AlwaysOff
-                    TextArea {
-                        id: replyBox
-                        textFormat: TextEdit.RichText
-                        readOnly: true
-                        selectByMouse: true
-                        wrapMode: TextEdit.WrapAtWordBoundaryOrAnywhere
+                    ListView {
+                        id: msgView
+                        anchors.fill: parent
+                        boundsBehavior: Flickable.StopAtBounds
+                        spacing: 16
+                        model: CxListModel {
+                            id: msgModel
+                            roleNames: ["content"]
+                        }
+                        delegate: UChat.MsgItem {
+                            width: msgView.width
+                            color: index % 2 === 0 ? "#ABCDEF" : "white"
+                            text: model.content
+                        }
                     }
-
                 }
 
-                RowLayout {
+                UChat.SendMsgArea {
                     Layout.fillWidth: true
-                    ScrollView {
-                        Layout.fillWidth: true
-                        Layout.maximumHeight: 100
-                        Layout.minimumHeight: sendBtn.height
-                        ScrollBar.horizontal.policy: ScrollBar.AlwaysOff
-                        TextArea {
-                            id: msgBox
-                            selectByMouse: true
-                            wrapMode: TextEdit.WrapAtWordBoundaryOrAnywhere
-                            background: Rectangle {
-                                implicitWidth: 100
-                                implicitHeight: 40
-                                border.width: 2
-                                border.color: "grey"
-                            }
-                        }
-                    }
-
-                    Button {
-                        id: sendBtn
-                        Layout.alignment: Qt.AlignBottom
-                        text: qsTr("Send")
-                        onClicked: {
-                            const peer = contactsModel.get(contacts.currentIndex) || {};
-                            const peerHost = peer.peerHost || "";
-                            const peerPort = peer.peerPort || 0;
-
-                            const newMsg = msgBox.text.trim();
-                            replyBox.text += '<p><span style="color:#78AB98">me:</span> {0}</p>'.replace("{0}",newMsg);
-                            UdpChat.sendMsg(peerHost, newMsg);
-                        }
+                    onSendMsg: {
+                        const peer = contactsModel.get(contacts.currentIndex) || {};
+                        const peerHost = peer.peerHost || "";
+                        const peerPort = peer.peerPort || 0;
+                        msgModel.append({content: msg});
+                        msgView.positionViewAtEnd();
+                        UdpChat.sendMsg(peerHost, msg);
                     }
                 }
             }
